@@ -1,0 +1,82 @@
+{
+  "count": 5,
+  "delay_minutes": 15,
+  "whale_min_usd": 10000,
+  "trades": [
+    {
+      "platform": "polymarket",
+      "condition_id": "0x9deb0baac40648821f96f01339229a422e2f5c877de55dc4dbf981f95a1e709c",
+      "market_title": "Will the Fed cut rates in September 2026?",
+      "market_slug": "fed-rate-cut-september-2026",
+      "category": "economics",
+      "side": "BUY_YES",
+      "price": 0.62,
+      "size_usd": 48211.55,
+      "wallet": "0x8fe808b62f334fdcc7c1b1ce24450c8c86e368ac",
+      "wallet_score": 87,
+      "wallet_win_rate_30d": 0.71,
+      "tx_hash": "0x3b1b8f5f2e9a4f1f0d2c7e6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b6c",
+      "block_timestamp": "2026-08-02T14:11:38.000Z"
+    },
+    {
+      "platform": "polymarket",
+      "condition_id": "0x52c5bd2fefab6b7450a2f5fd7d90f7ab3a2f5c1e4b3d2a1908f7e6d5c4b3a291",
+      "market_title": "Will BTC close above $150k on Aug 31, 2026?",
+      "market_slug": "btc-above-150k-aug-31",
+      "category": "crypto",
+      "side": "SELL_YES",
+      "price": 0.34,
+      "size_usd": 27930.0,
+      "wallet": "0x1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+      "wallet_score": 74,
+      "wallet_win_rate_30d": 0.64,
+      "tx_hash": "0x7e6d5c4b3a2918f7e6d5c4b3a2918f7e6d5c4b3a2918f7e6d5c4b3a2918f7e6d",
+      "block_timestamp": "2026-08-02T13:58:02.000Z"
+    },
+    {
+      "platform": "polymarket",
+      "condition_id": "0x0f1e2d3c4b5a69788796a5b4c3d2e1f00f1e2d3c4b5a69788796a5b4c3d2e1f0",
+      "market_title": "US recession declared before 2027?",
+      "market_slug": "us-recession-before-2027",
+      "category": "economics",
+      "side": "BUY_NO",
+      "price": 0.81,
+      "size_usd": 19850.25,
+      "wallet": "0x9c8b7a695847362514039281706f5e4d3c2b1a09",
+      "wallet_score": 91,
+      "wallet_win_rate_30d": 0.77,
+      "tx_hash": "0x5a4b3c2d1e0f9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b",
+      "block_timestamp": "2026-08-02T13:40:19.000Z"
+    },
+    {
+      "platform": "polymarket",
+      "condition_id": "0x6b5a49382716059483726150493827160594837261504938271605948372615a",
+      "market_title": "Will SpaceX Starship reach orbit again in August 2026?",
+      "market_slug": "starship-orbit-august-2026",
+      "category": "science",
+      "side": "BUY_YES",
+      "price": 0.88,
+      "size_usd": 15400.0,
+      "wallet": "0x8fe808b62f334fdcc7c1b1ce24450c8c86e368ac",
+      "wallet_score": 87,
+      "wallet_win_rate_30d": 0.71,
+      "tx_hash": "0x2c1d0e9f8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d",
+      "block_timestamp": "2026-08-02T13:22:47.000Z"
+    },
+    {
+      "platform": "polymarket",
+      "condition_id": "0xdeadbeef00112233445566778899aabbccddeeff00112233445566778899aabb",
+      "market_title": "Ethereum ETF staking approved in 2026?",
+      "market_slug": "eth-etf-staking-2026",
+      "category": "crypto",
+      "side": "BUY_YES",
+      "price": 0.55,
+      "size_usd": 12075.8,
+      "wallet": "0x4d3c2b1a09182736455463728190a9b8c7d6e5f4",
+      "wallet_score": 68,
+      "wallet_win_rate_30d": 0.6,
+      "tx_hash": "0x9f8e7d6c5b4a392817065f4e3d2c1b0a9f8e7d6c5b4a392817065f4e3d2c1b0a",
+      "block_timestamp": "2026-08-02T12:59:03.000Z"
+    }
+  ]
+}

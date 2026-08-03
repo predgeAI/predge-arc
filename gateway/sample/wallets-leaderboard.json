@@ -1,0 +1,37 @@
+{
+  "window": "30d",
+  "ranked_by": "edge_lower_bound x ln(1+volume) — NOT raw win rate",
+  "count": 3,
+  "wallets": [
+    {
+      "rank": 1,
+      "wallet": "0x9c8b7a695847362514039281706f5e4d3c2b1a09",
+      "score": 91,
+      "win_rate_30d": 0.77,
+      "resolved_positions_30d": 41,
+      "volume_30d_usd": 812400.0,
+      "edge_lower_bound": 0.19,
+      "conviction_score": 2.63
+    },
+    {
+      "rank": 2,
+      "wallet": "0x8fe808b62f334fdcc7c1b1ce24450c8c86e368ac",
+      "score": 87,
+      "win_rate_30d": 0.71,
+      "resolved_positions_30d": 63,
+      "volume_30d_usd": 540210.5,
+      "edge_lower_bound": 0.16,
+      "conviction_score": 2.11
+    },
+    {
+      "rank": 3,
+      "wallet": "0x1a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d",
+      "score": 74,
+      "win_rate_30d": 0.64,
+      "resolved_positions_30d": 28,
+      "volume_30d_usd": 187300.0,
+      "edge_lower_bound": 0.09,
+      "conviction_score": 1.09
+    }
+  ]
+}

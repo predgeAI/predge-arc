@@ -1,15 +1,23 @@
 {
   "name": "predge-arc",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Predge settlement contract on Circle Arc (testnet) — Arc-native leg of Predge's keyless x402 pay-per-call model.",
+  "description": "Predge on Circle Arc — agents buy whale intelligence with native USDC through the PredgeSettlement contract; on-chain Paid receipts unlock the data and anchor Predge's signed-calls hash chain.",
   "scripts": {
     "genwallet": "node script/genwallet.js",
-    "deploy": "node script/deploy.js"
+    "deploy": "node script/deploy.js",
+    "setup-agent": "node script/setup-agent.mjs",
+    "gateway": "node gateway/server.mjs",
+    "agent": "node agent.mjs",
+    "anchor": "node anchor.mjs"
+  },
+  "engines": {
+    "node": ">=20"
   },
   "dependencies": {
     "ethers": "^6.13.4",
+    "express": "^4.21.2",
     "solc": "0.8.26"
   }
 }
