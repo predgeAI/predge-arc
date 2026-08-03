@@ -3,14 +3,19 @@
   "version": "0.2.0",
   "private": true,
   "type": "module",
-  "description": "Predge on Circle Arc — agents buy whale intelligence with native USDC through the PredgeSettlement contract; on-chain Paid receipts unlock the data and anchor Predge's signed-calls hash chain.",
+  "description": "Predge on Circle Arc — agents buy whale intelligence with native USDC through the PredgeSettlement contract; on-chain Paid receipts unlock the data and anchor Predge's signed-calls hash chain. Signal-Vault: an agent manages an on-chain USDC posture driven by Predge's signed whale consensus.",
   "scripts": {
     "genwallet": "node script/genwallet.js",
     "deploy": "node script/deploy.js",
+    "deploy-vault": "node script/deploy-vault.mjs",
     "setup-agent": "node script/setup-agent.mjs",
     "gateway": "node gateway/server.mjs",
     "agent": "node agent.mjs",
-    "anchor": "node anchor.mjs"
+    "anchor": "node anchor.mjs",
+    "vault": "node vault-keeper.mjs",
+    "vault:run": "node vault-keeper.mjs run",
+    "vault:smoke": "node vault-keeper.mjs smoke",
+    "test:vault": "node --test vault/test.mjs"
   },
   "engines": {
     "node": ">=20"

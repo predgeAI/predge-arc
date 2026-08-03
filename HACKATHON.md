@@ -1,7 +1,8 @@
 # Submission — Arc "Programmable Money" Hackathon (Encode Club × Circle)
 
-**Track:** Agentic Economy
-**Project:** Predge on Arc — agents buy verifiable whale intelligence with native USDC
+**Tracks:** Agentic Economy + DeFi (one repo, one story, two legs)
+**Project:** Predge on Arc — agents buy verifiable whale intelligence with native
+USDC, and an agent-run vault manages an on-chain USDC posture from that signal
 **Chain:** Circle Arc testnet, chainId `5042002`
 
 ## Problem
@@ -92,7 +93,79 @@ The quotes, payments, receipts, verification and anchoring are fully real.
   agents that pay for intelligence can verify the seller's history was never
   rewritten — a trust requirement unique to machine-to-machine markets.
 
+## DeFi Track — Signal-Vault
+
+The Agentic Economy leg proves an agent can *buy* verifiable intelligence with
+native USDC. The DeFi leg proves the same intelligence can *manage money* on
+Arc: **an autonomous agent runs an on-chain USDC vault whose posture is steered
+only by Predge's ed25519-signed smart-money whale consensus.**
+
+**What it is.** `PredgeSignalVault` (contracts/PredgeSignalVault.sol) is a
+minimal, self-contained native-USDC vault on Arc — no external DeFi protocol
+(Arc testnet is new and thin, so the vault depends on nothing but Arc itself).
+Anyone deposits native USDC (`msg.value` — no ERC-20 approvals) and can always
+withdraw their own funds. The vault holds a **posture** — `SHORT (-1)` /
+`FLAT (0)` / `LONG (+1)` a synthetic exposure — changed *only* through
+`rebalance(bytes32 signalHash, int8 direction, string attestationRef)`, callable
+only by the authorized **keeper** set at deploy. Each rebalance emits a
+`Rebalanced` event carrying the signal hash + attestation reference, so the
+vault's entire decision history is auditable on-chain.
+
+**Why it's honest DeFi.** It is on-chain USDC position management driven by a
+*verifiable external signal*. The edge comes from the signal (Predge's
+outcome-verified smart-money consensus); the trust comes from the attestation
+(ed25519, key registry, key pinning). The vault never moves on an unverified
+signal — the keeper aborts if the signature or key-pin fails.
+
+**The keeper trust boundary (disclosed).** Verifying ed25519 in Solidity is
+expensive, so the keeper (`vault-keeper.mjs`) verifies the Predge attestation
+**off-chain** with `node:crypto` — the exact recipe published at
+`data.predge.io/attest-verification.md`: rebuild the SPKI key from the DER prefix
+`302a300506032b6570032100` + the raw 32-byte ed25519 point, verify the 64-byte
+signature over the JCS-canonical bytes, confirm the payload re-canonicalises to
+those bytes, and **pin** the key to an active key in the live registry
+(`/.well-known/predge-keys.json`). The vault then stores `signalHash =
+keccak256(canonical)` and `attestationRef` on-chain. So the vault **trusts the
+keeper**, but the keeper's inputs are **independently re-verifiable by anyone**
+for free (Predge's registry + `/verify`), and the exact signed bytes are
+committed on-chain via `signalHash`. This is the same "anchor an off-chain proof
+onto Arc" idea as `anchor.mjs`, applied to money movement.
+
+**Decision rule (transparent, unit-tested — vault/decide.mjs).** Pick the top
+market in the consensus; `net = net_flow_usd`, `wallets = smart_wallets`. `LONG`
+if `direction==yes` and `net ≥ +FLOW_MIN_USD`; `SHORT` if `direction==no` and
+`net ≤ −FLOW_MIN_USD`; else `FLAT`; and only if `wallets ≥ MIN_SMART_WALLETS`. A
+rebalance tx fires only when the target posture differs from the on-chain posture
+(it trades flips, not every poll).
+
+### Live vs simulated
+
+**Live on Arc testnet — the whole vault lifecycle ran on-chain:**
+
+| Step | Tx / address |
+|---|---|
+| `PredgeSignalVault` deployed (keeper set at deploy) | [`0x8B9589B8…E74495`](https://testnet.arcscan.app/address/0x8B9589B8F5857dDe080Ac68e8B370c3bA5E74495) |
+| Deposit 0.01 native USDC | [`0xd00fad94…f70b6`](https://testnet.arcscan.app/tx/0xd00fad94305e13338ed9fe7cb1c21f8bb9996c09fd0ff3815846a08ad0af70b6) |
+| Rebalance #1 — signal → verify → **FLAT → LONG** | [`0x5d378476…644ed3`](https://testnet.arcscan.app/tx/0x5d3784763c25452ec8eb4acb09ec7b16f1dba180989fad05f6e7f7190c644ed3) |
+| Rebalance #2 — signal flips → **LONG → SHORT** | [`0xef0b8620…8b2681`](https://testnet.arcscan.app/tx/0xef0b862002de4f94e9fba60168096d18d24d6f493a971173eed1cd728d8b2681) |
+| Deploy tx | [`0xbe9feb55…622310`](https://testnet.arcscan.app/tx/0xbe9feb551b1f8985b53d63122a009616e89ce742eb8a73f260b3745a07622310) |
+
+A third poll on the same signal correctly **HELD** (no tx) — the agent doesn't
+churn gas when smart money hasn't changed its mind.
+
+**Simulated / clearly-labeled:** the *signal* used for the live rebalances above
+is a **self-signed sample** in the exact production consensus shape. The live
+paid feed (`GET /v1/signals/consensus`, $0.03) settles in USDC on **Base
+mainnet**, which needs a funded Base buyer wallet this testnet repo intentionally
+does not carry — so the keeper self-signs a sample with an **ephemeral ed25519
+key** (loudly logged: "NOT the live Predge key") purely so the *verification path
+runs end-to-end*. The Arc side — deploy, deposit, verify-gated rebalance, the
+on-chain decision history — is **fully real**. To drive it from the real signed
+feed, set `BUYER_PRIVATE_KEY` and run with `--live` (see README); the keeper then
+pins the signature to Predge's production key `13fa3d18…016352d9`.
+
 ## Run it
 
-See README.md — `npm install`, `npm run gateway`, `npm run agent`. Wallets are
+See README.md — `npm install`, `npm run gateway`, `npm run agent` (Agentic
+Economy), and `npm run deploy-vault` → `npm run vault:run` (DeFi). Wallets are
 testnet-only, generated locally, funded via https://faucet.circle.com.

@@ -53,6 +53,44 @@ curl -s https://x402-api-production-266e.up.railway.app/.well-known/predge-keys.
   contract; the owner withdraws via the contract's own `withdraw()`.
 - **One payment, one unlock.** `request_id` is single-use; replays get `409`.
 
+## Signal-Vault — an agent manages an on-chain USDC posture (DeFi track)
+
+Same repo, second leg. `PredgeSignalVault` (contracts/PredgeSignalVault.sol) is a
+minimal native-USDC vault on Arc whose **posture** — `SHORT / FLAT / LONG` a
+synthetic exposure — is steered only by Predge's **ed25519-signed** smart-money
+whale consensus. It depends on no external DeFi protocol (Arc testnet is thin):
+deposits are plain `msg.value`, depositors can always withdraw, the owner can
+pause, and posture changes only through
+`rebalance(bytes32 signalHash, int8 direction, string attestationRef)` — callable
+only by the keeper. Every rebalance emits the signal hash + attestation reference,
+so the vault's whole decision history is auditable on-chain.
+
+```
+ vault-keeper.mjs (agent + keeper)            PredgeSignalVault (Arc)
+ ────────────────────────────────            ──────────────────────
+ 1. sense   signed whale consensus  ──┐
+    (live x402  OR  self-signed sample) │
+ 2. verify  ed25519 off-chain:         │   trust boundary: the keeper verifies
+    JCS-canonical + DER-prefix key,    │   the signature OFF-chain and commits
+    PIN to /.well-known/predge-keys    │   signalHash = keccak256(canonical) +
+ 3. decide  net_flow / smart_wallets / │   attestationRef ON-chain, so anyone
+    direction  ->  SHORT|FLAT|LONG     │   can re-verify the keeper's inputs for
+ 4. act    rebalance(hash,dir,ref) ────┴──►  free via Predge's registry + /verify
+```
+
+**Trust boundary (disclosed):** verifying ed25519 in Solidity is expensive, so
+the keeper verifies the Predge attestation off-chain (`node:crypto`, DER prefix
+`302a300506032b6570032100` + raw 32-byte key, signature over the JCS-canonical
+bytes, then key-pinned to the live registry) and records the signal hash +
+reference on-chain. The vault **trusts the keeper**; the keeper's inputs are
+**independently verifiable** by anyone via Predge's free registry and `/verify`.
+It never rebalances on a signal that fails verification.
+
+Live on Arc testnet ([full lifecycle + tx table in HACKATHON.md](HACKATHON.md#defi-track--signal-vault)):
+vault [`0x8B9589B8…E74495`](https://testnet.arcscan.app/address/0x8B9589B8F5857dDe080Ac68e8B370c3bA5E74495),
+deposit, then two verify-gated rebalances (**FLAT→LONG**, **LONG→SHORT**) and a
+correct no-op **HOLD**.
+
 ## Run it
 
 Requires Node 20+.
@@ -75,6 +113,18 @@ node agent.mjs --route /v1/wallets/leaderboard --watch  # gateway finds the paym
 node anchor.mjs --keys                # anchor sha256 of the live predge-keys.json
 node anchor.mjs --hash <64-hex>       # anchor a signed-calls chain-head content hash
 node anchor.mjs --verify <64-hex>     # prove a hash is anchored (scans Paid events)
+
+# --- Signal-Vault (DeFi track) ---
+npm run test:vault                    # unit-test the verifier + decision rule
+npm run deploy-vault                  # deploy PredgeSignalVault to Arc (writes vault/deployment.json)
+node vault-keeper.mjs deposit 0.01    # deposit native USDC into the vault
+node vault-keeper.mjs run --sample riskon   # signed signal -> verify -> decide -> rebalance (LONG)
+node vault-keeper.mjs run --sample riskoff  # a flip -> rebalance (SHORT)
+node vault-keeper.mjs state           # read the vault's on-chain posture + last signal
+npm run vault:smoke                   # zero-spend connectivity check of every surface
+# real signed feed instead of the sample (needs a funded Base buyer wallet):
+#   npm install @x402/fetch @x402/evm viem
+#   BUYER_PRIVATE_KEY=0x… node vault-keeper.mjs run --live
 ```
 
 The contract is already deployed; `npm run deploy` only exists to reproduce it
@@ -108,6 +158,16 @@ gateway/server.mjs               arc-gateway (402 quote → on-chain verify → 
 gateway/catalog.mjs              what's for sale + sample payloads
 agent.mjs                        autonomous buyer demo
 anchor.mjs                       hash-chain anchoring + verification CLI
+
+contracts/PredgeSignalVault.sol  DeFi-track vault: signal-driven USDC posture on Arc
+script/deploy-vault.mjs          compile + deploy PredgeSignalVault (solc 0.8.26)
+vault-keeper.mjs                  the agent: sense -> verify(ed25519) -> decide -> rebalance
+vault/signal.mjs                 signed consensus (live x402 or self-signed sample)
+vault/attest.mjs                 offline ed25519 verify + JCS canonical + registry key-pin
+vault/decide.mjs                 transparent posture rule (SHORT/FLAT/LONG)
+vault/vault.mjs                  Arc plumbing (ABI, deposit, rebalance, read state)
+vault/samples.mjs                frozen sample consensus payloads (prod shape)
+vault/config.mjs, vault/test.mjs config + unit tests (verifier + decision rule)
 ```
 
 ## Env
