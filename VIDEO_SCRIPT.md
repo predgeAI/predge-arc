@@ -1,87 +1,106 @@
 # Demo video script — 3:00
 
 Format: screen recording (terminal + browser), voiceover. Two terminals side
-by side: left = gateway, right = agent. Browser tabs pre-opened: Predge prod
-API root, Arc explorer contract page. Practice once; the on-chain waits are
-5–15 s each, which the script absorbs.
+by side: left = gateway (already running), right = agent. Browser tabs
+pre-opened: Arc explorer contract page, Predge prod API root.
+
+**Ordering principle: the agent pays and gets data in the first 20 seconds.**
+Every explanation rides on top of something already moving on screen — nobody
+watches a hackathon demo to hear what a project *is* before seeing it work.
+
+Practice once; on-chain waits are 5–15 s each and the script absorbs them.
 
 ---
 
-**[0:00–0:15] Hook — cold open on the agent terminal.**
+**[0:00–0:20] Cold open — no preamble. Run it.**
 
-> "This is an AI agent with its own wallet buying market intelligence — paying
-> half a cent in USDC, natively, on Circle Arc. No API key, no account, no
-> card. Watch the whole loop."
+Hit Enter on `node agent.mjs` before saying a word. Let the 402, the payment
+and the unlocked data print while you talk.
 
-(Type `node agent.mjs`, don't run yet.)
+> "An AI agent just paid half a cent of USDC for market intelligence. Its own
+> wallet, no API key, no account, no card — and the payment is native on Circle
+> Arc. That whole loop took twelve seconds. Here's what happened."
 
-**[0:15–0:40] Context — what Predge is.**
+**[0:20–0:50] Replay what they just saw — point at the lines.**
 
-Switch to browser: prod API root JSON.
+Scroll back through the agent output, cursor on each step.
 
-> "Predge is a live pay-per-call API selling Polymarket whale intelligence to
-> agents — over twenty routes, five thousandths of a dollar to three cents,
-> responses ed25519-signed. It runs on the x402 protocol today. The problem:
-> settlement happens on chains where USDC is just another token — approvals,
-> gas juggling, bridges. On Arc, USDC *is* the native token. So we rebuilt the
-> settlement leg Arc-native."
+> "The agent asked for whale trades and got HTTP 402 — a machine-readable
+> quote: contract, route hash, amount, one-time request id. It called
+> `payForRoute`, and here's the Arc part — `msg.value` **is** the USDC. Money
+> and gas are the same asset, so no approvals, no bridges, no gas token to
+> keep topped up. Then it retried with the tx hash, the gateway verified the
+> receipt on-chain, and released the data."
 
-**[0:40–1:00] The seller — gateway terminal.**
+Click the printed explorer link; show the `Paid` event.
 
-Show gateway startup lines (`npm run gateway`).
+> "That event is the payment, the access credential and the audit record, all
+> at once."
 
-> "The seller is this gateway. It quotes prices as HTTP 402 and — key detail —
-> holds **no private key**. It can only *read* the chain. Payments go straight
-> into the settlement contract; only the owner can withdraw."
+**[0:50–1:20] Two properties worth pausing on.**
 
-**[1:00–2:00] The purchase — run `node agent.mjs`.**
+Show the gateway terminal, then re-run the agent with the same payment.
 
-Narrate over the six steps as they print:
+> "The seller holds **no private key** — it can only read the chain. Funds land
+> in the contract; only the owner can withdraw. And the request id is
+> single-use: replay the same payment and you get 409. One payment, one unlock."
 
-> "One — the agent asks for whale trades and gets a 402: contract address,
-> route hash, amount, and a one-time request id."
-> "Two — the agent's own wallet, holding a few cents of testnet USDC."
-> "Three — it calls `payForRoute` on the PredgeSettlement contract. `msg.value`
-> IS the USDC — that's the Arc magic, money and gas are the same asset."
-> "Four — mined. The receipt is a `Paid` event carrying the request id."
-> "Five — the agent retries with the tx hash; the gateway verifies the receipt
-> on-chain and unlocks the data. There it is: whale trades, wallet scores."
-> "Six — replay attempt with the same payment: rejected, 409. One payment, one
-> unlock."
+**[1:20–1:50] Now — and only now — what Predge is.**
 
-Click the printed explorer link, show the `Paid` event briefly.
+Browser: prod API root JSON.
 
-> "That's the receipt on Arc — payment, access credential, and audit record in
-> one event."
+> "This isn't a hackathon mock. Predge is a live pay-per-call API selling
+> Polymarket whale intelligence to agents — over twenty routes, half a cent to
+> three cents, every response ed25519-signed. It runs on x402 over Base and
+> Solana today. Arc is where settlement finally becomes native."
 
-**[2:00–2:40] The differentiator — anchoring.**
+**[1:50–2:35] The differentiator — anchoring. Prove it live.**
 
-Run `node anchor.mjs --keys` (or show the pre-run output), then
-`node anchor.mjs --verify <hash>`.
+Run `node anchor.mjs --verify <hash>`, then the curl in a shell.
 
-> "Predge responses are signed and hash-chained — tamper-evident. But a hash
-> chain alone can't stop the operator rewriting history wholesale. So we
-> anchor the chain head into an Arc receipt. This run hashes our live public
-> key registry — anyone can reproduce the digest with curl and shasum — and
-> freezes it on-chain. `--verify` finds it again by scanning `Paid` events.
-> Now even we can't rewrite our own audit trail. That's what agents buying
-> intelligence actually need: not promises — receipts."
+> "Signed responses are tamper-evident, but a hash chain can't stop the
+> operator rewriting history wholesale. So we freeze the chain head into an Arc
+> receipt."
 
-**[2:40–3:00] Close.**
+Type the reproduction command on camera and let it print:
 
-Explorer tab on the contract page.
+```
+curl -s https://x402-api-production-266e.up.railway.app/.well-known/predge-keys.json | shasum -a 256
+```
 
-> "Everything you saw is live on Arc testnet — the contract, both purchases,
-> the anchor; the links are in the repo. Production Predge sells this data
-> today over x402 on Base and Solana; Arc makes the settlement native. Predge
-> on Arc: agents pay in the money they already hold, and every byte they buy
-> comes with a receipt."
+> "That digest — computed right now from our live key registry — is the exact
+> hash sitting in the Arc transaction. Anyone can run this. Now not even we can
+> rewrite our own audit trail. Agents buying intelligence don't need promises.
+> They need receipts."
+
+**[2:35–3:00] Close on the explorer.**
+
+> "Contract, both purchases, the anchor — all live on Arc testnet, all linked
+> in the repo. Predge on Arc: agents pay in the money they already hold, and
+> every byte they buy comes with a receipt."
 
 ---
 
 Recording notes:
 - Terminal font ≥16pt; window ~100 columns so tx hashes don't wrap.
-- If the public RPC rate-limits mid-take, the scripts auto-retry — keep
-  talking, the pauses read as real chain time.
+- Start the gateway **before** recording — its boot lines are not the story.
 - Pre-fund the agent (`npm run setup-agent`) BEFORE recording.
+- If the public RPC rate-limits mid-take, the scripts auto-retry — keep
+  talking; the pause reads as real chain time.
 - Do not show `.env` or any private key on screen at any point.
+- The reproduction curl is the strongest 10 seconds in the video — do it live,
+  never as a pre-baked screenshot.
+
+## If you submit the DeFi track instead
+
+Signal-Vault is a separate story and does **not** fit in the same three
+minutes. Shoot it as its own video rather than appending it here — a demo that
+covers two tracks lands as neither.
+
+Its cold open is `node vault-keeper.mjs run --sample riskoff`: an autonomous
+keeper verifies an ed25519-signed whale consensus off-chain and flips the
+vault's on-chain posture LONG → SHORT. Disclose the trust boundary out loud
+(the keeper verifies, the chain records the signal hash + attestation ref) —
+judges respect a stated limit more than a glossed one. Note honestly that the
+sample path is self-signed unless `BUYER_PRIVATE_KEY` is funded for the live
+x402 feed.
