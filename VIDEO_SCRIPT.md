@@ -20,7 +20,7 @@ API root, Arc explorer contract page. Practice once; the on-chain waits are
 Switch to browser: prod API root JSON.
 
 > "Predge is a live pay-per-call API selling Polymarket whale intelligence to
-> agents — thirteen routes, five thousandths of a dollar to three cents,
+> agents — over twenty routes, five thousandths of a dollar to three cents,
 > responses ed25519-signed. It runs on the x402 protocol today. The problem:
 > settlement happens on chains where USDC is just another token — approvals,
 > gas juggling, bridges. On Arc, USDC *is* the native token. So we rebuilt the
