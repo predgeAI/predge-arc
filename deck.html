@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Predge on Arc — pitch deck</title>
+<style>
+  :root {
+    --amber: #f5a623;
+    --amber-soft: #f7b84e;
+    --ink: #0c0d10;
+    --ink-2: #131519;
+    --ink-3: #1b1e24;
+    --line: #2a2e37;
+    --fg: #e9ecf1;
+    --muted: #9aa2b1;
+    --dim: #6b7280;
+    --good: #35c07f;
+    --bad: #ef5f5f;
+    --arc: #4b9fff;
+    --mono: ui-monospace, "SF Mono", "Menlo", "Cascadia Code", monospace;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--ink);
+    color: var(--fg);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .deck { height: 100vh; overflow-y: scroll; scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) { .deck { scroll-behavior: auto; } }
+
+  .slide {
+    min-height: 100vh; scroll-snap-align: start;
+    display: flex; flex-direction: column; justify-content: center;
+    padding: clamp(2rem, 6vw, 6rem) clamp(1.5rem, 8vw, 8rem);
+    position: relative; gap: 1.5rem;
+    border-bottom: 1px solid var(--line);
+  }
+  .slide > * { max-width: 1000px; width: 100%; margin-inline: auto; }
+
+  .eyebrow {
+    font-family: var(--mono); font-size: .78rem; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--amber); margin: 0;
+    display: flex; align-items: center; gap: .7rem;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 2px; background: var(--amber); display: inline-block; }
+
+  h1 { font-family: var(--mono); font-weight: 600; font-size: clamp(2.2rem, 6vw, 4.2rem); line-height: 1.02; margin: 0; text-wrap: balance; letter-spacing: -0.02em; }
+  h2 { font-family: var(--mono); font-weight: 600; font-size: clamp(1.7rem, 4vw, 2.9rem); line-height: 1.08; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+  .lede { font-size: clamp(1.05rem, 2.2vw, 1.5rem); color: var(--muted); line-height: 1.5; max-width: 42ch; margin: 0; }
+  p { line-height: 1.55; }
+
+  ul.points { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 1.05rem; }
+  ul.points li { display: grid; grid-template-columns: auto 1fr; gap: .9rem; align-items: start; font-size: clamp(1rem, 1.9vw, 1.22rem); line-height: 1.45; }
+  ul.points li::before { content: "▸"; color: var(--amber); font-family: var(--mono); line-height: 1.4; }
+  ul.points li b { color: var(--fg); font-weight: 650; }
+  ul.points li .sub { color: var(--muted); }
+
+  .kicker { font-family: var(--mono); color: var(--amber); font-weight: 600; }
+  .mono { font-family: var(--mono); }
+  code, .code { font-family: var(--mono); background: var(--ink-3); border: 1px solid var(--line); border-radius: 5px; padding: .12em .4em; font-size: .9em; color: var(--amber-soft); }
+
+  /* title slide */
+  .title-slide { justify-content: center; }
+  .logo { display: inline-flex; align-items: center; gap: .8rem; font-family: var(--mono); font-weight: 700; letter-spacing: .04em; }
+  .logo .mark { width: 40px; height: 40px; border-radius: 9px; background: var(--amber); color: #000; display: grid; place-items: center; font-size: 1.5rem; font-weight: 800; }
+  .title-slide h1 { margin-top: 1.2rem; }
+  .badges { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .6rem; }
+  .badge { font-family: var(--mono); font-size: .8rem; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: .4rem .85rem; background: var(--ink-2); }
+  .badge b { color: var(--good); font-weight: 600; }
+  .badge.arc b { color: var(--arc); }
+
+  /* cards / stat grid */
+  .grid { display: grid; gap: 1rem; }
+  .g2 { grid-template-columns: repeat(2, 1fr); }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 760px) { .g2, .g3 { grid-template-columns: 1fr; } }
+  .card { background: var(--ink-2); border: 1px solid var(--line); border-radius: 12px; padding: 1.25rem 1.35rem; display: flex; flex-direction: column; gap: .5rem; }
+  .card h3 { margin: 0; font-family: var(--mono); font-size: 1.05rem; color: var(--fg); font-weight: 600; }
+  .card p { margin: 0; color: var(--muted); font-size: .98rem; line-height: 1.45; }
+  .card .big { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--amber); font-variant-numeric: tabular-nums; }
+
+  /* data table */
+  .tbl-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-family: var(--mono); font-size: .92rem; }
+  th, td { text-align: left; padding: .7rem .9rem; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--dim); font-weight: 500; text-transform: uppercase; letter-spacing: .08em; font-size: .74rem; }
+  td { color: var(--fg); }
+  td .hash { color: var(--arc); }
+  td .ok { color: var(--good); }
+
+  /* flow diagram */
+  .flow { width: 100%; height: auto; }
+  .flow text { font-family: var(--mono); fill: var(--fg); }
+  .flow .lbl { fill: var(--muted); font-size: 12px; }
+  .flow .step { fill: var(--ink-2); stroke: var(--line); }
+  .flow .accent { stroke: var(--amber); }
+  .flow .flowline { stroke: var(--dim); stroke-width: 1.5; marker-end: url(#arrow); fill: none; }
+
+  .foot { position: absolute; bottom: 1.5rem; left: 0; right: 0; display: flex; justify-content: space-between; padding-inline: clamp(1.5rem, 8vw, 8rem); font-family: var(--mono); font-size: .72rem; color: var(--dim); max-width: none; }
+  .foot .n { color: var(--amber); }
+
+  /* progress rail */
+  .rail { position: fixed; top: 0; left: 0; height: 3px; background: var(--amber); width: 0; z-index: 10; transition: width .2s; }
+  @media (prefers-reduced-motion: reduce) { .rail { transition: none; } }
+
+  .nav-hint { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); font-family: var(--mono); font-size: .7rem; color: var(--dim); z-index: 10; opacity: .7; }
+
+  .split { display: grid; grid-template-columns: 1.1fr .9fr; gap: 2.5rem; align-items: center; }
+  @media (max-width: 860px) { .split { grid-template-columns: 1fr; gap: 1.5rem; } }
+
+  .quiet { color: var(--muted); font-size: .95rem; line-height: 1.5; }
+  .tag { display: inline-block; font-family: var(--mono); font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; padding: .25rem .6rem; border-radius: 5px; border: 1px solid var(--line); color: var(--muted); }
+  .tag.live { color: var(--good); border-color: color-mix(in srgb, var(--good) 40%, var(--line)); }
+  .tag.defi { color: var(--arc); border-color: color-mix(in srgb, var(--arc) 40%, var(--line)); }
+
+  /* PRINT → clean light PDF for judges, one slide per page */
+  @media print {
+    :root { --ink: #fff; --ink-2: #faf9f6; --ink-3: #f2f0ea; --line: #d9d5cc; --fg: #14161a; --muted: #4b5162; --dim: #7c8494; }
+    .deck { height: auto; overflow: visible; }
+    .slide { min-height: auto; page-break-after: always; border-bottom: none; padding: 2.2rem 2.4rem; justify-content: flex-start; }
+    .rail, .nav-hint { display: none; }
+    .foot { position: static; padding: 0; margin-top: 2rem; }
+    body { background: #fff; }
+  }
+</style>
+</head>
+<body>
+<div class="rail" id="rail"></div>
+<div class="deck" id="deck">
+
+  <!-- 1 · TITLE -->
+  <section class="slide title-slide">
+    <div>
+      <div class="logo"><span class="mark">P</span><span>PREDGE</span></div>
+      <h1>Agents buy intelligence<br>with native USDC on Arc.</h1>
+      <p class="lede" style="margin-top:1.4rem">Pay-per-call whale intelligence, settled on Circle Arc. The on-chain receipt <b style="color:var(--fg)">is</b> the access credential — no keys, no accounts, no cards.</p>
+      <div class="badges">
+        <span class="badge live"><b>●</b> live x402 API in production</span>
+        <span class="badge arc"><b>◆</b> contract live on Arc testnet</span>
+        <span class="badge">Agentic Economy + DeFi</span>
+      </div>
+    </div>
+    <div class="foot"><span>Predge on Arc</span><span>Programmable Money · Encode × Circle</span></div>
+  </section>
+
+  <!-- 2 · PROBLEM -->
+  <section class="slide">
+    <p class="eyebrow">The problem</p>
+    <h2>The API economy is built for humans. The buyers are now machines.</h2>
+    <ul class="points" style="margin-top:1rem">
+      <li><span><b>Agents can't be human customers.</b> <span class="sub">No KYC, no credit card, no seat-based monthly plan. The signup funnel doesn't fit a wallet.</span></span></li>
+      <li><span><b>x402 fixed the request, not the settlement.</b> <span class="sub">Pay-per-call works — but on general chains USDC is "just another ERC-20": approvals, gas tokens, bridges, all for a $0.005 call.</span></span></li>
+      <li><span><b>Machine commerce needs one primitive,</b> <span class="sub">not a payment stack bolted onto a chain that was built for something else.</span></span></li>
+    </ul>
+    <div class="foot"><span>Predge on Arc</span><span class="n">02</span></div>
+  </section>
+
+  <!-- 3 · WHY ARC -->
+  <section class="slide">
+    <p class="eyebrow">Why Arc</p>
+    <h2>On Arc, the money <span class="kicker">is</span> the chain.</h2>
+    <div class="grid g3" style="margin-top:1rem">
+      <div class="card"><span class="big">msg.value</span><p>USDC is Arc's <b style="color:var(--fg)">native token</b>. The value an agent pays <b style="color:var(--fg)">is</b> the gas it spends — same asset, one step. No approvals, no bridges.</p></div>
+      <div class="card"><span class="big">~60 lines</span><p><span class="mono">PredgeSettlement</span>: <span class="mono">payForRoute</span> + a <span class="mono">Paid</span> event. Immutable, no upgradability, no custody in the service.</p></div>
+      <div class="card"><span class="big">receipts</span><p>Payments are events — cheap, indexable, and verifiable by anyone. The receipt is the credential.</p></div>
+    </div>
+    <p class="quiet" style="margin-top:.5rem">Arc collapses the machine-payment stack into a single call. That's the substrate Predge was waiting for.</p>
+    <div class="foot"><span>Predge on Arc</span><span class="n">03</span></div>
+  </section>
+
+  <!-- 4 · WHAT WE BUILT / THE LOOP -->
+  <section class="slide">
+    <p class="eyebrow">Track 1 · Agentic Economy — what we built</p>
+    <h2>The loop: 402 → pay → receipt → data.</h2>
+    <div class="tbl-wrap" style="margin-top:.5rem">
+      <svg class="flow" viewBox="0 0 940 220" role="img" aria-label="Payment loop from agent to gateway to Arc">
+        <defs><marker id="arrow" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0,0 L9,4.5 L0,9 z" fill="#6b7280"/></marker></defs>
+        <!-- agent -->
+        <rect class="step accent" x="20" y="70" width="180" height="80" rx="10"/>
+        <text x="110" y="102" text-anchor="middle" font-size="15" font-weight="600" fill="#f5a623">agent.mjs</text>
+        <text class="lbl" x="110" y="124" text-anchor="middle">own Arc wallet</text>
+        <!-- gateway -->
+        <rect class="step" x="380" y="70" width="180" height="80" rx="10"/>
+        <text x="470" y="102" text-anchor="middle" font-size="15" font-weight="600">arc-gateway</text>
+        <text class="lbl" x="470" y="124" text-anchor="middle">holds NO key</text>
+        <!-- arc -->
+        <rect class="step" x="740" y="70" width="180" height="80" rx="10" stroke="#4b9fff"/>
+        <text x="830" y="102" text-anchor="middle" font-size="15" font-weight="600" fill="#4b9fff">Circle Arc</text>
+        <text class="lbl" x="830" y="124" text-anchor="middle">PredgeSettlement</text>
+        <!-- lines -->
+        <path class="flowline" d="M200,95 L378,95"/>
+        <text class="lbl" x="289" y="86" text-anchor="middle">GET → 402 quote</text>
+        <path class="flowline" d="M200,128 L720,128 L720,150"/>
+        <text class="lbl" x="440" y="145" text-anchor="middle">payForRoute(route_hash, request_id) · value = USDC</text>
+        <path class="flowline" d="M740,110 L562,110"/>
+        <text class="lbl" x="651" y="102" text-anchor="middle">Paid event</text>
+        <path class="flowline" d="M380,150 L210,150 L210,152"/>
+        <text class="lbl" x="300" y="168" text-anchor="middle">verify receipt on-chain → unlock data</text>
+      </svg>
+    </div>
+    <ul class="points">
+      <li><span><b>Gateway holds no private key</b> <span class="sub">— read-only chain access; funds accrue in the contract, only the owner withdraws.</span></span></li>
+      <li><span><b>One payment, one unlock</b> <span class="sub">— replaying the same receipt returns <span class="mono">409</span>. The gateway can even discover the payment itself by scanning the request-id memo.</span></span></li>
+    </ul>
+    <div class="foot"><span>Predge on Arc</span><span class="n">04</span></div>
+  </section>
+
+  <!-- 5 · DEFI VAULT -->
+  <section class="slide">
+    <p class="eyebrow">Track 2 · DeFi — Signal-Vault <span class="tag defi" style="margin-left:.5rem">same repo</span></p>
+    <h2>An agent-run USDC vault, steered only by signed signals.</h2>
+    <div class="split" style="margin-top:.5rem">
+      <ul class="points">
+        <li><span><b>Sense → verify → decide → act,</b> <span class="sub">with no human in the loop.</span></span></li>
+        <li><span><b>The keeper verifies Predge's ed25519 signature off-chain</b> <span class="sub">and commits the signal hash on-chain — so the vault's entire decision history is auditable.</span></span></li>
+        <li><span><b>Posture moves only on a verified signal.</b> <span class="sub">A signal it can't verify never moves funds.</span></span></li>
+      </ul>
+      <div class="grid" style="gap:.8rem">
+        <div class="card" style="border-color:color-mix(in srgb,var(--good) 35%,var(--line))"><h3 style="color:var(--good)">FLAT → LONG</h3><p>rebalance #1 — verified whale consensus turned risk-on.</p></div>
+        <div class="card" style="border-color:color-mix(in srgb,var(--bad) 35%,var(--line))"><h3 style="color:var(--bad)">LONG → SHORT</h3><p>rebalance #2 — the signal flipped; the vault followed.</p></div>
+        <div class="card"><h3>HELD</h3><p>third poll, same signal → no tx. The agent doesn't churn gas when smart money hasn't changed its mind.</p></div>
+      </div>
+    </div>
+    <div class="foot"><span>Predge on Arc</span><span class="n">05</span></div>
+  </section>
+
+  <!-- 6 · DIFFERENTIATOR -->
+  <section class="slide">
+    <p class="eyebrow">The differentiator</p>
+    <h2>Machine buyers don't take promises. They take receipts.</h2>
+    <ul class="points" style="margin-top:1rem">
+      <li><span><b>Predge's paid calls are signed + hash-chained</b> <span class="sub">— tamper-evident. But a hash chain alone can't stop the operator rewriting history wholesale.</span></span></li>
+      <li><span><b><span class="mono">anchor.mjs</span> freezes the chain head into an Arc receipt</b> <span class="sub">— tamper-<b style="color:var(--fg)">proof</b>, externally anchored on a ledger we don't control. Not even we can rewrite our own audit trail.</span></span></li>
+      <li><span><b>Reproducible by anyone:</b> <span class="sub"><span class="mono">curl … predge-keys.json | shasum -a 256</span> matches the digest sitting in the Arc transaction. <span class="mono">--verify</span> proves anchoring by scanning events.</span></span></li>
+    </ul>
+    <div class="foot"><span>Predge on Arc</span><span class="n">06</span></div>
+  </section>
+
+  <!-- 7 · LIVE PROOF -->
+  <section class="slide">
+    <p class="eyebrow">Live on Arc testnet <span class="tag live" style="margin-left:.5rem">● all links work</span></p>
+    <h2>Not a mock. Everything below ran on-chain.</h2>
+    <div class="tbl-wrap" style="margin-top:.5rem">
+      <table>
+        <thead><tr><th>Step</th><th>Track</th><th>On-chain</th></tr></thead>
+        <tbody>
+          <tr><td>Agent buys <span class="mono">/v1/whales/latest</span> · $0.005</td><td>Agentic</td><td><span class="hash">0x42b4692b…85ef31</span> <span class="ok">✓</span></td></tr>
+          <tr><td>Gateway finds the payment by memo · $0.01</td><td>Agentic</td><td><span class="hash">0x6296c95b…a082f5</span> <span class="ok">✓</span></td></tr>
+          <tr><td>Anchor the live key registry</td><td>Trust</td><td><span class="hash">0x99e60bfa…7745e6</span> <span class="ok">✓</span></td></tr>
+          <tr><td>Vault deposit · 0.01 USDC</td><td>DeFi</td><td><span class="hash">0xd00fad94…f70b6</span> <span class="ok">✓</span></td></tr>
+          <tr><td>Rebalance FLAT→LONG, then LONG→SHORT</td><td>DeFi</td><td><span class="hash">0x5d378476…</span> <span class="hash">0xef0b8620…</span> <span class="ok">✓</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="quiet">Settlement contract <span class="mono">0x3474Bd27…C82A5</span> · vault <span class="mono">0x8B9589B8…E74495</span> · chainId <span class="mono">5042002</span> — all on <span class="mono">testnet.arcscan.app</span>.</p>
+    <div class="foot"><span>Predge on Arc</span><span class="n">07</span></div>
+  </section>
+
+  <!-- 8 · HONESTY + ROADMAP -->
+  <section class="slide">
+    <p class="eyebrow">Honesty &amp; what's next</p>
+    <h2>What was built here — and where it goes.</h2>
+    <div class="grid g2" style="margin-top:.5rem">
+      <div class="card">
+        <h3>Disclosed honestly</h3>
+        <p>Predge's x402 API and signing key are <b style="color:var(--fg)">pre-existing production</b>. Built at the hackathon: the Arc gateway, the buyer agent, anchoring, the Signal-Vault, and every demo tx. Demo payloads are frozen samples in exact prod shape (<span class="mono">data_source: sample</span>) — <b style="color:var(--fg)">all payments &amp; receipts are real</b>; no prod credentials in the repo.</p>
+      </div>
+      <div class="card">
+        <h3>Roadmap</h3>
+        <p>Add the Arc rail to the production 402 <span class="mono">accepts[]</span> beside Base + Solana · automated chain-head anchoring per N calls · receipts as portable agent-reputation primitives · <b style="color:var(--fg)">Circle App Kits</b> for an agent's multi-chain USDC treasury.</p>
+      </div>
+    </div>
+    <div class="foot"><span>Predge on Arc</span><span class="n">08</span></div>
+  </section>
+
+  <!-- 9 · VISION / WHY PARTNER -->
+  <section class="slide title-slide">
+    <p class="eyebrow">Why this, why now</p>
+    <h2>Predge already sells to agents in production. Arc is the missing settlement leg.</h2>
+    <p class="lede" style="margin-top:1rem;max-width:52ch">Most teams demo an idea. We brought a <b style="color:var(--fg)">live product</b> and made its payments native to Arc. The wallet is the customer; the receipt is the credential; the track record is verifiable by anyone. That's the substrate for a machine-native data economy — and we want to build it on Arc.</p>
+    <div class="badges" style="margin-top:1.4rem">
+      <span class="badge live"><b>●</b> in production today</span>
+      <span class="badge arc"><b>◆</b> native on Arc</span>
+      <span class="badge">agents pay in the money they already hold</span>
+    </div>
+    <div class="foot"><span class="mono" style="color:var(--amber)">predge.io</span><span class="n">09</span></div>
+  </section>
+
+</div>
+<script>
+  const deck = document.getElementById('deck');
+  const rail = document.getElementById('rail');
+  const slides = [...document.querySelectorAll('.slide')];
+  function idx() { return Math.round(deck.scrollTop / window.innerHeight); }
+  function go(n) { const i = Math.max(0, Math.min(slides.length - 1, n)); slides[i].scrollIntoView(); }
+  deck.addEventListener('scroll', () => {
+    const p = deck.scrollTop / (deck.scrollHeight - deck.clientHeight || 1);
+    rail.style.width = (p * 100) + '%';
+  }, { passive: true });
+  addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(idx() + 1); }
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') { e.preventDefault(); go(idx() - 1); }
+    else if (e.key === 'Home') { go(0); }
+    else if (e.key === 'End') { go(slides.length - 1); }
+    else if (e.key.toLowerCase() === 'p') { window.print(); }
+  });
+</script>
+</body>
+</html>
