@@ -70,20 +70,29 @@
   .row .amt{color:var(--amber);font-variant-numeric:tabular-nums;} .row .t{color:var(--dim);font-size:.8rem;}
 
   /* checker */
-  .chk{max-width:760px;text-align:center;display:flex;flex-direction:column;gap:1rem;align-items:center;}
-  .chk h2{font-size:clamp(1.6rem,3.6vw,2.6rem);margin:0;font-weight:800;letter-spacing:-.01em;text-wrap:balance;}
+  .chk{max-width:760px;text-align:center;display:flex;flex-direction:column;gap:.75rem;align-items:center;}
+  .chk h2{font-size:clamp(1.5rem,3vw,2.2rem);margin:0;font-weight:800;letter-spacing:-.01em;text-wrap:balance;}
   .chk h2 .amber{color:var(--amber);}
   .chk .sub2{color:var(--muted);font-size:clamp(.95rem,1.7vw,1.12rem);line-height:1.5;max-width:52ch;}
   .chk .sub2 b{color:var(--fg);}
   .chk-field{display:flex;gap:.7rem;width:100%;max-width:620px;}
   .chk-field .inp{flex:1;text-align:left;font-family:var(--mono);color:var(--dim);background:#0b0d10;border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;font-size:.92rem;}
   .chk-field .go{background:var(--amber);color:#000;font-weight:700;border-radius:10px;padding:.8rem 1.4rem;font-size:.92rem;}
-  .verdict{width:100%;max-width:620px;border:1px solid color-mix(in srgb,var(--good) 45%,var(--line));border-radius:12px;background:#0b0d10;padding:1rem 1.2rem;text-align:left;display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem 1.4rem;}
-  .verdict .vh{grid-column:1/-1;display:flex;align-items:center;gap:.6rem;font-family:var(--mono);font-size:.86rem;color:var(--muted);}
-  .verdict .vh .badge{color:var(--good);font-weight:700;border:1px solid color-mix(in srgb,var(--good) 45%,var(--line));border-radius:999px;padding:.15rem .6rem;font-size:.76rem;}
-  .stat .sv{font-family:var(--mono);font-size:1.35rem;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums;}
-  .stat .sv.good{color:var(--good);}
-  .stat .sl{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:.1rem;}
+  .verdict{width:100%;max-width:680px;border:1px solid var(--line);border-radius:14px;background:#0b0d10;padding:.95rem 1.2rem;text-align:left;display:flex;flex-direction:column;gap:.65rem;}
+  .verdict .addr{font-family:var(--mono);font-size:.82rem;color:var(--dim);}
+  .verdict .pill{align-self:flex-start;display:inline-flex;align-items:center;gap:.4rem;color:var(--good);font-weight:800;font-size:1.15rem;background:color-mix(in srgb,var(--good) 14%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,var(--line));border-radius:999px;padding:.35rem .9rem;}
+  .verdict .vdesc{color:var(--muted);font-size:.95rem;line-height:1.45;margin:0;}
+  .verdict .vgrid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .verdict .vcell{padding:.6rem .9rem;border-right:1px solid #1a1d23;border-bottom:1px solid #1a1d23;}
+  .verdict .vcell:nth-child(2n){border-right:none;}
+  .verdict .vcell .sl{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);}
+  .verdict .vcell .sv{font-family:var(--mono);font-size:1.55rem;font-weight:700;color:var(--fg);margin-top:.2rem;font-variant-numeric:tabular-nums;}
+  .verdict .vcell .sv.good{color:var(--good);} .verdict .vcell .sv small{font-size:.72rem;color:var(--dim);font-weight:400;}
+  .verdict .alert{display:flex;align-items:center;justify-content:center;gap:.5rem;border:1px solid color-mix(in srgb,var(--amber) 45%,var(--line));background:color-mix(in srgb,var(--amber) 8%,transparent);border-radius:10px;padding:.75rem;color:var(--amber);font-weight:700;font-size:.95rem;}
+  .verdict .alert small{color:var(--dim);font-weight:400;font-family:var(--mono);font-size:.76rem;}
+  .verdict .signed{display:flex;align-items:center;gap:.7rem;flex-wrap:wrap;font-family:var(--mono);font-size:.76rem;color:var(--dim);}
+  .verdict .signed .ok{color:var(--good);} .verdict .signed .btn{border:1px solid var(--line);border-radius:7px;padding:.25rem .6rem;color:var(--blue);}
+  .verdict .signed .btn.amber{color:var(--amber);border-color:color-mix(in srgb,var(--amber) 40%,var(--line));}
 
   /* title / note stages */
   .center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.3rem;padding:clamp(1.4rem,5vw,3.4rem);}
@@ -169,13 +178,21 @@
       <div class="app-in" style="align-items:center;">
         <div class="chk">
           <h2>Is this Polymarket wallet <span class="amber">actually good?</span></h2>
-          <p class="sub2">Paste a wallet address. Predge returns its <b>outcome-verified</b> track record — win rate on <b>resolved</b> markets, edge over the price it paid, and leaderboard rank. Free.</p>
-          <div class="chk-field"><div class="inp">0x… Polymarket wallet address</div><div class="go">Check</div></div>
+          <div class="chk-field"><div class="inp">0x7d83c905cb7b0e790499392ce641bb867bd7be92</div><div class="go">Check</div></div>
           <div class="verdict">
-            <div class="vh">Verdict for 0x7d83…be92 <span class="badge">✓ VERIFIED SMART MONEY</span> <span style="color:var(--dim)">· signed, verifiable offline</span></div>
-            <div class="stat"><div class="sv good">97.5%</div><div class="sl">win rate · resolved</div></div>
-            <div class="stat"><div class="sv good">+46%</div><div class="sl">edge over price</div></div>
-            <div class="stat"><div class="sv">#4 / 8669</div><div class="sl">leaderboard rank</div></div>
+            <div class="addr">0x7d83c905cb7b0e790499392ce641bb867bd7be92</div>
+            <div class="pill">✓ Verified smart money</div>
+            <p class="vdesc">Beat the market price on a real sample of resolved bets, with capital behind it.</p>
+            <div class="vgrid">
+              <div class="vcell"><div class="sl">Win rate (resolved)</div><div class="sv good">97.5% <small>(≥87.1%)</small></div></div>
+              <div class="vcell"><div class="sl">Edge over price</div><div class="sv good">+46.4pp</div></div>
+              <div class="vcell"><div class="sl">Conviction</div><div class="sv">6.30</div></div>
+              <div class="vcell"><div class="sl">Leaderboard rank</div><div class="sv">#4 <small>of 8669</small></div></div>
+              <div class="vcell"><div class="sl">Resolved trades</div><div class="sv">40</div></div>
+              <div class="vcell"><div class="sl">Volume (30d)</div><div class="sv">$779.7k</div></div>
+            </div>
+            <div class="alert">🔔 Alert me when this wallet trades <small>free · Telegram</small></div>
+            <div class="signed"><span class="ok">✓ signed</span> · ed25519 · key 13fa3d18a3… <span class="btn amber">Share</span><span class="btn">Copy share link</span><span class="btn">Verify signature</span></div>
           </div>
         </div>
       </div>
@@ -183,7 +200,7 @@
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
       <div class="cue">Frame 2 · check any wallet</div>
       <div class="say">"You paste any wallet, and Predge tells you — is this trader actually good? Win rate on markets that already <b>resolved</b>, their real edge, their rank. And it's signed, so you don't have to trust us — you can verify it yourself."</div>
-      <div class="do">SHOW LIVE (best): open <b>data.predge.io/checker</b>, paste <b>0x7d83c905cb7b0e790499392ce641bb867bd7be92</b> → Check (verified smart money, 97.5% win).</div>
+      <div class="do">SHOW LIVE (best): open the pre-filled link → <b>data.predge.io/checker?wallet=0x7d83c905cb7b0e790499392ce641bb867bd7be92</b> (loads the verdict instantly on camera).</div>
       <div class="counter"></div>
     </div>
   </section>
