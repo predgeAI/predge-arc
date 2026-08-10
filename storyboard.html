@@ -38,6 +38,53 @@
   .c-arc{color:var(--arc);} .c-blue{color:var(--blue);} .c-muted{color:var(--muted);} .c-fg{color:var(--fg);}
   .k{color:var(--blue);} .s{color:var(--good);} .p{color:var(--amber);} .n{color:#c792ea;}
 
+  /* ── PRODUCT UI mockups (what a person actually sees) ──────────── */
+  .app{width:min(1120px,95%);border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,#0e1013,#0a0b0e);box-shadow:0 30px 80px rgba(0,0,0,.55);overflow:hidden;}
+  .app-top{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.2rem;border-bottom:1px solid var(--line);}
+  .app-top .brand{display:flex;align-items:center;gap:.55rem;font-family:var(--mono);font-weight:700;letter-spacing:.04em;font-size:.95rem;}
+  .app-top .brand .m{width:26px;height:26px;border-radius:7px;background:var(--amber);color:#000;display:grid;place-items:center;font-weight:800;font-size:1rem;}
+  .app-top .nav{display:flex;gap:1.3rem;font-size:.82rem;color:var(--muted);align-items:center;}
+  .app-top .cta{background:var(--amber);color:#000;font-weight:700;font-size:.82rem;padding:.45rem .95rem;border-radius:8px;}
+  .app-in{padding:clamp(1.1rem,2.6vw,2rem) clamp(1.3rem,3vw,2.4rem);display:flex;flex-direction:column;gap:1.1rem;}
+  .eyebrow{font-family:var(--mono);font-size:.72rem;letter-spacing:.2em;text-transform:uppercase;color:var(--amber);}
+  .hero-h{font-size:clamp(1.7rem,3.8vw,2.9rem);font-weight:800;line-height:1.02;letter-spacing:-.02em;margin:0;text-wrap:balance;}
+  .hero-h .amber{color:var(--amber);}
+  .hero-sub{color:var(--muted);font-size:clamp(.95rem,1.7vw,1.15rem);line-height:1.5;max-width:60ch;margin:0;}
+  .hero-sub b{color:var(--fg);font-weight:600;}
+  .metrics{display:flex;gap:2.4rem;flex-wrap:wrap;}
+  .metrics .m .v{font-family:var(--mono);font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums;}
+  .metrics .m .l{font-family:var(--mono);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:.15rem;}
+
+  .feed{border:1px solid var(--line);border-radius:12px;background:#0b0d10;overflow:hidden;}
+  .feed-top{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid var(--line);}
+  .feed-top .live{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:.5rem;}
+  .feed-top .live::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--good);box-shadow:0 0 8px var(--good);}
+  .feed-top .toggle{font-family:var(--mono);font-size:.72rem;color:var(--dim);border:1px solid var(--line);border-radius:7px;overflow:hidden;}
+  .feed-top .toggle b{background:var(--ink-3);color:var(--amber);padding:.3rem .6rem;font-weight:600;}
+  .feed-top .toggle span{padding:.3rem .6rem;}
+  .feed .big{font-family:var(--mono);font-size:clamp(1.6rem,3.4vw,2.4rem);font-weight:800;padding:.7rem 1rem .1rem;font-variant-numeric:tabular-nums;}
+  .feed .biglbl{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);padding:0 1rem .6rem;}
+  .row{display:grid;grid-template-columns:1fr auto auto auto;gap:1rem;align-items:center;padding:.55rem 1rem;border-top:1px solid #1a1d23;font-family:var(--mono);font-size:.9rem;}
+  .row .mk{color:var(--fg);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .row .side{font-weight:700;font-size:.82rem;} .row .side.y{color:var(--good);} .row .side.n{color:var(--bad);}
+  .row .amt{color:var(--amber);font-variant-numeric:tabular-nums;} .row .t{color:var(--dim);font-size:.8rem;}
+
+  /* checker */
+  .chk{max-width:760px;text-align:center;display:flex;flex-direction:column;gap:1rem;align-items:center;}
+  .chk h2{font-size:clamp(1.6rem,3.6vw,2.6rem);margin:0;font-weight:800;letter-spacing:-.01em;text-wrap:balance;}
+  .chk h2 .amber{color:var(--amber);}
+  .chk .sub2{color:var(--muted);font-size:clamp(.95rem,1.7vw,1.12rem);line-height:1.5;max-width:52ch;}
+  .chk .sub2 b{color:var(--fg);}
+  .chk-field{display:flex;gap:.7rem;width:100%;max-width:620px;}
+  .chk-field .inp{flex:1;text-align:left;font-family:var(--mono);color:var(--dim);background:#0b0d10;border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;font-size:.92rem;}
+  .chk-field .go{background:var(--amber);color:#000;font-weight:700;border-radius:10px;padding:.8rem 1.4rem;font-size:.92rem;}
+  .verdict{width:100%;max-width:620px;border:1px solid color-mix(in srgb,var(--good) 45%,var(--line));border-radius:12px;background:#0b0d10;padding:1rem 1.2rem;text-align:left;display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem 1.4rem;}
+  .verdict .vh{grid-column:1/-1;display:flex;align-items:center;gap:.6rem;font-family:var(--mono);font-size:.86rem;color:var(--muted);}
+  .verdict .vh .badge{color:var(--good);font-weight:700;border:1px solid color-mix(in srgb,var(--good) 45%,var(--line));border-radius:999px;padding:.15rem .6rem;font-size:.76rem;}
+  .stat .sv{font-family:var(--mono);font-size:1.35rem;font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums;}
+  .stat .sv.good{color:var(--good);}
+  .stat .sl{font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:.1rem;}
+
   /* title / note stages */
   .center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.3rem;padding:clamp(1.4rem,5vw,3.4rem);}
   .logo{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--mono);font-weight:700;letter-spacing:.05em;font-size:1.05rem;}
@@ -67,30 +114,92 @@
     <div class="stage"><div class="center">
       <div class="logo"><span class="mark">P</span> PREDGE ON ARC</div>
       <div class="note-badge">a quick note before we start</div>
-      <h1>Real screenshots from my<br>own terminal &amp; explorer.</h1>
-      <p>I put them into one slideshow so the whole project is easy to follow end-to-end — every transaction, address and hash below is real and live on Circle Arc testnet.</p>
+      <h1>Real screens from our live<br>product &amp; my own terminal.</h1>
+      <p>I put them into one slideshow so it's easy to follow end-to-end — first what a person sees, then what happens on-chain. Every screen, transaction and hash is real and live.</p>
       <div class="meta">press → to begin</div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line — subtitles are for you only</span>
       <div class="cue">Frame 0 · intro (judges see this)</div>
       <div class="say">"Quick note — these are real screenshots from my own terminal and the Arc explorer, put into one slideshow so it's easy to follow. Everything here is live on Arc testnet."</div>
       <div class="do">SHOW: this note for ~4 seconds, then advance.</div>
-      <div class="counter">01 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
-  <!-- 1 · TITLE -->
+  <!-- 1 · WHAT A PERSON SEES — landing + live feed -->
+  <section class="slide">
+    <div class="stage"><div class="app">
+      <div class="app-top">
+        <div class="brand"><span class="m">P</span> PREDGE</div>
+        <div class="nav">Traders · AI · Business <span class="cta">Launch App</span></div>
+      </div>
+      <div class="app-in">
+        <div class="eyebrow">Polymarket whale intelligence</div>
+        <h1 class="hero-h">The smart money — <span class="amber">signed before the outcome.</span></h1>
+        <p class="hero-sub">Predge tracks Polymarket whales in real time and cryptographically signs every call. <b>Traders get alerts. Agents get an API. Businesses license the proof.</b> Anyone can verify it — offline.</p>
+        <div class="metrics">
+          <div class="m"><div class="v">715K</div><div class="l">wallets tracked</div></div>
+          <div class="m"><div class="v">3,900+</div><div class="l">live markets</div></div>
+          <div class="m"><div class="v">26</div><div class="l">paid API routes</div></div>
+        </div>
+        <div class="feed">
+          <div class="feed-top"><span class="live">Live · whale activity</span><span class="toggle"><b>Polymarket</b><span>Kalshi</span></span></div>
+          <div class="big">10,976,168</div><div class="biglbl">whale trades indexed · signed &amp; verifiable</div>
+          <div class="row"><span class="mk">Bitcoin above $58,000 on Aug 31?</span><span class="side y">YES</span><span class="amt">$31,215</span><span class="t">13s</span></div>
+          <div class="row"><span class="mk">Strait of Hormuz normal transit?</span><span class="side n">NO</span><span class="amt">$39,033</span><span class="t">19s</span></div>
+          <div class="row"><span class="mk">Padres vs. Diamondbacks</span><span class="side n">NO</span><span class="amt">$65,759</span><span class="t">31s</span></div>
+        </div>
+      </div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 1 · what a person sees</div>
+      <div class="say">"Here's what Predge is, in plain terms. We watch the biggest, smartest traders on prediction markets like Polymarket — in real time — and we cryptographically sign every call. A trader gets alerts; a business gets proof; and anyone can check it themselves."</div>
+      <div class="do">SHOW LIVE (best): open <b>predge.io</b> — the feed animates live.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 2 · CHECK ANY WALLET — checker UI -->
+  <section class="slide">
+    <div class="stage"><div class="app">
+      <div class="app-top">
+        <div class="brand"><span class="m">P</span> PREDGE</div>
+        <div class="nav">Verify · Data API</div>
+      </div>
+      <div class="app-in" style="align-items:center;">
+        <div class="chk">
+          <h2>Is this Polymarket wallet <span class="amber">actually good?</span></h2>
+          <p class="sub2">Paste a wallet address. Predge returns its <b>outcome-verified</b> track record — win rate on <b>resolved</b> markets, edge over the price it paid, and leaderboard rank. Free.</p>
+          <div class="chk-field"><div class="inp">0x… Polymarket wallet address</div><div class="go">Check</div></div>
+          <div class="verdict">
+            <div class="vh">Verdict for 0x7f3a…c21b <span class="badge">✓ SMART MONEY</span> <span style="color:var(--dim)">· signed, verifiable offline</span></div>
+            <div class="stat"><div class="sv good">68%</div><div class="sl">win rate · resolved</div></div>
+            <div class="stat"><div class="sv good">+14.2%</div><div class="sl">edge over price</div></div>
+            <div class="stat"><div class="sv">#37</div><div class="sl">leaderboard rank</div></div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 2 · check any wallet</div>
+      <div class="say">"You paste any wallet, and Predge tells you — is this trader actually good? Win rate on markets that already <b>resolved</b>, their real edge, their rank. And it's signed, so you don't have to trust us — you can verify it yourself."</div>
+      <div class="do">SHOW LIVE (best): open <b>data.predge.io/checker</b> and paste a wallet on camera.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 3 · BRIDGE to on-chain -->
   <section class="slide">
     <div class="stage"><div class="center">
       <div class="logo"><span class="mark">P</span> PREDGE ON ARC</div>
-      <h1>Agents buy intelligence<br>with native USDC.</h1>
-      <p>Pay-per-call whale intelligence, settled on Circle Arc. The on-chain receipt is the access credential — no keys, no accounts, no cards.</p>
+      <h1>For people: alerts &amp; a checker.<br>For agents: an API they pay per call.</h1>
+      <p>Same signed intelligence, sold to AI agents pay-per-call — and on Circle Arc, that payment becomes native. Here's the machine side.</p>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 1 · open</div>
-      <div class="say">"This is Predge on Arc — an AI agent buying verifiable market intelligence, paid natively in USDC. Let me show you the whole loop."</div>
-      <div class="do">SHOW: the title. <b>Pre-start the gateway before recording.</b></div>
-      <div class="counter">02 / 09</div>
+      <div class="cue">Frame 3 · from people to agents</div>
+      <div class="say">"So that's the human side — alerts and a checker. The same intelligence is also sold to AI agents, pay-per-call. And on Circle Arc, that payment becomes native. Let me show you the machine side."</div>
+      <div class="do">SHOW: this bridge, then cut to the terminal. <b>Pre-start the gateway.</b></div>
+      <div class="counter"></div>
     </div>
   </section>
 
@@ -114,7 +223,7 @@
       <div class="cue">Frame 2 · the loop, live</div>
       <div class="say">"The agent asks for whale trades, gets a 402 quote, and pays with <b>msg.value</b> — on Arc the USDC <b>is</b> the gas. The on-chain receipt unlocks the data. Replay the same payment? 409. One payment, one unlock."</div>
       <div class="do">Optional live: <b>node agent.mjs</b> from predge-arc.</div>
-      <div class="counter">03 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
@@ -138,7 +247,7 @@
       <div class="cue">Frame 3 · the receipt is the credential</div>
       <div class="say">"Here's that payment on Arc's explorer. The <b>Paid</b> event carries the request id — so the receipt is the access credential, the proof, and the audit record, in one on-chain event."</div>
       <div class="do">Recommended live: open the real arcscan tx link.</div>
-      <div class="counter">04 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
@@ -160,7 +269,7 @@
       <div class="cue">Frame 4 · the seller holds no key</div>
       <div class="say">"The seller — this gateway — holds <b>no private key</b>. It can read the chain, not touch funds. Payments accrue in the contract; only the owner withdraws. The trust surface is tiny."</div>
       <div class="do">SHOW: the gateway startup log.</div>
-      <div class="counter">05 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
@@ -184,7 +293,7 @@
       <div class="cue">Frame 5 · already in production</div>
       <div class="say">"This isn't a hackathon mock. Predge is a <b>live</b> API — over twenty paid routes, every response ed25519-signed, selling to agents today on Base and Solana. Arc is where settlement becomes native."</div>
       <div class="do">Recommended live: open the real prod URL.</div>
-      <div class="counter">06 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
@@ -204,7 +313,7 @@
       <div class="cue">Frame 6 · the differentiator</div>
       <div class="say">"Our signed data is tamper-evident — but a hash chain can't stop the operator rewriting history. So we freeze the chain head into an Arc receipt. This digest, computed live, matches the one on-chain. <b>Anyone</b> can reproduce it — not even we can rewrite our own record."</div>
       <div class="do">Strongest live moment: type <b>curl … | shasum</b> on camera.</div>
-      <div class="counter">07 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
@@ -224,7 +333,7 @@
       <div class="cue">Frame 7 · second track — the vault</div>
       <div class="say">"Same repo, the DeFi track: an agent-run USDC vault steered only by Predge's <b>signed</b> whale consensus. The keeper verifies the signature off-chain, commits the hash on-chain — and when smart money hasn't moved, it holds. Real autonomy, not an AI wrapper."</div>
       <div class="do">Optional live: <b>node vault-keeper.mjs run --sample riskoff</b>.</div>
-      <div class="counter">08 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
@@ -240,13 +349,15 @@
       <div class="cue">Frame 8 · close</div>
       <div class="say">"Everything you saw is live on Arc. Predge already sells to agents in production — Arc is the missing settlement leg. The wallet is the customer, and every byte comes with a receipt. That's the machine-native data economy, built on Arc."</div>
       <div class="do">END: hold here, or on the arcscan contract page.</div>
-      <div class="counter">09 / 09</div>
+      <div class="counter"></div>
     </div>
   </section>
 
 </div>
 <script>
   const slides=[...document.querySelectorAll('.slide')];
+  const total=String(slides.length).padStart(2,'0');
+  slides.forEach((s,idx)=>{const c=s.querySelector('.counter');if(c)c.textContent=String(idx+1).padStart(2,'0')+' / '+total;});
   let i=0;
   function show(n){
     const t=Math.max(0,Math.min(slides.length-1,n));
