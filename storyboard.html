@@ -237,7 +237,7 @@
   <span class="c-bad">rejected: 409 request_already_redeemed</span> — one payment, one unlock.</pre></div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 2 · the loop, live</div>
+      <div class="cue">Frame 4 · the loop, live</div>
       <div class="say">"The agent asks for whale trades, gets a four-oh-two quote, and pays with <b>message-dot-value</b> — on Arc the you-ess-dee-see <b>is</b> the gas. The on-chain receipt unlocks the data. Replay the same payment? Four-oh-nine. One payment, one unlock."</div>
       <div class="do">Optional live: <b>node agent.mjs</b> from predge-arc.</div>
       <div class="counter"></div>
@@ -261,7 +261,7 @@
        requestId <span class="c-dim">ec6fa57d-1498-…</span>  <span class="c-good">← the access credential</span></pre></div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 3 · the receipt is the credential</div>
+      <div class="cue">Frame 5 · the receipt is the credential</div>
       <div class="say">"Here's that payment on Arc's explorer. The <b>Paid</b> event carries the request id — so the receipt is the access credential, the proof, and the audit record, in one on-chain event."</div>
       <div class="do">Recommended live: open the real arcscan tx link.</div>
       <div class="counter"></div>
@@ -283,7 +283,7 @@
 <span class="c-dim"># money accrues in the contract, only the owner withdraws.</span></pre></div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 4 · the seller holds no key</div>
+      <div class="cue">Frame 6 · the seller holds no key</div>
       <div class="say">"The seller — this gateway — holds <b>no private key</b>. It can read the chain, not touch funds. Payments accrue in the contract; only the owner withdraws. The trust surface is tiny."</div>
       <div class="do">SHOW: the gateway startup log.</div>
       <div class="counter"></div>
@@ -307,7 +307,7 @@
 }</pre></div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 5 · already in production</div>
+      <div class="cue">Frame 7 · already in production</div>
       <div class="say">"This isn't a hackathon mock. Predge is a <b>live</b> API — over twenty paid routes, every response cryptographically signed with ed-twenty-five-five-nineteen, selling to agents today on Base and Solana. Arc is where settlement becomes native."</div>
       <div class="do">Recommended live: open the real prod URL.</div>
       <div class="counter"></div>
@@ -327,7 +327,7 @@
   <span class="c-good">↑ same digest frozen in the Arc transaction — reproduce it yourself</span></pre></div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 6 · the differentiator</div>
+      <div class="cue">Frame 8 · the differentiator</div>
       <div class="say">"Our signed data is tamper-evident — but a hash chain can't stop the operator rewriting history. So we freeze the chain head into an Arc receipt. This digest, computed live, matches the one on-chain. <b>Anyone</b> can reproduce it — not even we can rewrite our own record."</div>
       <div class="do">Strongest live moment: type <b>curl … | shasum</b> on camera.</div>
       <div class="counter"></div>
@@ -347,7 +347,7 @@
 <span class="c-dim">[INFO ]</span> no rebalance — the agent doesn't churn gas for nothing</pre></div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 7 · second track — the vault</div>
+      <div class="cue">Frame 9 · second track — the vault</div>
       <div class="say">"Same repo, the DeFi track: an agent-run USDC vault steered only by Predge's <b>signed</b> whale consensus. The keeper verifies the signature off-chain, commits the hash on-chain — and when smart money hasn't moved, it holds. Real autonomy, not an AI wrapper."</div>
       <div class="do">Optional live: <b>node vault-keeper.mjs run --sample riskoff</b>.</div>
       <div class="counter"></div>
@@ -363,7 +363,7 @@
       <div class="meta">predge.io · contract 0x3474Bd27…C82A5 · chainId 5042002</div>
     </div></div>
     <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
-      <div class="cue">Frame 8 · close</div>
+      <div class="cue">Frame 10 · close</div>
       <div class="say">"Everything you saw is live on Arc. Predge already sells to agents in production — Arc is the missing settlement leg. The wallet is the customer, and every byte comes with a receipt. That's the machine-native data economy, built on Arc."</div>
       <div class="do">END: hold here, or on the arcscan contract page.</div>
       <div class="counter"></div>
