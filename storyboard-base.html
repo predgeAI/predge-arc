@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Predge on Base — 1-min demo slideshow</title>
+<style>
+  :root {
+    --amber:#f5a623; --ink:#0c0d10; --ink-2:#131519; --ink-3:#1b1e24;
+    --line:#2a2e37; --fg:#e9ecf1; --muted:#9aa2b1; --dim:#6b7280;
+    --good:#35c07f; --bad:#ef5f5f; --base:#0052ff; --blue:#6ea8ff;
+    --mono: ui-monospace,"SF Mono","Menlo","Cascadia Code",monospace;
+    --sans: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    --sub-h: 26vh;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;height:100%;overflow:hidden;}
+  body{background:#000;color:var(--fg);font-family:var(--sans);}
+  .deck{position:fixed;inset:0;}
+  .slide{position:absolute;inset:0;display:grid;grid-template-rows:1fr var(--sub-h);
+    opacity:0;visibility:hidden;transition:opacity .18s ease;
+    background:radial-gradient(120% 80% at 50% 0%, #101522 0%, #0a0b0e 70%);}
+  .slide.active{opacity:1;visibility:visible;}
+  @media (prefers-reduced-motion:reduce){.slide{transition:none;}}
+  .stage{display:flex;align-items:center;justify-content:center;padding:clamp(1.4rem,4vw,3.4rem);overflow:hidden;}
+
+  .win{width:min(1120px,94%);border-radius:12px;border:1px solid var(--line);background:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.55);overflow:hidden;}
+  .bar{display:flex;align-items:center;gap:.5rem;padding:.6rem .9rem;background:var(--ink-2);border-bottom:1px solid var(--line);}
+  .dot{width:11px;height:11px;border-radius:50%;background:#3a3f49;} .dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+  .bar .addr{margin-left:.6rem;font-family:var(--mono);font-size:.82rem;color:var(--muted);}
+  .bar .addr b{color:var(--fg);font-weight:500;}
+  .body{padding:1.05rem 1.3rem;font-family:var(--mono);font-size:clamp(.7rem,1.05vw,.86rem);line-height:1.5;overflow-x:auto;}
+  .body pre{margin:0;white-space:pre;}
+  .c-dim{color:var(--dim);} .c-amber{color:var(--amber);} .c-good{color:var(--good);} .c-bad{color:var(--bad);}
+  .c-base{color:#5b8dff;} .c-blue{color:var(--blue);} .c-muted{color:var(--muted);} .c-fg{color:var(--fg);}
+  .k{color:var(--blue);} .s{color:var(--good);} .p{color:var(--amber);} .n{color:#c792ea;}
+
+  /* product UI */
+  .app{width:min(1120px,95%);border-radius:14px;border:1px solid var(--line);background:linear-gradient(180deg,#0e1013,#0a0b0e);box-shadow:0 30px 80px rgba(0,0,0,.55);overflow:hidden;}
+  .app-top{display:flex;align-items:center;justify-content:space-between;padding:.8rem 1.2rem;border-bottom:1px solid var(--line);}
+  .app-top .brand{display:flex;align-items:center;gap:.55rem;font-family:var(--mono);font-weight:700;letter-spacing:.04em;font-size:.95rem;}
+  .app-top .brand .m{width:26px;height:26px;border-radius:7px;background:var(--amber);color:#000;display:grid;place-items:center;font-weight:800;font-size:1rem;}
+  .app-top .nav{font-size:.82rem;color:var(--muted);}
+  .app-in{padding:clamp(1.1rem,2.6vw,1.9rem) clamp(1.3rem,3vw,2.2rem);display:flex;flex-direction:column;gap:.75rem;align-items:center;}
+  .chk{max-width:760px;text-align:center;display:flex;flex-direction:column;gap:.75rem;align-items:center;}
+  .chk h2{font-size:clamp(1.5rem,3vw,2.2rem);margin:0;font-weight:800;letter-spacing:-.01em;text-wrap:balance;}
+  .chk h2 .amber{color:var(--amber);}
+  .chk-field{display:flex;gap:.7rem;width:100%;max-width:620px;}
+  .chk-field .inp{flex:1;text-align:left;font-family:var(--mono);color:var(--dim);background:#0b0d10;border:1px solid var(--line);border-radius:10px;padding:.8rem 1rem;font-size:.9rem;}
+  .chk-field .go{background:var(--amber);color:#000;font-weight:700;border-radius:10px;padding:.8rem 1.4rem;font-size:.9rem;}
+  .verdict{width:100%;max-width:680px;border:1px solid var(--line);border-radius:14px;background:#0b0d10;padding:.95rem 1.2rem;text-align:left;display:flex;flex-direction:column;gap:.65rem;}
+  .verdict .addr{font-family:var(--mono);font-size:.8rem;color:var(--dim);}
+  .verdict .pill{align-self:flex-start;display:inline-flex;align-items:center;gap:.4rem;color:var(--good);font-weight:800;font-size:1.1rem;background:color-mix(in srgb,var(--good) 14%,transparent);border:1px solid color-mix(in srgb,var(--good) 40%,var(--line));border-radius:999px;padding:.35rem .9rem;}
+  .verdict .vdesc{color:var(--muted);font-size:.92rem;line-height:1.4;margin:0;}
+  .verdict .vgrid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;}
+  .verdict .vcell{padding:.6rem .9rem;border-right:1px solid #1a1d23;border-bottom:1px solid #1a1d23;}
+  .verdict .vcell:nth-child(2n){border-right:none;}
+  .verdict .vcell .sl{font-family:var(--mono);font-size:.64rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);}
+  .verdict .vcell .sv{font-family:var(--mono);font-size:1.5rem;font-weight:700;color:var(--fg);margin-top:.2rem;font-variant-numeric:tabular-nums;}
+  .verdict .vcell .sv.good{color:var(--good);} .verdict .vcell .sv small{font-size:.7rem;color:var(--dim);font-weight:400;}
+  .verdict .signed{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-family:var(--mono);font-size:.74rem;color:var(--dim);}
+  .verdict .signed .ok{color:var(--good);}
+
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.3rem;padding:clamp(1.4rem,5vw,3.4rem);}
+  .logo{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--mono);font-weight:700;letter-spacing:.05em;font-size:1.05rem;}
+  .logo .mark{width:38px;height:38px;border-radius:9px;background:var(--amber);color:#000;display:grid;place-items:center;font-size:1.4rem;font-weight:800;}
+  .center h1{font-family:var(--mono);font-size:clamp(1.7rem,4.6vw,3.2rem);margin:0;letter-spacing:-.02em;text-wrap:balance;line-height:1.05;}
+  .center h1 .base{color:#5b8dff;}
+  .center p{color:var(--muted);max-width:54ch;line-height:1.55;margin:0;font-size:clamp(1.02rem,2vw,1.3rem);}
+  .center .meta{font-family:var(--mono);color:var(--dim);font-size:.82rem;}
+  .note-badge{font-family:var(--mono);font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);border:1px solid color-mix(in srgb,var(--amber) 40%,var(--line));border-radius:999px;padding:.4rem .9rem;}
+  .metrics{display:flex;gap:2.2rem;flex-wrap:wrap;justify-content:center;margin-top:.4rem;}
+  .metrics .m .v{font-family:var(--mono);font-size:clamp(1.3rem,2.6vw,1.9rem);font-weight:700;color:var(--fg);font-variant-numeric:tabular-nums;}
+  .metrics .m .l{font-family:var(--mono);font-size:.66rem;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:.15rem;}
+
+  .sub{background:#000;border-top:1px solid var(--line);padding:clamp(.9rem,2vw,1.4rem) clamp(1.5rem,6vw,5rem);display:flex;flex-direction:column;gap:.45rem;justify-content:center;position:relative;}
+  .sub .cue{font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);display:flex;gap:.7rem;align-items:center;}
+  .sub .cue::before{content:"";width:22px;height:2px;background:var(--amber);}
+  .sub .say{font-size:clamp(1.05rem,2.2vw,1.5rem);line-height:1.38;color:var(--fg);max-width:66ch;text-wrap:balance;font-weight:450;}
+  .sub .do{font-family:var(--mono);font-size:clamp(.7rem,1.25vw,.84rem);color:var(--muted);}
+  .sub .do b{color:var(--amber);font-weight:600;}
+  .counter{position:absolute;right:clamp(1.5rem,6vw,5rem);bottom:.8rem;font-family:var(--mono);font-size:.72rem;color:var(--dim);}
+  .cropline{position:absolute;top:0;left:0;right:0;height:1px;background:repeating-linear-gradient(90deg,var(--amber) 0 10px,transparent 10px 20px);opacity:.5;}
+  .cropnote{position:absolute;top:.35rem;left:clamp(1.5rem,6vw,5rem);font-family:var(--mono);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+  <!-- 0 · INTRO -->
+  <section class="slide active">
+    <div class="stage"><div class="center">
+      <div class="logo"><span class="mark">P</span> PREDGE ON BASE</div>
+      <div class="note-badge">a quick note before we start</div>
+      <h1>Real screens from our live<br>product &amp; my terminal.</h1>
+      <p>A one-minute demo. Everything is real and live on <span style="color:#5b8dff">Base mainnet</span> — every screen, transaction and address below.</p>
+      <div class="meta">press → to begin</div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line — subtitles are for you only</span>
+      <div class="cue">Frame 0 · intro</div>
+      <div class="say">"Quick note — these are real screens from our live product and my terminal, in one slideshow. Everything here is live on Base mainnet."</div>
+      <div class="do">SHOW: this note ~3s, then advance.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 1 · PRODUCT — checker -->
+  <section class="slide">
+    <div class="stage"><div class="app">
+      <div class="app-top"><div class="brand"><span class="m">P</span> PREDGE</div><div class="nav">Verify · Data API</div></div>
+      <div class="app-in">
+        <div class="chk">
+          <h2>Is this Polymarket wallet <span class="amber">actually good?</span></h2>
+          <div class="chk-field"><div class="inp">0x7d83c905cb7b0e790499392ce641bb867bd7be92</div><div class="go">Check</div></div>
+          <div class="verdict">
+            <div class="addr">0x7d83c905cb7b0e790499392ce641bb867bd7be92</div>
+            <div class="pill">✓ Verified smart money</div>
+            <p class="vdesc">Beat the market price on a real sample of resolved bets, with capital behind it.</p>
+            <div class="vgrid">
+              <div class="vcell"><div class="sl">Win rate · resolved</div><div class="sv good">97.5% <small>(≥87.1%)</small></div></div>
+              <div class="vcell"><div class="sl">Edge over price</div><div class="sv good">+46.4pp</div></div>
+              <div class="vcell"><div class="sl">Leaderboard rank</div><div class="sv">#4 <small>of 8669</small></div></div>
+              <div class="vcell"><div class="sl">Resolved trades</div><div class="sv">40</div></div>
+            </div>
+            <div class="signed"><span class="ok">✓ signed</span> · ed25519 · verifiable offline</div>
+          </div>
+        </div>
+      </div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 1 · what a person sees</div>
+      <div class="say">"Predge tells you if a prediction-market trader is actually good — win rate on markets that already resolved, their edge, their rank. Every answer is signed, so anyone can verify it. This is a live product with real users."</div>
+      <div class="do">SHOW LIVE (best): data.predge.io/checker?wallet=0x7d83c905cb7b0e790499392ce641bb867bd7be92</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 2 · WHAT IT IS — live API on Base -->
+  <section class="slide">
+    <div class="stage"><div class="center">
+      <div class="logo"><span class="mark">P</span> PREDGE</div>
+      <h1>The same intelligence, sold to<br>AI agents — paid on <span class="base">Base</span>.</h1>
+      <p>A live pay-per-call API: agents buy signed prediction-market &amp; sports intelligence, settled in USDC on Base. No account, no API key, no subscription — the wallet is the customer.</p>
+      <div class="metrics">
+        <div class="m"><div class="v">26</div><div class="l">paid API routes</div></div>
+        <div class="m"><div class="v">$0.005–0.03</div><div class="l">per call</div></div>
+        <div class="m"><div class="v">USDC</div><div class="l">settled on Base</div></div>
+      </div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 2 · what it is</div>
+      <div class="say">"The same signed intelligence is also sold to AI agents — pay-per-call, settled in USDC on Base. No account, no API key, no subscription. Twenty-six paid routes run in production today."</div>
+      <div class="do">Optional live: open the prod API root in the browser.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 3 · AGENT PAYS ON BASE — terminal -->
+  <section class="slide">
+    <div class="stage"><div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">agent — <b>x402 buyer on Base mainnet</b></span></div>
+      <div class="body"><pre><span class="c-dim">$ GET /v1/whales/latest</span>   <span class="c-amber">402 Payment Required</span>
+  accepts: <span class="c-base">eip155:8453 (Base) · USDC · $0.005</span>  — also Solana
+<span class="c-dim">→ agent signs a gasless USDC authorization (x402 / EIP-3009)</span>
+  payer   <span class="c-fg">0x469E8E11F88C2a2dAB4ecF6b46373D7F0479Edc4</span>
+  payTo   <span class="c-fg">0x9084f5000e07c7133d6da5ee4f271ab6d1821144</span>
+<span class="c-dim">$ GET /v1/whales/latest  (retry with X-PAYMENT)</span>   <span class="c-good">200 OK</span>
+  <span class="c-good">settled on Base — no gas token, no bridge, no account.</span>
+    BUY_YES  $48,212  Will the Fed cut rates in September 2026?
+    BUY_NO   $19,850  US recession declared before 2027?</pre></div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 3 · an agent pays on Base</div>
+      <div class="say">"Here's the new user: an AI agent. It hits a paid route, gets a four-oh-two, signs a gasless USDC authorization — x402 over EIP-3009 — and pays on Base. No gas token, no bridge, no account. It retries and gets the data."</div>
+      <div class="do">Optional live: run the x402 buyer against the prod API.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 4 · BASESCAN — the settlement -->
+  <section class="slide">
+    <div class="stage"><div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">🔒 <b>basescan.org</b>/tx/0x67ef33ee…2a1438</span></div>
+      <div class="body"><pre><span class="c-muted">Transaction</span>  <span class="c-good">● Success</span>   <span class="c-dim">Base mainnet · eip155:8453</span>
+
+  <span class="c-dim">Asset</span>    <span class="c-base">USDC</span>  <span class="c-dim">(native Circle USDC on Base)</span>
+  <span class="c-dim">Method</span>   x402 settlement  <span class="c-dim">— gasless, via EIP-3009 transferWithAuthorization</span>
+  <span class="c-dim">Payer</span>    <span class="c-blue">0x469E8E11…79Edc4</span>  <span class="c-dim">(the agent)</span>
+  <span class="c-dim">PayTo</span>    <span class="c-fg">0x9084f500…21821144</span>  <span class="c-dim">(Predge)</span>
+
+  <span class="c-good">A real on-chain settlement on Base — every paid call is one.</span>
+  <span class="c-dim">net-new USDC activity, driven by an agent, not a human.</span></pre></div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 4 · real settlement on Base</div>
+      <div class="say">"And every paid call is a real on-chain settlement on Base — in native USDC, gasless. This is net-new activity, driven by an agent, not a human. You can verify it on basescan."</div>
+      <div class="do">SHOW LIVE (recommended): open the basescan tx link — it's real.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 5 · VERIFIABILITY -->
+  <section class="slide">
+    <div class="stage"><div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">GET /v1/wallets/:addr/attest — <b>signed response</b></span></div>
+      <div class="body"><pre>{
+  <span class="k">"win_rate"</span>: <span class="n">0.975</span>,
+  <span class="k">"outcome_verified"</span>: { <span class="k">"win_rate"</span>: <span class="c-good">true</span>, <span class="k">"pnl"</span>: <span class="c-bad">false</span> },   <span class="c-dim">← verified vs modelled</span>
+  <span class="k">"data_basis"</span>: <span class="s">"resolved markets only"</span>,
+  <span class="k">"signature"</span>: <span class="s">"ed25519:9a4f…"</span>,  <span class="k">"public_key"</span>: <span class="s">"13fa3d18a3…"</span>
+}
+<span class="c-dim"># an agent checks a signal's PROVENANCE before it acts —</span>
+<span class="c-dim"># win rates come ONLY from markets that actually resolved.</span></pre></div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 5 · why it's unique — verifiability</div>
+      <div class="say">"What makes it unique is verifiability. Win rates come only from markets that actually resolved, and every response flags which numbers are verified versus modelled — so an agent can check a signal's provenance before it acts."</div>
+      <div class="do">SHOW: this signed response.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+  <!-- 6 · CLOSE -->
+  <section class="slide">
+    <div class="stage"><div class="center">
+      <div class="logo"><span class="mark">P</span> PREDGE ON BASE</div>
+      <h1>Agents are the next<br>buyers of financial data.</h1>
+      <p>Predge brings a new kind of user onchain — AI agents that pay USDC per request. Net-new, verifiable, settled in USDC, on <span class="base">Base</span>.</p>
+      <div class="meta">predge.io · live API on Base + Solana · basescan verifiable</div>
+    </div></div>
+    <div class="sub"><div class="cropline"></div><span class="cropnote">▲ crop above this line</span>
+      <div class="cue">Frame 6 · close</div>
+      <div class="say">"As agents become the dominant buyers of financial data, Predge brings a new kind of user onchain — one that pays USDC per request. Net-new activity, verifiable, settled in USDC, on Base."</div>
+      <div class="do">END: hold here, or on the basescan tx.</div>
+      <div class="counter"></div>
+    </div>
+  </section>
+
+</div>
+<script>
+  const slides=[...document.querySelectorAll('.slide')];
+  const total=String(slides.length).padStart(2,'0');
+  slides.forEach((s,idx)=>{const c=s.querySelector('.counter');if(c)c.textContent=String(idx+1).padStart(2,'0')+' / '+total;});
+  let i=0;
+  function show(n){const t=Math.max(0,Math.min(slides.length-1,n));if(t===i&&slides[i].classList.contains('active'))return;slides[i].classList.remove('active');i=t;slides[i].classList.add('active');}
+  addEventListener('keydown',e=>{
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();show(i+1);}
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();show(i-1);}
+    else if(e.key==='Home'){e.preventDefault();show(0);} else if(e.key==='End'){e.preventDefault();show(slides.length-1);}
+  });
+  addEventListener('click',e=>{ show(e.clientX > innerWidth/2 ? i+1 : i-1); });
+</script>
+</body>
+</html>
