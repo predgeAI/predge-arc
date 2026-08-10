@@ -52,6 +52,34 @@
   .layer.on .anim-rise{animation:rise .18s cubic-bezier(.2,.8,.2,1) both;}
   @media (prefers-reduced-motion:reduce){.anim-pop,.anim-rise{animation:none!important;}}
 
+  /* ── LIVE SCREEN MOTION — makes the product surfaces feel alive ── */
+  @keyframes liveDot{0%,100%{opacity:1;}50%{opacity:.35;}}
+  @keyframes glowPulse{0%,100%{text-shadow:0 0 0 transparent;}50%{text-shadow:0 0 22px color-mix(in srgb,var(--amber) 55%,transparent);}}
+  @keyframes rowIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+  @keyframes caretBlink{0%,100%{opacity:1;}50%{opacity:0;}}
+  @keyframes lineIn{from{opacity:0;}to{opacity:1;}}
+  /* live dot in the window/app title bar */
+  .win .bar .ad::after{content:"";display:inline-block;width:8px;height:8px;margin-left:.55rem;
+    border-radius:50%;background:var(--good);vertical-align:middle;}
+  .layer.on .win .bar .ad::after{animation:liveDot 1.1s ease-in-out infinite;}
+  /* feed: big number glows, rows slide in staggered */
+  .layer.on .feed .big{animation:glowPulse 1.8s ease-in-out infinite;}
+  .layer.on .feed .row{animation:rowIn .34s cubic-bezier(.2,.8,.2,1) both;}
+  .layer.on .feed .row:nth-of-type(1){animation-delay:.02s;}
+  .layer.on .feed .row:nth-of-type(2){animation-delay:.14s;}
+  .layer.on .feed .row:nth-of-type(3){animation-delay:.26s;}
+  /* checker verdict: pill pops, value cells glow */
+  .layer.on .verdict .pill{animation:pop .3s cubic-bezier(.2,.8,.2,1) both;}
+  .layer.on .verdict .v.g{animation:glowPulse 1.8s ease-in-out infinite;}
+  /* terminal / arcscan: body lines fade in top-to-bottom, blinking caret at the end */
+  .layer.on .win .body pre{animation:lineIn .4s ease both;}
+  .caret{display:inline-block;width:.6ch;height:1.05em;margin-left:2px;
+    background:var(--good);vertical-align:text-bottom;}
+  .layer.on .caret{animation:caretBlink 1s steps(1) infinite;}
+  @media (prefers-reduced-motion:reduce){
+    .win .bar .ad::after,.feed .big,.feed .row,.verdict .pill,.verdict .v,.win .body pre,.caret{animation:none!important;}
+  }
+
   /* ── SCREEN mockups (our real product surfaces) ─────────────── */
   .screen{width:100%;height:100%;display:grid;place-items:center;
     background:radial-gradient(120% 90% at 50% 0%,#14161b 0%,#000 72%);}
@@ -190,7 +218,7 @@
 
   function feedScreen(){return `<div class="screen"><div class="win feed">
     <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · live whale activity</span></div>
-    <div class="big">15,753,076</div><div class="lbl">whale trades indexed · signed &amp; verifiable</div>
+    <div class="big" data-count="15753076">15,700,000</div><div class="lbl">whale trades indexed · signed &amp; verifiable</div>
     <div class="row"><span class="mk">Bitcoin above $58,000 on Aug 31?</span><span class="s y">YES</span><span class="a">$31,215</span></div>
     <div class="row"><span class="mk">Strait of Hormuz normal transit?</span><span class="s n">NO</span><span class="a">$39,033</span></div>
     <div class="row"><span class="mk">Padres vs. Diamondbacks</span><span class="s n">NO</span><span class="a">$65,759</span></div>
@@ -214,7 +242,7 @@
   <span class="cd">Method</span>  <span class="ca">payForRoute</span>
   <span class="cd">Value</span>   <span class="ca">0.005 USDC</span> <span class="cd">(native)</span>
   <span class="cd">▸ Event</span> <span class="ca">Paid</span>(payer, routeHash, amount, requestId)
-       requestId <span class="cd">ec6fa57d…</span>  <span class="cg">← the access credential</span></pre></div>
+       requestId <span class="cd">ec6fa57d…</span>  <span class="cg">← the access credential</span><span class="caret"></span></pre></div>
   </div></div>`;}
 
   function termScreen(){return `<div class="screen"><div class="win">
@@ -222,7 +250,7 @@
     <div class="body"><pre><span class="cd">GET /v1/whales/latest</span>            <span class="cr">402 Payment Required</span>
   pay <span class="ca">0.005 USDC</span> → retry with receipt
 <span class="cg">200 OK</span>  BUY_YES $48,212  "Fed cut in Sep 2026?" <span class="cd">score 87</span>
-       <span class="cg">✓ ed25519 signed</span> · verify offline · no API key</pre></div>
+       <span class="cg">✓ ed25519 signed</span> · verify offline · no API key<span class="caret"></span></pre></div>
   </div></div>`;}
 
   function logoClose(){return `<div class="logo">
@@ -250,6 +278,19 @@
   let raf=null, t0=0, cur=-1, running=false;
   const clock=document.getElementById('clock');
 
+  // Count a number up to its data-count target over ~1s when its frame opens.
+  function runCountUp(el){
+    const node=el.querySelector('[data-count]'); if(!node) return;
+    const target=parseInt(node.getAttribute('data-count'),10);
+    const start=Math.round(target*0.985); const dur=1000; const t0=performance.now();
+    const fmt=n=>n.toLocaleString('en-US');
+    (function step(now){
+      const p=Math.min(1,(now-t0)/dur);
+      const eased=1-Math.pow(1-p,3);
+      node.textContent=fmt(Math.round(start+(target-start)*eased));
+      if(p<1 && cur>=0 && layers[cur]===el) requestAnimationFrame(step);
+    })(t0);
+  }
   function showFrame(i){
     if(i===cur) return;
     if(cur>=0) layers[cur].classList.remove('on');
@@ -258,6 +299,7 @@
       // re-trigger entrance animations
       const el=layers[i];
       el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
+      runCountUp(el);
     }
   }
   function tick(now){
