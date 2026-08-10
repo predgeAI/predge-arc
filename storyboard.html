@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Predge on Arc — demo storyboard / teleprompter</title>
+<style>
+  :root {
+    --amber:#f5a623; --ink:#0c0d10; --ink-2:#131519; --ink-3:#1b1e24;
+    --line:#2a2e37; --fg:#e9ecf1; --muted:#9aa2b1; --dim:#6b7280;
+    --good:#35c07f; --bad:#ef5f5f; --arc:#4b9fff; --blue:#6ea8ff;
+    --mono: ui-monospace,"SF Mono","Menlo","Cascadia Code",monospace;
+    --sans: system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;} html,body{margin:0;height:100%;}
+  body{background:#000;color:var(--fg);font-family:var(--sans);}
+  .deck{height:100vh;overflow-y:scroll;scroll-snap-type:y mandatory;scroll-behavior:smooth;}
+  @media (prefers-reduced-motion:reduce){.deck{scroll-behavior:auto;}}
+  .frame{min-height:100vh;scroll-snap-align:start;display:grid;grid-template-rows:1fr auto;
+    background:radial-gradient(120% 80% at 50% 0%, #14161b 0%, #0a0b0e 70%);}
+
+  /* the "screen" area */
+  .stage{display:flex;align-items:center;justify-content:center;padding:clamp(1.5rem,4vw,3.5rem);overflow:hidden;}
+  .win{width:min(1100px,94%);border-radius:12px;border:1px solid var(--line);background:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.55);overflow:hidden;}
+  .bar{display:flex;align-items:center;gap:.5rem;padding:.6rem .9rem;background:var(--ink-2);border-bottom:1px solid var(--line);}
+  .dot{width:11px;height:11px;border-radius:50%;background:#3a3f49;} .dot.r{background:#ff5f57;} .dot.y{background:#febc2e;} .dot.g{background:#28c840;}
+  .bar .addr{margin-left:.6rem;font-family:var(--mono);font-size:.8rem;color:var(--muted);}
+  .bar .addr b{color:var(--fg);font-weight:500;}
+  .body{padding:1.2rem 1.4rem;font-family:var(--mono);font-size:clamp(.72rem,1.15vw,.92rem);line-height:1.65;overflow-x:auto;}
+  .body pre{margin:0;white-space:pre;}
+  .c-dim{color:var(--dim);} .c-amber{color:var(--amber);} .c-good{color:var(--good);} .c-bad{color:var(--bad);}
+  .c-arc{color:var(--arc);} .c-blue{color:var(--blue);} .c-muted{color:var(--muted);} .c-fg{color:var(--fg);}
+  .tag{display:inline-block;padding:.05em .5em;border-radius:4px;border:1px solid var(--line);font-size:.85em;}
+
+  /* json look */
+  .k{color:var(--blue);} .s{color:var(--good);} .p{color:var(--amber);} .n{color:#c792ea;}
+
+  /* subtitle bar */
+  .sub{background:#000;border-top:1px solid var(--line);padding:clamp(1rem,2.5vw,1.7rem) clamp(1.5rem,6vw,5rem) clamp(1.4rem,3vw,2rem);display:flex;flex-direction:column;gap:.5rem;}
+  .sub .cue{font-family:var(--mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);display:flex;gap:.8rem;align-items:center;}
+  .sub .cue::before{content:"";width:24px;height:2px;background:var(--amber);}
+  .sub .say{font-size:clamp(1.1rem,2.4vw,1.7rem);line-height:1.4;color:var(--fg);max-width:60ch;text-wrap:balance;font-weight:450;}
+  .sub .do{font-family:var(--mono);font-size:clamp(.72rem,1.3vw,.86rem);color:var(--muted);}
+  .sub .do b{color:var(--amber);font-weight:600;}
+
+  .title-frame{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:1.4rem;}
+  .logo{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--mono);font-weight:700;letter-spacing:.05em;font-size:1.1rem;}
+  .logo .mark{width:38px;height:38px;border-radius:9px;background:var(--amber);color:#000;display:grid;place-items:center;font-size:1.4rem;font-weight:800;}
+  .title-frame h1{font-family:var(--mono);font-size:clamp(1.9rem,5vw,3.4rem);margin:0;letter-spacing:-.02em;text-wrap:balance;}
+  .title-frame p{color:var(--muted);max-width:46ch;line-height:1.5;margin:0;font-size:clamp(1rem,2vw,1.25rem);}
+  .meta{font-family:var(--mono);color:var(--dim);font-size:.8rem;}
+
+  .rail{position:fixed;top:0;left:0;height:3px;background:var(--amber);width:0;z-index:10;transition:width .2s;}
+  @media (prefers-reduced-motion:reduce){.rail{transition:none;}}
+  .counter{position:fixed;bottom:1rem;right:1.2rem;font-family:var(--mono);font-size:.72rem;color:var(--dim);z-index:10;}
+</style>
+</head>
+<body>
+<div class="rail" id="rail"></div>
+<div class="counter" id="counter">01 / 08</div>
+<div class="deck" id="deck">
+
+  <!-- 0 · TITLE -->
+  <section class="frame"><div class="stage title-frame">
+    <div class="logo"><span class="mark">P</span> PREDGE ON ARC</div>
+    <h1>Agents buy intelligence<br>with native USDC.</h1>
+    <p>A 3-minute demo. Everything on screen is live on Circle Arc testnet.</p>
+    <div class="meta">read the subtitle aloud · advance with →</div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 0 · open</div>
+    <div class="say">"This is Predge on Arc — an AI agent buying verifiable market intelligence, paid natively in USDC. No keys, no accounts, no cards. Let me show you the whole loop."</div>
+    <div class="do">SHOW: this title, then cut to the terminal. <b>Pre-start the gateway before recording.</b></div>
+  </div></section>
+
+  <!-- 1 · AGENT PURCHASE -->
+  <section class="frame"><div class="stage">
+    <div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">agent.mjs — <b>predge-arc</b></span></div>
+      <div class="body"><pre><span class="c-dim">[1/6] discover → 402 quote</span>
+  contract   <span class="c-fg">0x3474Bd2747…C82A5</span>  <span class="c-dim">(chainId 5042002)</span>
+  route_hash <span class="c-dim">0xe155b0dd…c167</span>
+  request_id <span class="c-dim">ec6fa57d-1498-4cad-b3bb-ce894681a190</span>
+
+<span class="c-dim">[2/6] agent wallet on Arc testnet</span>
+  agent   <span class="c-fg">0x19C12E3f…e410</span>   balance <span class="c-amber">0.0165 USDC</span>
+
+<span class="c-dim">[3/6] pay: payForRoute(route_hash, request_id)</span> <span class="c-amber">value = 0.005 USDC</span>
+  sent <span class="c-blue">0x42b4692bcddd…0b85ef31</span>
+
+<span class="c-dim">[4/6] confirm on Arc</span>
+  <span class="c-good">mined in block 56113764 — the Paid event is the receipt</span>
+
+<span class="c-dim">[5/6] redeem: GET /v1/whales/latest  X-Arc-Payment: &lt;tx&gt;</span>
+  <span class="c-good">UNLOCKED</span> — receipt verified on-chain:
+    BUY_YES  $48,212  Will the Fed cut rates in September 2026?  <span class="c-dim">(score 87)</span>
+    BUY_NO   $19,850  US recession declared before 2027?        <span class="c-dim">(score 91)</span>
+
+<span class="c-dim">[6/6] replay the same payment</span>
+  <span class="c-bad">rejected: 409 request_already_redeemed</span> — one payment, one unlock.</pre></div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 1 · the loop, live</div>
+    <div class="say">"The agent asks for whale trades, gets a 402 quote, and pays with <b>msg.value</b> — on Arc the USDC <b>is</b> the gas. Twelve seconds later the on-chain receipt unlocks the data. Replay the same payment? 409. One payment, one unlock."</div>
+    <div class="do">RUN LIVE (optional): <b>node agent.mjs</b> from predge-arc — or just show this frame.</div>
+  </div></section>
+
+  <!-- 2 · ARCSCAN RECEIPT -->
+  <section class="frame"><div class="stage">
+    <div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">🔒 <b>testnet.arcscan.app</b>/tx/0x42b4692b…0b85ef31</span></div>
+      <div class="body"><pre><span class="c-muted">Transaction</span>  <span class="c-good">● Success</span>   <span class="c-dim">Block 56113764</span>
+
+  <span class="c-dim">Method</span>       <span class="c-amber">payForRoute</span>
+  <span class="c-dim">From</span>         <span class="c-blue">0x19C12E3f…e410</span>  <span class="c-dim">(the agent)</span>
+  <span class="c-dim">To</span>           <span class="c-fg">0x3474Bd27…C82A5</span>  <span class="c-dim">PredgeSettlement</span>
+  <span class="c-dim">Value</span>        <span class="c-amber">0.005 USDC</span>  <span class="c-dim">(native)</span>
+
+  <span class="c-muted">▸ Event</span>  <span class="c-amber">Paid</span>(payer, routeHash, amount, requestId)
+       payer     <span class="c-blue">0x19C12E3f…e410</span>
+       amount    <span class="c-fg">5000</span>  <span class="c-dim">(0.005 USDC, 6 decimals)</span>
+       requestId <span class="c-dim">ec6fa57d-1498-…</span>  <span class="c-good">← the access credential</span></pre></div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 2 · the receipt is the credential</div>
+    <div class="say">"Here's that payment on Arc's explorer. The <b>Paid</b> event carries the request id — so the receipt itself is the access credential, the proof, and the audit record, all in one on-chain event."</div>
+    <div class="do">SHOW LIVE (recommended): open the real arcscan link — the tx exists. Adds credibility.</div>
+  </div></section>
+
+  <!-- 3 · GATEWAY NON-CUSTODIAL -->
+  <section class="frame"><div class="stage">
+    <div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">arc-gateway — <b>the seller</b></span></div>
+      <div class="body"><pre>predge arc-gateway listening on http://localhost:8402
+  chain    <span class="c-fg">5042002</span> (arc-testnet)   rpc https://rpc.testnet.arc.io
+  contract <span class="c-fg">0x3474Bd2747cb1D430C2F56050433fa5D6b1C82A5</span>
+  <span class="c-amber">key held NONE — read-only chain access; funds live in the contract</span>
+  for sale GET /v1/whales/latest      <span class="c-amber">$0.005</span>
+  for sale GET /v1/wallets/leaderboard <span class="c-amber">$0.01</span>
+
+<span class="c-dim"># the gateway can only READ Arc. It never touches funds —</span>
+<span class="c-dim"># money accrues in the contract, only the owner withdraws.</span></pre></div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 3 · the seller holds no key</div>
+    <div class="say">"And the seller — this gateway — holds <b>no private key</b>. It can read the chain, not touch funds. Payments accrue in the contract; only the owner withdraws. The trust surface is tiny."</div>
+    <div class="do">SHOW: the gateway startup log (already running in terminal 1).</div>
+  </div></section>
+
+  <!-- 4 · PROD API (already live) -->
+  <section class="frame"><div class="stage">
+    <div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">🔒 <b>x402-api-production-266e.up.railway.app</b></span></div>
+      <div class="body"><pre>{
+  <span class="k">"name"</span>: <span class="s">"Predge Whale Data API"</span>,
+  <span class="k">"description"</span>: <span class="s">"Polymarket outcome-verified whale intelligence,</span>
+                  <span class="s">sold per-call over the x402 protocol. No API keys,</span>
+                  <span class="s">no accounts — pay USDC per request."</span>,
+  <span class="k">"protocol"</span>: { <span class="k">"x402_version"</span>: <span class="n">2</span>, <span class="k">"network"</span>: <span class="s">"base"</span>,
+               <span class="k">"also"</span>: <span class="s">"solana"</span> },
+  <span class="k">"endpoints"</span>: [ <span class="c-dim">… 27 paid routes …</span>
+     { <span class="k">"GET /v1/signals/consensus"</span>:    <span class="p">"$0.03"</span> },
+     { <span class="k">"GET /v1/wallets/:addr/attest"</span>: <span class="p">"$0.02"</span>  <span class="c-good">← SIGNED track record</span> },
+     { <span class="k">"POST /v1/calls"</span>:               <span class="p">"$0.10"</span>  <span class="c-good">← signed live call</span> }
+  ]
+}</pre></div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 4 · this is already in production</div>
+    <div class="say">"This isn't a hackathon mock. Predge is a <b>live</b> API — over twenty paid routes, every response ed25519-signed, selling to agents today on Base and Solana. Arc is where settlement finally becomes native."</div>
+    <div class="do">SHOW LIVE (recommended): open the real prod URL in the browser — the JSON is live.</div>
+  </div></section>
+
+  <!-- 5 · ANCHOR + REPRODUCE -->
+  <section class="frame"><div class="stage">
+    <div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">anchor.mjs — <b>tamper-proof trust</b></span></div>
+      <div class="body"><pre><span class="c-dim">$</span> node anchor.mjs --keys
+  anchoring sha256 of the live key registry onto Arc…
+  <span class="c-good">anchored</span> in tx <span class="c-blue">0x99e60bfa…7745e6</span>
+
+<span class="c-dim">$</span> curl -s .../.well-known/predge-keys.json | shasum -a 256
+  <span class="c-amber">914c69c95a77fdc8f1f5b632855ea41752eee75886b09604affe272180c8ece9</span>
+  <span class="c-good">↑ same digest that's frozen in the Arc transaction — reproduce it yourself</span></pre></div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 5 · the differentiator</div>
+    <div class="say">"Our signed data is tamper-evident — but a hash chain can't stop the operator rewriting history. So we freeze the chain head into an Arc receipt. This digest, computed live from our key registry, matches the one on-chain. <b>Anyone</b> can reproduce it — not even we can rewrite our own record."</div>
+    <div class="do">RUN LIVE (strongest 10 seconds): type the <b>curl … | shasum</b> on camera.</div>
+  </div></section>
+
+  <!-- 6 · VAULT (DeFi track) -->
+  <section class="frame"><div class="stage">
+    <div class="win">
+      <div class="bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="addr">vault-keeper.mjs — <b>DeFi track</b></span></div>
+      <div class="body"><pre><span class="c-dim">[INFO ]</span> vault <span class="c-fg">0x8B9589B8…E74495</span> — posture <span class="c-bad">SHORT</span>, 0.01 USDC, rebalances 2
+<span class="c-arc">[SENSE ]</span> signal source: signed whale consensus
+<span class="c-good">[VERIFY]</span> OK — ed25519 valid over canonical; pinned to registry key
+<span class="c-arc">[SENSE ]</span> NO net $-18,300 (6 smart wallets) — "US recession declared in 2026?"
+<span class="c-amber">[DECIDE]</span> earlier cycles: <span class="c-good">FLAT → LONG</span>, then signal flipped <span class="c-bad">LONG → SHORT</span>
+<span class="c-amber">[DECIDE]</span> this cycle: <span class="c-fg">HOLD</span> — already SHORT, smart money hasn't changed its mind
+<span class="c-dim">[INFO ]</span> no rebalance — the agent doesn't churn gas for nothing</pre></div>
+    </div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 6 · second track — the vault</div>
+    <div class="say">"Same repo, the DeFi track: an agent-run USDC vault whose posture is steered only by Predge's <b>signed</b> whale consensus. The keeper verifies the signature off-chain, commits the signal hash on-chain — and when smart money hasn't moved, it holds. Real autonomy, not an AI wrapper."</div>
+    <div class="do">RUN LIVE (optional): <b>node vault-keeper.mjs run --sample riskoff</b> then <b>state</b>.</div>
+  </div></section>
+
+  <!-- 7 · CLOSE -->
+  <section class="frame"><div class="stage title-frame">
+    <div class="logo"><span class="mark">P</span> PREDGE ON ARC</div>
+    <h1>Agents pay in the money<br>they already hold.</h1>
+    <p>Contract, both purchases, the anchor, the vault — all live on Arc testnet. The wallet is the customer; the receipt is the credential.</p>
+    <div class="meta">predge.io · contract 0x3474Bd27…C82A5 · chainId 5042002</div>
+  </div>
+  <div class="sub">
+    <div class="cue">Frame 7 · close</div>
+    <div class="say">"Everything you saw is live on Arc. Predge already sells to agents in production — Arc is the missing settlement leg. The wallet is the customer, and every byte they buy comes with a receipt. That's the machine-native data economy, and we're building it on Arc."</div>
+    <div class="do">END: hold on the arcscan contract page, or this frame.</div>
+  </div></section>
+
+</div>
+<script>
+  const deck=document.getElementById('deck'),rail=document.getElementById('rail'),counter=document.getElementById('counter');
+  const frames=[...document.querySelectorAll('.frame')];
+  const idx=()=>Math.round(deck.scrollTop/window.innerHeight);
+  const go=n=>{const i=Math.max(0,Math.min(frames.length-1,n));frames[i].scrollIntoView();};
+  deck.addEventListener('scroll',()=>{
+    const p=deck.scrollTop/(deck.scrollHeight-deck.clientHeight||1);
+    rail.style.width=(p*100)+'%';
+    counter.textContent=String(idx()+1).padStart(2,'0')+' / '+String(frames.length).padStart(2,'0');
+  },{passive:true});
+  addEventListener('keydown',e=>{
+    if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();go(idx()+1);}
+    else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();go(idx()-1);}
+    else if(e.key==='Home')go(0); else if(e.key==='End')go(frames.length-1);
+  });
+</script>
+</body>
+</html>
