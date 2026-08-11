@@ -65,6 +65,39 @@
   .type .plat{display:inline-flex;align-items:center;gap:1rem;justify-content:center;flex-wrap:wrap;}
   .type .plat .pico{width:clamp(2.2rem,5.5vw,4rem);height:clamp(2.2rem,5.5vw,4rem);flex:none;}
 
+  /* Telegram alert mockup */
+  .tg{width:min(60%,760px);border-radius:16px;border:1px solid #23262e;background:#0e1621;
+    box-shadow:0 40px 120px rgba(0,0,0,.7);overflow:hidden;}
+  .tg .tgbar{display:flex;align-items:center;gap:.9rem;padding:1rem 1.3rem;background:#17212b;border-bottom:1px solid #23262e;}
+  .tg .tgav{width:44px;height:44px;border-radius:50%;background:var(--amber);color:#000;display:grid;place-items:center;font-family:var(--mono);font-weight:800;font-size:1.4rem;flex:none;}
+  .tg .tgnm{font-family:var(--sans);font-weight:700;color:#fff;font-size:1.15rem;}
+  .tg .tgst{font-family:var(--mono);font-size:.8rem;color:#5a9;}
+  .tg .tgbody{padding:1.4rem;}
+  @keyframes tgslide{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
+  .layer.on .tgin{animation:tgslide .26s cubic-bezier(.2,.8,.2,1) both;}
+  .tg .tgmsg{background:#182533;border-radius:12px 12px 12px 4px;padding:1rem 1.2rem;max-width:82%;}
+  .tg .tgtitle{font-family:var(--sans);font-weight:800;color:#fff;font-size:1.3rem;margin-bottom:.4rem;}
+  .tg .tgline{font-family:var(--mono);color:#e9ecf1;font-size:1.05rem;}
+  .tg .tgline .a{color:var(--amber);} .tg .tgline .s.y{color:var(--good);font-weight:700;}
+  .tg .tgmk{font-family:var(--mono);color:#8a90a0;font-size:.92rem;margin-top:.5rem;}
+  .tg .tgfoot{display:flex;align-items:center;gap:.6rem;margin-top:.7rem;font-family:var(--mono);font-size:.82rem;color:#5a9;}
+  .tg .tgfoot .ok{color:var(--good);} .tg .tgfoot .tgt{margin-left:auto;color:#5a6b7a;}
+
+  /* APP dashboard mockup */
+  .appd{width:min(82%,1240px);}
+  .appd .appstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#191c22;padding:1px;}
+  .appd .ast{background:#0b0d10;padding:1rem 1.2rem;}
+  .appd .ast .al{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
+  .appd .ast .av{font-family:var(--mono);font-size:clamp(1.3rem,2.4vw,2rem);font-weight:700;color:#e9ecf1;margin-top:.3rem;font-variant-numeric:tabular-nums;}
+  .appd .appin{padding:1rem 1.3rem;}
+  .appd .aih{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:.6rem;}
+  .appd .airow{display:grid;grid-template-columns:1fr auto auto;gap:1.3rem;align-items:center;padding:.6rem 0;border-top:1px solid #191c22;font-family:var(--mono);font-size:1rem;}
+  .appd .airow .mk{color:#e9ecf1;} .appd .airow .s.y{color:var(--good);} .appd .airow .s.n{color:var(--bad);}
+  .appd .airow .pc{color:var(--amber);font-weight:700;}
+  .layer.on .appd .airow{animation:rowIn .34s cubic-bezier(.2,.8,.2,1) both;}
+  .layer.on .appd .airow:nth-of-type(2){animation-delay:.08s;}
+  .layer.on .appd .airow:nth-of-type(3){animation-delay:.16s;}
+
   /* subtle entrances — kept fast so cuts read as "blinks", not fades */
   @keyframes pop{from{transform:scale(.965);opacity:0;}to{transform:scale(1);opacity:1;}}
   @keyframes rise{from{transform:translateY(.5em);opacity:0;}to{transform:translateY(0);opacity:1;}}
@@ -252,6 +285,8 @@
     { b:3, ...T('screen', termScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
     { b:2, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
+    { b:3, ...T('screen', tgScreen()) },
+    { b:3, ...T('screen', appScreen()) },
     { b:3, ...T('screen', checkerScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
 
@@ -327,6 +362,34 @@
 
   function realScreen(){return `<div class="screen"><video class="realui" src="ad-assets/real-feed.mp4" autoplay loop muted playsinline></video></div>`;}
 
+  function tgScreen(){return `<div class="screen"><div class="tg">
+    <div class="tgbar"><span class="tgav">P</span><div class="tgid"><div class="tgnm">Predge Alerts</div><div class="tgst">bot · online</div></div></div>
+    <div class="tgbody">
+      <div class="tgmsg tgin">
+        <div class="tgtitle">🐋 Whale alert</div>
+        <div class="tgline"><b>Steel Whale #53</b> went <span class="s y">YES</span> · <span class="a">$40,000</span></div>
+        <div class="tgmk">"BTC above $58,000 on Aug 31?"</div>
+        <div class="tgfoot"><span class="ok">✓ signed</span> · verify offline<span class="tgt">now</span></div>
+      </div>
+    </div>
+  </div></div>`;}
+
+  function appScreen(){return `<div class="screen"><div class="win appd">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>PREDGE</b> terminal · Dashboard</span></div>
+    <div class="appstats">
+      <div class="ast"><div class="al">Trades 24h</div><div class="av" data-count="18432">18,000</div></div>
+      <div class="ast"><div class="al">Volume 24h</div><div class="av" data-count="2410000" data-prefix="$">$2,300,000</div></div>
+      <div class="ast"><div class="al">Active whales</div><div class="av" data-count="214">200</div></div>
+      <div class="ast"><div class="al">Markets</div><div class="av" data-count="3912">3,800</div></div>
+    </div>
+    <div class="appin">
+      <div class="aih">Insider watch · signed flags</div>
+      <div class="airow"><span class="mk">Steel Whale #53 · all-in position</span><span class="s y">▲ $40k</span><span class="pc">100%</span></div>
+      <div class="airow"><span class="mk">Deep Puma #46 · fresh whale</span><span class="s n">▼ $10k</span><span class="pc">100%</span></div>
+      <div class="airow"><span class="mk">Steel Whale #53 · all-in position</span><span class="s y">▲ $12k</span><span class="pc">100%</span></div>
+    </div>
+  </div></div>`;}
+
   function stakesScreen(){return `<div class="screen"><div class="verdict">
     <div class="a">signal · content_hash 0x9f2a…c41</div>
     <div class="pill">◆ Staked $0.02 · skin in the game</div>
@@ -374,17 +437,18 @@
 
   // Count a number up to its data-count target over ~1s when its frame opens.
   function runCountUp(el){
-    const node=el.querySelector('[data-count]'); if(!node) return;
-    const target=parseInt(node.getAttribute('data-count'),10);
-    const prefix=node.getAttribute('data-prefix')||'';
-    const start=Math.round(target*0.955); const dur=600; const t0=performance.now();
-    const fmt=n=>prefix+n.toLocaleString('en-US');
-    (function step(now){
-      const p=Math.min(1,(now-t0)/dur);
-      const eased=1-Math.pow(1-p,3);
-      node.textContent=fmt(Math.round(start+(target-start)*eased));
-      if(p<1 && cur>=0 && layers[cur]===el) requestAnimationFrame(step);
-    })(t0);
+    el.querySelectorAll('[data-count]').forEach(node=>{
+      const target=parseInt(node.getAttribute('data-count'),10);
+      const prefix=node.getAttribute('data-prefix')||'';
+      const start=Math.round(target*0.955); const dur=600; const t0=performance.now();
+      const fmt=n=>prefix+n.toLocaleString('en-US');
+      (function step(now){
+        const p=Math.min(1,(now-t0)/dur);
+        const eased=1-Math.pow(1-p,3);
+        node.textContent=fmt(Math.round(start+(target-start)*eased));
+        if(p<1 && cur>=0 && layers[cur]===el) requestAnimationFrame(step);
+      })(t0);
+    });
   }
   function showFrame(i){
     if(i===cur) return;
