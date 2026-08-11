@@ -74,9 +74,8 @@
 
   /* ── BEAT-LOCKED TRANSITIONS ─────────────────────────────────── */
   /* zoom-punch: type frames slam in with a hard scale + micro-blur */
-  @keyframes punch{0%{transform:scale(1.14);opacity:0;filter:blur(7px);}
-    55%{opacity:1;filter:blur(0);}100%{transform:scale(1);}}
-  .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains{animation:punch .2s cubic-bezier(.15,.9,.2,1) both;}
+  @keyframes punch{0%{transform:scale(1.1);opacity:0;}60%{opacity:1;}100%{transform:scale(1);}}
+  .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains{animation:punch .16s cubic-bezier(.15,.9,.2,1) both;}
   /* glitch: RGB-split jitter on amber accent words as they hit */
   @keyframes glitch{
     0%{text-shadow:3px 0 var(--bad),-3px 0 var(--arc);transform:translateX(0);}
@@ -86,9 +85,9 @@
     100%{text-shadow:none;transform:translateX(0);}}
   .layer.type.on .amber,.layer.type.on .t.amber{animation:glitch .18s steps(2,end) 1;}
   /* screens rush in with a directional motion-blur wipe */
-  @keyframes screenIn{0%{opacity:0;filter:blur(16px);transform:scale(1.05) translateX(3%);}
-    100%{opacity:1;filter:blur(0);transform:scale(1) translateX(0);}}
-  .layer.screen.on .screen{animation:screenIn .3s cubic-bezier(.2,.85,.2,1) both;}
+  @keyframes screenIn{0%{opacity:0;filter:blur(4px);transform:scale(1.03);}
+    100%{opacity:1;filter:blur(0);transform:scale(1);}}
+  .layer.screen.on .screen{animation:screenIn .2s cubic-bezier(.2,.85,.2,1) both;}
   /* flash: a white beat on every screen cut */
   #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
   @keyframes flashfx{0%{opacity:0;}10%{opacity:.55;}100%{opacity:0;}}
@@ -174,6 +173,9 @@
     color:#000;display:grid;place-items:center;font-weight:900;font-family:var(--mono);
     font-size:clamp(3rem,6vw,5.5rem);}
   .logo .wm{font-family:var(--mono);font-weight:700;letter-spacing:.06em;font-size:clamp(1.6rem,4vw,3rem);}
+  .logo .fullwm{font-family:var(--mono);font-weight:800;letter-spacing:.02em;
+    font-size:clamp(2.6rem,8vw,6.5rem);color:var(--amber);line-height:1;}
+  .logo .fullwm .dot{color:var(--amber);}
   .logo .tag{color:var(--amber);font-weight:700;font-size:clamp(1.1rem,2.6vw,2rem);letter-spacing:-.01em;}
   .logo .url{font-family:var(--mono);color:var(--dim);font-size:clamp(.9rem,1.8vw,1.3rem);letter-spacing:.14em;}
 
@@ -336,8 +338,7 @@
   </div>`;}
 
   function logoClose(){return `<div class="logo">
-    <div class="mk anim-pop">P</div>
-    <div class="wm anim-rise">PREDGE</div>
+    <div class="fullwm anim-pop">PREDGE<span class="dot">.</span></div>
     <div class="url anim-rise">predge.io</div>
   </div>`;}
 
