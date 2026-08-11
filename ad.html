@@ -52,6 +52,18 @@
   .chains .crow .camber{color:var(--amber);}
   .chains .csub{font-family:var(--mono);color:var(--dim);letter-spacing:.06em;
     font-size:clamp(.95rem,2.2vw,1.8rem);margin-top:1.4rem;}
+  .chains .clogos{display:flex;gap:clamp(1.4rem,4vw,3.4rem);justify-content:center;align-items:center;flex-wrap:wrap;}
+  .chains .clogo{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--mono);
+    font-weight:700;font-size:clamp(1.8rem,5vw,4rem);color:var(--fg);}
+  .chains .cico{width:clamp(2rem,5vw,3.6rem);height:clamp(2rem,5vw,3.6rem);flex:none;}
+
+  /* real product screenshot flashed in the ad */
+  .realui{width:min(88%,1400px);border-radius:14px;border:1px solid #23262e;
+    box-shadow:0 40px 120px rgba(0,0,0,.7);}
+
+  /* platform logo + label (Polymarket / Kalshi) */
+  .type .plat{display:inline-flex;align-items:center;gap:1rem;justify-content:center;flex-wrap:wrap;}
+  .type .plat .pico{width:clamp(2.2rem,5.5vw,4rem);height:clamp(2.2rem,5.5vw,4rem);flex:none;}
 
   /* subtle entrances — kept fast so cuts read as "blinks", not fades */
   @keyframes pop{from{transform:scale(.965);opacity:0;}to{transform:scale(1);opacity:1;}}
@@ -221,10 +233,11 @@
 
     // ACT 2 — breadth: not one market. verifiable intelligence across all of them.
     { b:3, ...T('type', `<div class="t sm anim-rise">Not just prediction markets.</div>`) },
-    { b:4, ...T('screen', feedScreen()) },
-    { b:2, ...T('type', `<div class="k anim-pop">Polymarket whales.</div>`) },
+    { b:4, ...T('screen', realScreen()) },
+    { b:2, ...T('type', `<div class="plat anim-pop">${pmLogo()}<span class="k">Polymarket whales.</span></div>`) },
+    { b:3, ...T('screen', feedScreen()) },
     { b:4, ...T('screen', kalshiScreen()) },
-    { b:2, ...T('type', `<div class="k anim-pop">Kalshi institutional flow.</div>`) },
+    { b:2, ...T('type', `<div class="plat anim-pop">${kalshiLogo()}<span class="k">Kalshi institutional flow.</span></div>`) },
     { b:4, ...T('screen', sportsScreen()) },
     { b:2, ...T('type', `<div class="k anim-pop">Sports outcomes.</div>`) },
     { b:2, ...T('type', `<div class="k anim-pop">On-chain activity.</div>`) },
@@ -251,9 +264,9 @@
     // ACT 6 — multichain + close
     { b:2, ...T('type', `<div class="t sm anim-rise">Settling on</div>`) },
     { b:5, ...T('type', chainsBand()) },
-    { b:3, ...T('type', `<div class="t anim-pop">The smart money.</div>`) },
-    { b:5, ...T('type', `<div class="t amber anim-pop" style="line-height:1.02">Signed before<br>the outcome.</div>`) },
-    { b:10, ...T('type', logoClose()) },
+    { b:3, ...T('type', `<div class="t sm anim-pop">The smart money,<br><span class="amber">signed before the outcome.</span></div>`) },
+    { b:2, ...T('type', `<div class="t anim-pop">And all of it —</div>`) },
+    { b:7, ...T('type', logoClose()) },
   ];
 
   function feedScreen(){return `<div class="screen"><div class="win feed">
@@ -309,15 +322,23 @@
     <div class="row"><span class="mk">Chiefs vs. Bills — final</span><span class="s y">KC 27–24</span><span class="a">✓ signed</span></div>
   </div></div>`;}
 
+  function realScreen(){return `<div class="screen"><img class="realui" src="ad-assets/real-feed.png" alt="predge.io live"></div>`;}
+
+  function pmLogo(){return `<svg viewBox="0 0 40 40" class="pico"><rect width="40" height="40" rx="9" fill="#1652F0"/><g fill="#fff"><rect x="9.5" y="21" width="4.5" height="9.5" rx="1"/><rect x="17.75" y="14.5" width="4.5" height="16" rx="1"/><rect x="26" y="9.5" width="4.5" height="21" rx="1"/></g></svg>`;}
+  function kalshiLogo(){return `<svg viewBox="0 0 40 40" class="pico"><rect width="40" height="40" rx="9" fill="#0b0d10" stroke="#1c2128" stroke-width="1"/><path d="M15 10v20M15 20l9-10M15 20l9 10" stroke="#00D09C" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+
   function chainsBand(){return `<div class="chains anim-pop">
-    <div class="crow"><span class="camber">Base</span> · <span class="camber">Solana</span> · <span class="camber">Arc</span></div>
+    <div class="clogos">
+      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><circle cx="20" cy="20" r="20" fill="#0052FF"/><path d="M20 6a14 14 0 100 28 14 14 0 000-28zM8.5 18.5h11.6a1.4 1.4 0 010 2.8H8.5a11.6 11.6 0 010-2.8z" fill="#fff"/></svg>Base</span>
+      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><defs><linearGradient id="sol" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9945FF"/><stop offset="1" stop-color="#14F195"/></linearGradient></defs><g fill="url(#sol)"><path d="M9 12h20l-4 4H5z"/><path d="M9 18h20l-4 4H5z"/><path d="M9 24h20l-4 4H5z"/></g></svg>Solana</span>
+      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><circle cx="20" cy="20" r="18" fill="none" stroke="#4b9fff" stroke-width="4"/><path d="M20 6a14 14 0 0114 14" fill="none" stroke="#4b9fff" stroke-width="4" stroke-linecap="round"/></svg>Arc</span>
+    </div>
     <div class="csub">+ Bitcoin-L2 · Polygon · ERC-8004 — and beyond</div>
   </div>`;}
 
   function logoClose(){return `<div class="logo">
     <div class="mk anim-pop">P</div>
     <div class="wm anim-rise">PREDGE</div>
-    <div class="tag anim-rise">The smart money — signed before the outcome.</div>
     <div class="url anim-rise">predge.io</div>
   </div>`;}
 
