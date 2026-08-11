@@ -233,9 +233,8 @@
 
     // ACT 2 — breadth: not one market. verifiable intelligence across all of them.
     { b:3, ...T('type', `<div class="t sm anim-rise">Not just prediction markets.</div>`) },
-    { b:4, ...T('screen', realScreen()) },
     { b:2, ...T('type', `<div class="plat anim-pop">${pmLogo()}<span class="k">Polymarket whales.</span></div>`) },
-    { b:3, ...T('screen', feedScreen()) },
+    { b:5, ...T('screen', feedScreen()) },
     { b:4, ...T('screen', kalshiScreen()) },
     { b:2, ...T('type', `<div class="plat anim-pop">${kalshiLogo()}<span class="k">Kalshi institutional flow.</span></div>`) },
     { b:4, ...T('screen', sportsScreen()) },
@@ -266,7 +265,7 @@
     { b:5, ...T('type', chainsBand()) },
     { b:3, ...T('type', `<div class="t sm anim-pop">The smart money,<br><span class="amber">signed before the outcome.</span></div>`) },
     { b:2, ...T('type', `<div class="t anim-pop">And all of it —</div>`) },
-    { b:7, ...T('type', logoClose()) },
+    { b:4, ...T('type', logoClose()) },
   ];
 
   function feedScreen(){return `<div class="screen"><div class="win feed">
@@ -324,14 +323,14 @@
 
   function realScreen(){return `<div class="screen"><video class="realui" src="ad-assets/real-feed.mp4" autoplay loop muted playsinline></video></div>`;}
 
-  function pmLogo(){return `<svg viewBox="0 0 40 40" class="pico"><rect width="40" height="40" rx="9" fill="#1652F0"/><g fill="#fff"><rect x="9.5" y="21" width="4.5" height="9.5" rx="1"/><rect x="17.75" y="14.5" width="4.5" height="16" rx="1"/><rect x="26" y="9.5" width="4.5" height="21" rx="1"/></g></svg>`;}
-  function kalshiLogo(){return `<svg viewBox="0 0 40 40" class="pico"><rect width="40" height="40" rx="9" fill="#0b0d10" stroke="#1c2128" stroke-width="1"/><path d="M15 10v20M15 20l9-10M15 20l9 10" stroke="#00D09C" stroke-width="3.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
+  function pmLogo(){return `<svg viewBox="0 0 52 40" class="pico"><rect x="2" y="2" width="48" height="36" rx="7" fill="none" stroke="#e9ecf1" stroke-width="3"/><path d="M9 9L25 20L9 31Z" fill="#e9ecf1"/><path d="M43 9L27 20L43 31Z" fill="#e9ecf1"/></svg>`;}
+  function kalshiLogo(){return `<svg viewBox="0 0 40 40" class="pico"><rect width="40" height="40" rx="9" fill="#00C08B"/><path d="M13.5 9v22M13.5 20.5l10.5-11.5M15 21l9.5 10" stroke="#0b0d10" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
   function chainsBand(){return `<div class="chains anim-pop">
     <div class="clogos">
-      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><circle cx="20" cy="20" r="20" fill="#0052FF"/><path d="M20 6a14 14 0 100 28 14 14 0 000-28zM8.5 18.5h11.6a1.4 1.4 0 010 2.8H8.5a11.6 11.6 0 010-2.8z" fill="#fff"/></svg>Base</span>
+      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><circle cx="20" cy="20" r="19" fill="#0052FF"/><rect x="3.5" y="17.6" width="17.5" height="4.8" rx="1" fill="#0c0d10"/></svg>Base</span>
       <span class="clogo"><img class="cico" src="ad-assets/logos/solana.svg" alt="">Solana</span>
-      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><circle cx="20" cy="20" r="18" fill="none" stroke="#4b9fff" stroke-width="4"/><path d="M20 6a14 14 0 0114 14" fill="none" stroke="#4b9fff" stroke-width="4" stroke-linecap="round"/></svg>Arc</span>
+      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><path d="M5 37C5 9 13 3 20 3s15 6 15 34h-7.2C27.8 15.5 24 12 20 12s-7.8 3.5-8 25z" fill="#e9ecf1"/></svg>Arc</span>
     </div>
     <div class="csub">+ Bitcoin-L2 · Polygon · ERC-8004 — and beyond</div>
   </div>`;}
@@ -382,13 +381,8 @@
       const el=layers[i];
       el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
       runCountUp(el);
-      // flash-cut: a white beat only on screen cuts (keeps it from strobing)
-      if(FRAMES[i] && FRAMES[i].cls==='screen'){
-        flashEl.classList.remove('hit'); void flashEl.offsetWidth; flashEl.classList.add('hit');
-      }
     }
   }
-  const flashEl=document.getElementById('flash');
   function tick(now){
     const t=(now-t0)/1000;
     let i=starts.length-1;
