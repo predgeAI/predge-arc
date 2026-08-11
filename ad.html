@@ -198,6 +198,7 @@
     { b:2, ...T('type', `<div class="k anim-pop">Polymarket whales.</div>`) },
     { b:4, ...T('screen', kalshiScreen()) },
     { b:2, ...T('type', `<div class="k anim-pop">Kalshi institutional flow.</div>`) },
+    { b:4, ...T('screen', sportsScreen()) },
     { b:2, ...T('type', `<div class="k anim-pop">Sports outcomes.</div>`) },
     { b:2, ...T('type', `<div class="k anim-pop">On-chain activity.</div>`) },
     { b:3, ...T('type', `<div class="t sm amber anim-pop">Every signal — signed.</div>`) },
@@ -206,12 +207,12 @@
     { b:2, ...T('type', `<div class="k anim-pop">1,000,000+</div><div class="kk">smart-money wallets scored</div>`) },
     { b:3, ...T('type', `<div class="k anim-pop" data-count="15753076">15,700,000</div><div class="kk">signals — every one verifiable</div>`) },
 
-    // ACT 4 — three audiences
-    { b:3, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
-    { b:4, ...T('screen', checkerScreen()) },
+    // ACT 4 — three audiences (agents first — the machine buyer leads)
     { b:3, ...T('type', `<div class="t sm anim-rise">Agents get an <span class="amber">API.</span></div>`) },
     { b:4, ...T('screen', termScreen()) },
     { b:3, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
+    { b:3, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
+    { b:4, ...T('screen', checkerScreen()) },
     { b:3, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
 
     // ACT 5 — verify it yourself
@@ -271,6 +272,14 @@
     <div class="row"><span class="mk">Fed decision — March FOMC</span><span class="s y">YES</span><span class="a">$412,000</span></div>
     <div class="row"><span class="mk">CPI above 3.2% in April?</span><span class="s n">NO</span><span class="a">$188,500</span></div>
     <div class="row"><span class="mk">Government shutdown before Q2?</span><span class="s n">NO</span><span class="a">$96,200</span></div>
+  </div></div>`;}
+
+  function sportsScreen(){return `<div class="screen"><div class="win feed">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · signed sports outcomes</span></div>
+    <div class="big">1,284</div><div class="lbl">resolved games attested today · ed25519</div>
+    <div class="row"><span class="mk">Lakers vs. Celtics — final</span><span class="s y">LAL 112–108</span><span class="a">✓ signed</span></div>
+    <div class="row"><span class="mk">Man City vs. Arsenal — full time</span><span class="s y">2–1</span><span class="a">✓ signed</span></div>
+    <div class="row"><span class="mk">Chiefs vs. Bills — final</span><span class="s y">KC 27–24</span><span class="a">✓ signed</span></div>
   </div></div>`;}
 
   function chainsBand(){return `<div class="chains anim-pop">
