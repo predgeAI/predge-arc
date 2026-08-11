@@ -45,6 +45,14 @@
   .type .kk{font-family:var(--mono);font-size:clamp(1rem,2.4vw,2rem);color:var(--dim);
     letter-spacing:.12em;text-transform:uppercase;margin-top:1.2rem;}
 
+  /* multichain band (close) */
+  .chains{text-align:center;padding:0 6%;}
+  .chains .crow{font-family:var(--mono);font-weight:700;letter-spacing:-.01em;
+    font-size:clamp(2.2rem,7vw,6rem);line-height:1;}
+  .chains .crow .camber{color:var(--amber);}
+  .chains .csub{font-family:var(--mono);color:var(--dim);letter-spacing:.06em;
+    font-size:clamp(.95rem,2.2vw,1.8rem);margin-top:1.4rem;}
+
   /* subtle entrances — kept fast so cuts read as "blinks", not fades */
   @keyframes pop{from{transform:scale(.965);opacity:0;}to{transform:scale(1);opacity:1;}}
   @keyframes rise{from{transform:translateY(.5em);opacity:0;}to{transform:translateY(0);opacity:1;}}
@@ -174,45 +182,49 @@
   // Total ≈ sum(b) beats. At 128 BPM the script below runs ~54s.
   const T = (cls, html) => ({ cls, html });
   const FRAMES = [
-    // ACT 1 — the hook (slower, lets the claim land)
+    // ACT 1 — the hook: the trust problem, before any single vertical
     { b:3, ...T('type', `<div class="t anim-rise">Anyone can post</div>`) },
     { b:3, ...T('type', `<div class="t anim-rise">a <span class="strike">winning</span> screenshot.</div>`) },
     { b:2, ...T('type', `<div class="t sm anim-pop" style="color:var(--dim)">…after the outcome.</div>`) },
-    { b:3, ...T('type', `<div class="t anim-pop">Predge signs the call</div>`) },
+    { b:3, ...T('type', `<div class="t anim-pop">Predge signs every call</div>`) },
     { b:4, ...T('type', `<div class="t amber anim-pop">before it.</div>`) },
     { b:2, ...T('type', `<div class="t sm anim-pop">Not after.</div>`) },
-    // the mechanism, staccato
-    { b:2, ...T('type', `<div class="k anim-pop">ed25519</div><div class="kk">signed while the market is open</div>`) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">Tamper-evident.</div>`) },
-    { b:2, ...T('type', `<div class="t sm amber anim-pop">By construction.</div>`) },
+    { b:2, ...T('type', `<div class="k anim-pop">ed25519</div><div class="kk">signed while the market is still open</div>`) },
+    { b:3, ...T('type', `<div class="t sm amber anim-pop">Tamper-evident<br>by construction.</div>`) },
 
-    // ACT 2 — the scale (screen flash → numbers)
+    // ACT 2 — breadth: not one market. verifiable intelligence across all of them.
+    { b:3, ...T('type', `<div class="t sm anim-rise">Not just prediction markets.</div>`) },
     { b:4, ...T('screen', feedScreen()) },
-    { b:2, ...T('type', `<div class="k anim-pop">1,000,000+</div><div class="kk">wallets tracked</div>`) },
-    { b:2, ...T('type', `<div class="k anim-pop">15,753,076</div><div class="kk">whale trades — every one signed</div>`) },
+    { b:2, ...T('type', `<div class="k anim-pop">Polymarket whales.</div>`) },
+    { b:4, ...T('screen', kalshiScreen()) },
+    { b:2, ...T('type', `<div class="k anim-pop">Kalshi institutional flow.</div>`) },
+    { b:2, ...T('type', `<div class="k anim-pop">Sports outcomes.</div>`) },
+    { b:2, ...T('type', `<div class="k anim-pop">On-chain activity.</div>`) },
+    { b:3, ...T('type', `<div class="t sm amber anim-pop">Every signal — signed.</div>`) },
 
-    // ACT 3 — the proof you can check yourself
+    // ACT 3 — the scale
+    { b:2, ...T('type', `<div class="k anim-pop">1,000,000+</div><div class="kk">smart-money wallets scored</div>`) },
+    { b:3, ...T('type', `<div class="k anim-pop" data-count="15753076">15,700,000</div><div class="kk">signals — every one verifiable</div>`) },
+
+    // ACT 4 — three audiences
+    { b:3, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
     { b:4, ...T('screen', checkerScreen()) },
-    { b:3, ...T('type', `<div class="t sm anim-rise">Is this trader <em>actually</em> good?</div>`) },
-    { b:2, ...T('type', `<div class="t anim-pop">Verify it</div>`) },
-    { b:2, ...T('type', `<div class="t amber anim-pop">yourself.</div>`) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">Offline.</div>`) },
+    { b:3, ...T('type', `<div class="t sm anim-rise">Agents get an <span class="amber">API.</span></div>`) },
+    { b:4, ...T('screen', termScreen()) },
+    { b:3, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
+    { b:3, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
+
+    // ACT 5 — verify it yourself
+    { b:2, ...T('type', `<div class="t anim-pop">Verify it yourself.</div>`) },
+    { b:2, ...T('type', `<div class="t sm amber anim-pop">Offline.</div>`) },
+    { b:4, ...T('screen', arcscanScreen()) },
     { b:3, ...T('type', `<div class="t sm anim-pop">You never take<br>our word for it.</div>`) },
 
-    // ACT 4 — the machine buyer
-    { b:4, ...T('screen', arcscanScreen()) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">The receipt</div>`) },
-    { b:4, ...T('type', `<div class="t amber anim-pop">is the credential.</div>`) },
-    { b:1, ...T('type', `<div class="t sm anim-pop">No account.</div>`) },
-    { b:1, ...T('type', `<div class="t sm anim-pop">No API key.</div>`) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">No card.</div>`) },
-    { b:4, ...T('screen', termScreen()) },
-    { b:2, ...T('type', `<div class="t sm anim-rise">Agents pay in the money</div>`) },
-    { b:4, ...T('type', `<div class="t amber anim-pop">they already hold.</div>`) },
-
-    // CLOSE
+    // ACT 6 — multichain + close
+    { b:2, ...T('type', `<div class="t sm anim-rise">Settling on</div>`) },
+    { b:5, ...T('type', chainsBand()) },
     { b:3, ...T('type', `<div class="t anim-pop">The smart money.</div>`) },
-    { b:6, ...T('type', `<div class="t amber anim-pop" style="line-height:1.02">Signed before<br>the outcome.</div>`) },
+    { b:5, ...T('type', `<div class="t amber anim-pop" style="line-height:1.02">Signed before<br>the outcome.</div>`) },
     { b:10, ...T('type', logoClose()) },
   ];
 
@@ -252,6 +264,19 @@
 <span class="cg">200 OK</span>  BUY_YES $48,212  "Fed cut in Sep 2026?" <span class="cd">score 87</span>
        <span class="cg">✓ ed25519 signed</span> · verify offline · no API key<span class="caret"></span></pre></div>
   </div></div>`;}
+
+  function kalshiScreen(){return `<div class="screen"><div class="win feed">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · Kalshi institutional flow</span></div>
+    <div class="big">$2.41M</div><div class="lbl">large institutional prints today · signed</div>
+    <div class="row"><span class="mk">Fed decision — March FOMC</span><span class="s y">YES</span><span class="a">$412,000</span></div>
+    <div class="row"><span class="mk">CPI above 3.2% in April?</span><span class="s n">NO</span><span class="a">$188,500</span></div>
+    <div class="row"><span class="mk">Government shutdown before Q2?</span><span class="s n">NO</span><span class="a">$96,200</span></div>
+  </div></div>`;}
+
+  function chainsBand(){return `<div class="chains anim-pop">
+    <div class="crow"><span class="camber">Base</span> · <span class="camber">Solana</span> · <span class="camber">Arc</span></div>
+    <div class="csub">+ Bitcoin-L2 · Polygon · ERC-8004 — and beyond</div>
+  </div>`;}
 
   function logoClose(){return `<div class="logo">
     <div class="mk anim-pop">P</div>
