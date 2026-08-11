@@ -182,6 +182,13 @@
   .feed .row .mk{color:#e9ecf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .feed .row .s{font-weight:700;font-size:.9rem;}.feed .row .s.y{color:var(--good);}.feed .row .s.n{color:var(--bad);}
   .feed .row .a{color:var(--amber);font-variant-numeric:tabular-nums;}
+  .feed .sportrow{display:flex;gap:clamp(1rem,2.4vw,2rem);flex-wrap:wrap;padding:.7rem 1.3rem;border-top:1px solid #191c22;}
+  .feed .spico{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:clamp(.85rem,1.5vw,1.05rem);color:#e9ecf1;}
+  .feed .spico .spi{width:clamp(1.4rem,2.4vw,1.9rem);height:clamp(1.4rem,2.4vw,1.9rem);flex:none;}
+  .layer.on .feed .spico{animation:pop .3s cubic-bezier(.2,.8,.2,1) both;}
+  .layer.on .feed .spico:nth-of-type(2){animation-delay:.05s;}
+  .layer.on .feed .spico:nth-of-type(3){animation-delay:.1s;}
+  .layer.on .feed .spico:nth-of-type(4){animation-delay:.15s;}
 
   /* checker verdict */
   .verdict{width:min(72%,880px);border:1px solid #23262e;border-radius:16px;background:#0b0d10;
@@ -352,12 +359,23 @@
     <div class="row"><span class="mk">Government shutdown before Q2?</span><span class="s n">NO</span><span class="a">$96,200</span></div>
   </div></div>`;}
 
+  function icoFootball(){return `<svg viewBox="0 0 36 22" class="spi"><ellipse cx="18" cy="11" rx="16" ry="9" fill="#7a4a2b" stroke="#e9ecf1" stroke-width="1.5"/><line x1="12" y1="11" x2="24" y2="11" stroke="#e9ecf1" stroke-width="1.5"/><line x1="15" y1="8.5" x2="15" y2="13.5" stroke="#e9ecf1"/><line x1="18" y1="8" x2="18" y2="14" stroke="#e9ecf1"/><line x1="21" y1="8.5" x2="21" y2="13.5" stroke="#e9ecf1"/></svg>`;}
+  function icoSoccer(){return `<svg viewBox="0 0 32 32" class="spi"><circle cx="16" cy="16" r="14" fill="#fff" stroke="#0b0d10" stroke-width="1.5"/><path d="M16 9l5.4 3.9-2 6.4h-6.8l-2-6.4z" fill="#0b0d10"/></svg>`;}
+  function icoUFC(){return `<svg viewBox="0 0 32 32" class="spi"><polygon points="10,4 22,4 30,16 22,28 10,28 2,16" fill="none" stroke="#ef5f5f" stroke-width="2.6"/></svg>`;}
+  function icoBball(){return `<svg viewBox="0 0 32 32" class="spi"><circle cx="16" cy="16" r="14" fill="#e07b2b" stroke="#0b0d10" stroke-width="1"/><path d="M2 16h28M16 2v28M6.5 6c6 4.5 6 15.5 0 20M25.5 6c-6 4.5-6 15.5 0 20" fill="none" stroke="#0b0d10" stroke-width="1.3"/></svg>`;}
+
   function sportsScreen(){return `<div class="screen"><div class="win feed">
     <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · signed sports outcomes</span></div>
     <div class="big" data-count="1284">1,180</div><div class="lbl">resolved games attested today · ed25519</div>
-    <div class="row"><span class="mk">Lakers vs. Celtics — final</span><span class="s y">LAL 112–108</span><span class="a">✓ signed</span></div>
-    <div class="row"><span class="mk">Man City vs. Arsenal — full time</span><span class="s y">2–1</span><span class="a">✓ signed</span></div>
-    <div class="row"><span class="mk">Chiefs vs. Bills — final</span><span class="s y">KC 27–24</span><span class="a">✓ signed</span></div>
+    <div class="sportrow">
+      <span class="spico">${icoFootball()}<b>Super Bowl</b></span>
+      <span class="spico">${icoSoccer()}<b>World Cup</b></span>
+      <span class="spico">${icoUFC()}<b>UFC</b></span>
+      <span class="spico">${icoBball()}<b>NBA Finals</b></span>
+    </div>
+    <div class="row"><span class="mk">Super Bowl — final</span><span class="s y">KC 27–24</span><span class="a">✓ signed</span></div>
+    <div class="row"><span class="mk">World Cup — final</span><span class="s y">3–2 AET</span><span class="a">✓ signed</span></div>
+    <div class="row"><span class="mk">UFC — main event</span><span class="s y">KO · R2</span><span class="a">✓ signed</span></div>
   </div></div>`;}
 
   function realScreen(){return `<div class="screen"><video class="realui" src="ad-assets/real-feed.mp4" autoplay loop muted playsinline></video></div>`;}
