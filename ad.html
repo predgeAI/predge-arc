@@ -222,50 +222,50 @@
   const T = (cls, html) => ({ cls, html });
   const FRAMES = [
     // ACT 1 — the hook: the trust problem, before any single vertical
-    { b:3, ...T('type', `<div class="t anim-rise">Anyone can post</div>`) },
-    { b:3, ...T('type', `<div class="t anim-rise">a <span class="strike">winning</span> screenshot.</div>`) },
+    { b:2, ...T('type', `<div class="t anim-rise">Anyone can post</div>`) },
+    { b:2, ...T('type', `<div class="t anim-rise">a <span class="strike">winning</span> screenshot.</div>`) },
     { b:2, ...T('type', `<div class="t sm anim-pop" style="color:var(--dim)">…after the outcome.</div>`) },
-    { b:3, ...T('type', `<div class="t anim-pop">Predge signs every call</div>`) },
-    { b:4, ...T('type', `<div class="t amber anim-pop">before it.</div>`) },
+    { b:2, ...T('type', `<div class="t anim-pop">Predge signs every call</div>`) },
+    { b:3, ...T('type', `<div class="t amber anim-pop">before it.</div>`) },
     { b:2, ...T('type', `<div class="t sm anim-pop">Not after.</div>`) },
     { b:2, ...T('type', `<div class="k anim-pop">ed25519</div><div class="kk">signed while the market is still open</div>`) },
-    { b:3, ...T('type', `<div class="t sm amber anim-pop">Tamper-evident<br>by construction.</div>`) },
+    { b:2, ...T('type', `<div class="t sm amber anim-pop">Tamper-evident<br>by construction.</div>`) },
 
     // ACT 2 — breadth: not one market. verifiable intelligence across all of them.
-    { b:3, ...T('type', `<div class="t sm anim-rise">Not just prediction markets.</div>`) },
+    { b:2, ...T('type', `<div class="t sm anim-rise">Not just prediction markets.</div>`) },
     { b:2, ...T('type', `<div class="plat anim-pop">${pmLogo()}<span class="k">Polymarket whales.</span></div>`) },
-    { b:5, ...T('screen', feedScreen()) },
+    { b:4, ...T('screen', feedScreen()) },
     { b:4, ...T('screen', kalshiScreen()) },
     { b:2, ...T('type', `<div class="plat anim-pop">${kalshiLogo()}<span class="k">Kalshi institutional flow.</span></div>`) },
     { b:4, ...T('screen', sportsScreen()) },
     { b:2, ...T('type', `<div class="k anim-pop">Sports outcomes.</div>`) },
     { b:2, ...T('type', `<div class="k anim-pop">On-chain activity.</div>`) },
-    { b:3, ...T('type', `<div class="t sm amber anim-pop">Every signal — signed.</div>`) },
+    { b:2, ...T('type', `<div class="t sm amber anim-pop">Every signal — signed.</div>`) },
 
     // ACT 3 — the scale
     { b:2, ...T('type', `<div class="k anim-pop">1,000,000+</div><div class="kk">smart-money wallets scored</div>`) },
     { b:3, ...T('type', `<div class="k anim-pop" data-count="15753076">15,700,000</div><div class="kk">signals — every one verifiable</div>`) },
 
     // ACT 4 — three audiences (agents first — the machine buyer leads)
-    { b:3, ...T('type', `<div class="t sm anim-rise">Agents get an <span class="amber">API.</span></div>`) },
+    { b:2, ...T('type', `<div class="t sm anim-rise">Agents get an <span class="amber">API.</span></div>`) },
     { b:4, ...T('screen', termScreen()) },
-    { b:3, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
-    { b:3, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
+    { b:2, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
+    { b:2, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
     { b:4, ...T('screen', checkerScreen()) },
-    { b:3, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
+    { b:2, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
 
     // ACT 5 — verify it yourself
     { b:2, ...T('type', `<div class="t anim-pop">Verify it yourself.</div>`) },
     { b:2, ...T('type', `<div class="t sm amber anim-pop">Offline.</div>`) },
     { b:4, ...T('screen', arcscanScreen()) },
-    { b:3, ...T('type', `<div class="t sm anim-pop">You never take<br>our word for it.</div>`) },
+    { b:2, ...T('type', `<div class="t sm anim-pop">You never take<br>our word for it.</div>`) },
 
     // ACT 6 — multichain + close
     { b:2, ...T('type', `<div class="t sm anim-rise">Settling on</div>`) },
-    { b:5, ...T('type', chainsBand()) },
+    { b:4, ...T('type', chainsBand()) },
     { b:3, ...T('type', `<div class="t sm anim-pop">The smart money,<br><span class="amber">signed before the outcome.</span></div>`) },
     { b:2, ...T('type', `<div class="t anim-pop">And all of it —</div>`) },
-    { b:4, ...T('type', logoClose()) },
+    { b:2, ...T('type', logoClose()) },
   ];
 
   function feedScreen(){return `<div class="screen"><div class="win feed">
@@ -307,7 +307,7 @@
 
   function kalshiScreen(){return `<div class="screen"><div class="win feed">
     <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · Kalshi institutional flow</span></div>
-    <div class="big">$2.41M</div><div class="lbl">large institutional prints today · signed</div>
+    <div class="big" data-count="2413880" data-prefix="$">$2,400,000</div><div class="lbl">large institutional prints today · signed</div>
     <div class="row"><span class="mk">Fed decision — March FOMC</span><span class="s y">YES</span><span class="a">$412,000</span></div>
     <div class="row"><span class="mk">CPI above 3.2% in April?</span><span class="s n">NO</span><span class="a">$188,500</span></div>
     <div class="row"><span class="mk">Government shutdown before Q2?</span><span class="s n">NO</span><span class="a">$96,200</span></div>
@@ -315,7 +315,7 @@
 
   function sportsScreen(){return `<div class="screen"><div class="win feed">
     <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · signed sports outcomes</span></div>
-    <div class="big">1,284</div><div class="lbl">resolved games attested today · ed25519</div>
+    <div class="big" data-count="1284">1,180</div><div class="lbl">resolved games attested today · ed25519</div>
     <div class="row"><span class="mk">Lakers vs. Celtics — final</span><span class="s y">LAL 112–108</span><span class="a">✓ signed</span></div>
     <div class="row"><span class="mk">Man City vs. Arsenal — full time</span><span class="s y">2–1</span><span class="a">✓ signed</span></div>
     <div class="row"><span class="mk">Chiefs vs. Bills — final</span><span class="s y">KC 27–24</span><span class="a">✓ signed</span></div>
@@ -363,8 +363,9 @@
   function runCountUp(el){
     const node=el.querySelector('[data-count]'); if(!node) return;
     const target=parseInt(node.getAttribute('data-count'),10);
-    const start=Math.round(target*0.985); const dur=1000; const t0=performance.now();
-    const fmt=n=>n.toLocaleString('en-US');
+    const prefix=node.getAttribute('data-prefix')||'';
+    const start=Math.round(target*0.955); const dur=800; const t0=performance.now();
+    const fmt=n=>prefix+n.toLocaleString('en-US');
     (function step(now){
       const p=Math.min(1,(now-t0)/dur);
       const eased=1-Math.pow(1-p,3);
