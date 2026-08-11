@@ -74,8 +74,8 @@
 
   /* ── BEAT-LOCKED TRANSITIONS ─────────────────────────────────── */
   /* zoom-punch: type frames slam in with a hard scale + micro-blur */
-  @keyframes punch{0%{transform:scale(1.1);opacity:0;}60%{opacity:1;}100%{transform:scale(1);}}
-  .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains{animation:punch .16s cubic-bezier(.15,.9,.2,1) both;}
+  @keyframes punch{0%{transform:scale(1.09);opacity:0;}55%{opacity:1;}100%{transform:scale(1);}}
+  .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains{animation:punch .12s cubic-bezier(.15,.9,.2,1) both;}
   /* glitch: RGB-split jitter on amber accent words as they hit */
   @keyframes glitch{
     0%{text-shadow:3px 0 var(--bad),-3px 0 var(--arc);transform:translateX(0);}
@@ -87,7 +87,7 @@
   /* screens rush in with a directional motion-blur wipe */
   @keyframes screenIn{0%{opacity:0;filter:blur(4px);transform:scale(1.03);}
     100%{opacity:1;filter:blur(0);transform:scale(1);}}
-  .layer.screen.on .screen{animation:screenIn .2s cubic-bezier(.2,.85,.2,1) both;}
+  .layer.screen.on .screen{animation:screenIn .14s cubic-bezier(.2,.85,.2,1) both;}
   /* flash: a white beat on every screen cut */
   #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
   @keyframes flashfx{0%{opacity:0;}10%{opacity:.55;}100%{opacity:0;}}
@@ -236,10 +236,10 @@
     // ACT 2 — breadth: not one market. verifiable intelligence across all of them.
     { b:2, ...T('type', `<div class="t sm anim-rise">Not just prediction markets.</div>`) },
     { b:2, ...T('type', `<div class="plat anim-pop">${pmLogo()}<span class="k">Polymarket whales.</span></div>`) },
-    { b:4, ...T('screen', feedScreen()) },
-    { b:4, ...T('screen', kalshiScreen()) },
+    { b:3, ...T('screen', feedScreen()) },
+    { b:3, ...T('screen', kalshiScreen()) },
     { b:2, ...T('type', `<div class="plat anim-pop">${kalshiLogo()}<span class="k">Kalshi institutional flow.</span></div>`) },
-    { b:4, ...T('screen', sportsScreen()) },
+    { b:3, ...T('screen', sportsScreen()) },
     { b:2, ...T('type', `<div class="k anim-pop">Sports outcomes.</div>`) },
     { b:2, ...T('type', `<div class="k anim-pop">On-chain activity.</div>`) },
     { b:2, ...T('type', `<div class="t sm amber anim-pop">Every signal — signed.</div>`) },
@@ -250,17 +250,20 @@
 
     // ACT 4 — three audiences (agents first — the machine buyer leads)
     { b:2, ...T('type', `<div class="t sm anim-rise">Agents get an <span class="amber">API.</span></div>`) },
-    { b:4, ...T('screen', termScreen()) },
+    { b:3, ...T('screen', termScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
     { b:2, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
-    { b:4, ...T('screen', checkerScreen()) },
+    { b:3, ...T('screen', checkerScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
 
     // ACT 5 — verify it yourself
     { b:2, ...T('type', `<div class="t anim-pop">Verify it yourself.</div>`) },
     { b:2, ...T('type', `<div class="t sm amber anim-pop">Offline.</div>`) },
-    { b:4, ...T('screen', arcscanScreen()) },
+    { b:3, ...T('screen', arcscanScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-pop">You never take<br>our word for it.</div>`) },
+    { b:2, ...T('type', `<div class="t sm anim-rise">We stake on our own calls.</div>`) },
+    { b:3, ...T('screen', stakesScreen()) },
+    { b:2, ...T('type', `<div class="t sm anim-pop">Wrong? <span class="amber">You're refunded.</span></div>`) },
 
     // ACT 6 — multichain + close
     { b:2, ...T('type', `<div class="t sm anim-rise">Settling on</div>`) },
@@ -325,6 +328,16 @@
 
   function realScreen(){return `<div class="screen"><video class="realui" src="ad-assets/real-feed.mp4" autoplay loop muted playsinline></video></div>`;}
 
+  function stakesScreen(){return `<div class="screen"><div class="verdict">
+    <div class="a">signal · content_hash 0x9f2a…c41</div>
+    <div class="pill">◆ Staked $0.02 · skin in the game</div>
+    <div class="grid">
+      <div class="c"><div class="l">If the call is wrong</div><div class="v g">refunded</div></div>
+      <div class="c"><div class="l">If the call is right</div><div class="v">Predge keeps it</div></div>
+    </div>
+    <div class="sg"><span class="ok">✓ signed</span> · capital-safe · ed25519</div>
+  </div></div>`;}
+
   function pmLogo(){return `<svg viewBox="0 0 52 40" class="pico"><rect x="2" y="2" width="48" height="36" rx="7" fill="none" stroke="#e9ecf1" stroke-width="3"/><path d="M9 9L25 20L9 31Z" fill="#e9ecf1"/><path d="M43 9L27 20L43 31Z" fill="#e9ecf1"/></svg>`;}
   function kalshiLogo(){return `<svg viewBox="0 0 40 40" class="pico"><rect width="40" height="40" rx="9" fill="#00C08B"/><path d="M13.5 9v22M13.5 20.5l10.5-11.5M15 21l9.5 10" stroke="#0b0d10" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
@@ -365,7 +378,7 @@
     const node=el.querySelector('[data-count]'); if(!node) return;
     const target=parseInt(node.getAttribute('data-count'),10);
     const prefix=node.getAttribute('data-prefix')||'';
-    const start=Math.round(target*0.955); const dur=800; const t0=performance.now();
+    const start=Math.round(target*0.955); const dur=600; const t0=performance.now();
     const fmt=n=>prefix+n.toLocaleString('en-US');
     (function step(now){
       const p=Math.min(1,(now-t0)/dur);
