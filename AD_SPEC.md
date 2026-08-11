@@ -4,7 +4,8 @@ Kinetic-typography ad in the Apple "Don't Blink" style. Single self-contained
 `ad.html` played in a headless browser and recorded to mp4. Everything is our
 own pixels — no AI-generated footage, no screen capture.
 
-- **Length:** ~44s · **39 frames** · **92 beats @ 125 BPM** (matched to the track)
+- **Length:** ~45.7s · **39 frames** · **93 beats @ 125 BPM** (matched to the track).
+  Note: after adding a beat to the TG frame (#24), frame timings from #25 on shift +~0.5s vs the table below.
 - **Aspect:** 16:9, 1920×1080
 - **Source:** `ad.html` (the whole ad — CSS/JS, all screens, all copy)
 - **Repo:** `predgeAI/predge-arc` (push with `GH_TOKEN=$(gh auth token --user predge-ai)`)
@@ -53,7 +54,7 @@ Legend: `▸` = text card, `▪` = product-screen mockup, **amber** = the amber 
 | 21 | 21.6 | 3 | ▪ **termScreen** — x402: 402 → pay USDC → signed data |
 | 22 | 23.0 | 2 | ▸ "Pay per call. USDC. No account. No key." |
 | 23 | 24.0 | 2 | ▸ **"Traders get alerts."** |
-| 24 | 25.0 | 3 | ▪ **tgScreen** — Telegram "Predge Alerts" bot whale notification |
+| 24 | 25.0 | 4 | ▪ **tgScreen** — Telegram "Predge Alerts" bot, 2 bubbles: 👁 *Watching wallet* (Steel Whale #53 · 0x7a3f…e2 added to watchlist) → 🐋 *It just moved* (YES $40k, signed) |
 | 25 | 26.4 | 3 | ▪ **appScreen** — terminal dashboard, 24h stats count-up + insider watch |
 | 26 | 27.8 | 3 | ▪ **checkerScreen** — wallet verdict (win-rate, edge, signed) |
 | 27 | 29.3 | 2 | ▸ **"Business licenses the proof."** |
@@ -88,7 +89,7 @@ Legend: `▸` = text card, `▪` = product-screen mockup, **amber** = the amber 
 | `kalshiScreen` | Kalshi institutional flow | `$2.41M` count-up |
 | `sportsScreen` | signed sports outcomes | `1,284` count-up, emblem row pops in |
 | `termScreen` | agent.mjs x402 loop | blinking caret |
-| `tgScreen` | Telegram "Predge Alerts" bot | message bubble slides in |
+| `tgScreen` | Telegram "Predge Alerts" bot — wallet-watch → signed alert | two bubbles slide in (2nd delayed .55s) |
 | `appScreen` | terminal dashboard | 4 stats count-up, insider rows stagger |
 | `checkerScreen` | wallet verdict card | pill pop, value glow |
 | `arcscanScreen` | Arc Paid receipt | blinking caret |

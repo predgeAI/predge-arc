@@ -7,7 +7,7 @@ const { chromium } = pw;
 
 const AD = "file:///Users/amir/Documents/Playground/predge-arc/ad.html";
 const OUT_DIR = "/Users/amir/Documents/Playground/predge-arc/rec";
-const DURATION_MS = 44510;
+const DURATION_MS = 45200;
 
 const browser = await chromium.launch({ args: ["--autoplay-policy=no-user-gesture-required"] });
 const context = await browser.newContext({

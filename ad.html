@@ -72,10 +72,13 @@
   .tg .tgav{width:44px;height:44px;border-radius:50%;background:var(--amber);color:#000;display:grid;place-items:center;font-family:var(--mono);font-weight:800;font-size:1.4rem;flex:none;}
   .tg .tgnm{font-family:var(--sans);font-weight:700;color:#fff;font-size:1.15rem;}
   .tg .tgst{font-family:var(--mono);font-size:.8rem;color:#5a9;}
-  .tg .tgbody{padding:1.4rem;}
+  .tg .tgbody{padding:1.4rem;display:flex;flex-direction:column;gap:.9rem;}
   @keyframes tgslide{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
   .layer.on .tgin{animation:tgslide .26s cubic-bezier(.2,.8,.2,1) both;}
+  .layer.on .tgin2{animation:tgslide .26s cubic-bezier(.2,.8,.2,1) both;animation-delay:.55s;}
   .tg .tgmsg{background:#182533;border-radius:12px 12px 12px 4px;padding:1rem 1.2rem;max-width:82%;}
+  .tg .tgmsg.watch{border-left:3px solid var(--amber);}
+  .tg .tgtitle .eye{color:var(--amber);}
   .tg .tgtitle{font-family:var(--sans);font-weight:800;color:#fff;font-size:1.3rem;margin-bottom:.4rem;}
   .tg .tgline{font-family:var(--mono);color:#e9ecf1;font-size:1.05rem;}
   .tg .tgline .a{color:var(--amber);} .tg .tgline .s.y{color:var(--good);font-weight:700;}
@@ -292,7 +295,7 @@
     { b:3, ...T('screen', termScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
     { b:2, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
-    { b:3, ...T('screen', tgScreen()) },
+    { b:4, ...T('screen', tgScreen()) },
     { b:3, ...T('screen', appScreen()) },
     { b:3, ...T('screen', checkerScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
@@ -383,8 +386,13 @@
   function tgScreen(){return `<div class="screen"><div class="tg">
     <div class="tgbar"><span class="tgav">P</span><div class="tgid"><div class="tgnm">Predge Alerts</div><div class="tgst">bot · online</div></div></div>
     <div class="tgbody">
-      <div class="tgmsg tgin">
-        <div class="tgtitle">🐋 Whale alert</div>
+      <div class="tgmsg watch tgin">
+        <div class="tgtitle"><span class="eye">👁</span> Watching wallet</div>
+        <div class="tgline"><b>Steel Whale #53</b> · <span class="a">0x7a3f…e2</span> added to your watchlist</div>
+        <div class="tgfoot">we ping you on every signed move<span class="tgt">9:41</span></div>
+      </div>
+      <div class="tgmsg tgin2">
+        <div class="tgtitle">🐋 It just moved</div>
         <div class="tgline"><b>Steel Whale #53</b> went <span class="s y">YES</span> · <span class="a">$40,000</span></div>
         <div class="tgmk">"BTC above $58,000 on Aug 31?"</div>
         <div class="tgfoot"><span class="ok">✓ signed</span> · verify offline<span class="tgt">now</span></div>
