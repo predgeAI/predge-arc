@@ -121,6 +121,14 @@ Legend: `▸` = text card, `▪` = product-screen mockup, **amber** = the amber 
 - File `ad-audio/tiger.mp3` and the music cut `predge-ad-music.mp4` are
   **gitignored** — the public repo stays music-free (permission covers the
   owner, not open redistribution). Music starts at the **drop (4.0s)**.
+- **TG notification SFX** — `ad-audio/tg-notify.mp3` (gitignored), a Telegram
+  "message received" ding, mixed in at **~25.5s** (when the tgScreen bot appears,
+  right after "Traders get alerts"). Mixed with `normalize=0` so the music bed
+  doesn't duck; `alimiter` prevents clipping.
+- **Punch ending** — the music **hard-stops (~50ms cut) at ~44.15s**, exactly as
+  the final **PREDGE** logo punches in; the logo then holds ~1.5s in silence.
+  (These timestamps are tied to the current recording's lead-in — if frames move,
+  re-derive with the frame-montage method: `ffmpeg -ss T -i predge-ad.mp4 -vf fps=10,tile`.)
 
 ---
 
@@ -132,10 +140,14 @@ node record-ad.mjs                       # plays ad.html headless → rec/*.webm
 WEBM=$(ls rec/*.webm | head -1)
 # silent cut (committed):
 ffmpeg -y -i "$WEBM" -an -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 18 -r 30 -movflags +faststart predge-ad.mp4
-# music cut (owner only, gitignored) — Tiger from the drop, hard end:
-ffmpeg -y -i "$WEBM" -ss 4.0 -i ad-audio/tiger.mp3 -map 0:v:0 -map 1:a:0 \
-  -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 18 -r 30 -c:a aac -b:a 192k \
-  -af "afade=t=in:st=0:d=0.2,afade=t=out:st=<VDUR-0.3>:d=0.3" -shortest -movflags +faststart predge-ad-music.mp4
+# music cut (owner only, gitignored) — Tiger from the drop + TG ding + punch ending.
+# DING_MS = tgScreen onset in ms (~25500). CUT = logo onset − ~0.05s (~44.15). Re-derive both via frame montage if the cut changes.
+ffmpeg -y -i "$WEBM" -ss 4.0 -i ad-audio/tiger.mp3 -i ad-audio/tg-notify.mp3 \
+  -filter_complex "[1:a]afade=t=in:st=0:d=0.2,afade=t=out:st=<CUT>:d=0.05[m]; \
+    [2:a]adelay=<DING_MS>|<DING_MS>,volume=0.95[ding]; \
+    [m][ding]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.98[a]" \
+  -map 0:v:0 -map "[a]" -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 18 -r 30 \
+  -c:a aac -b:a 192k -shortest -movflags +faststart predge-ad-music.mp4
 ```
 
 `DURATION_MS` in `record-ad.mjs` must be ≥ the ad length (`~ Σbeats × 0.48s`).
