@@ -60,6 +60,32 @@
   .layer.on .anim-rise{animation:rise .18s cubic-bezier(.2,.8,.2,1) both;}
   @media (prefers-reduced-motion:reduce){.anim-pop,.anim-rise{animation:none!important;}}
 
+  /* ── BEAT-LOCKED TRANSITIONS ─────────────────────────────────── */
+  /* zoom-punch: type frames slam in with a hard scale + micro-blur */
+  @keyframes punch{0%{transform:scale(1.14);opacity:0;filter:blur(7px);}
+    55%{opacity:1;filter:blur(0);}100%{transform:scale(1);}}
+  .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains{animation:punch .2s cubic-bezier(.15,.9,.2,1) both;}
+  /* glitch: RGB-split jitter on amber accent words as they hit */
+  @keyframes glitch{
+    0%{text-shadow:3px 0 var(--bad),-3px 0 var(--arc);transform:translateX(0);}
+    25%{text-shadow:-3px 0 var(--bad),3px 0 var(--arc);transform:translateX(2px);}
+    50%{text-shadow:2px 0 var(--bad),-2px 0 var(--arc);transform:translateX(-2px);}
+    75%{text-shadow:-1px 0 var(--bad),1px 0 var(--arc);transform:translateX(1px);}
+    100%{text-shadow:none;transform:translateX(0);}}
+  .layer.type.on .amber,.layer.type.on .t.amber{animation:glitch .18s steps(2,end) 1;}
+  /* screens rush in with a directional motion-blur wipe */
+  @keyframes screenIn{0%{opacity:0;filter:blur(16px);transform:scale(1.05) translateX(3%);}
+    100%{opacity:1;filter:blur(0);transform:scale(1) translateX(0);}}
+  .layer.screen.on .screen{animation:screenIn .3s cubic-bezier(.2,.85,.2,1) both;}
+  /* flash: a white beat on every screen cut */
+  #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
+  @keyframes flashfx{0%{opacity:0;}10%{opacity:.55;}100%{opacity:0;}}
+  #flash.hit{animation:flashfx .16s ease-out;}
+  @media (prefers-reduced-motion:reduce){
+    .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains,
+    .layer.type.on .amber,.layer.screen.on .screen,#flash.hit{animation:none!important;}
+  }
+
   /* ── LIVE SCREEN MOTION — makes the product surfaces feel alive ── */
   @keyframes liveDot{0%,100%{opacity:1;}50%{opacity:.35;}}
   @keyframes glowPulse{0%,100%{text-shadow:0 0 0 transparent;}50%{text-shadow:0 0 22px color-mix(in srgb,var(--amber) 55%,transparent);}}
@@ -156,6 +182,7 @@
 
 <div id="stage"><div id="frame">
   <!-- layers are injected by JS from the FRAMES list -->
+  <div id="flash"></div>
 </div></div>
 
 <div id="count"><div class="n" id="countn">3</div></div>
@@ -334,8 +361,13 @@
       const el=layers[i];
       el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
       runCountUp(el);
+      // flash-cut: a white beat only on screen cuts (keeps it from strobing)
+      if(FRAMES[i] && FRAMES[i].cls==='screen'){
+        flashEl.classList.remove('hit'); void flashEl.offsetWidth; flashEl.classList.add('hit');
+      }
     }
   }
+  const flashEl=document.getElementById('flash');
   function tick(now){
     const t=(now-t0)/1000;
     let i=starts.length-1;
