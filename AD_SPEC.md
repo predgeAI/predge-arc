@@ -97,6 +97,11 @@ Legend: `▸` = text card, `▪` = product-screen mockup, **amber** = the amber 
 
 ## Logos
 
+- **Canonical wordmark** — `ad-assets/predge-wordmark.png` (transparent, 5084×736).
+  This is the **real predge.io header logotype**: **Syne ExtraBold**, `PREDGE`
+  in amber `#f5a623` + `.` in `#e8e8f0`. Used in `logoClose` (final frame) and the
+  YouTube thumbnail. **Always use this file for the wordmark** — do not retype it
+  in another font. Re-render with `/tmp/hwm.html` (Syne via Google Fonts) if needed.
 - **Official SVGs** (in `ad-assets/logos/`): Solana, Polygon, Bitcoin.
 - **Rebuilt SVGs** (inline in `ad.html`, brand-accurate from the owner's references):
   Base (circle+bar), Arc (arch), Polymarket (bowtie), Kalshi (green mark).

@@ -1,0 +1,83 @@
+<!doctype html><html><head><meta charset="utf-8">
+<style>
+  :root{
+    --amber:#f5a623; --ink:#000; --fg:#fff; --dim:#8a90a0; --good:#35c07f;
+    --mono: ui-monospace,"SF Mono","Menlo","Cascadia Code",monospace;
+    --sans: -apple-system,"Helvetica Neue",system-ui,"Segoe UI",Roboto,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  html,body{width:1280px;height:720px;background:var(--ink);overflow:hidden;font-family:var(--sans);color:var(--fg);}
+  #tb{position:relative;width:1280px;height:720px;
+    background:
+      radial-gradient(120% 90% at 78% 18%, rgba(245,166,35,.16), transparent 55%),
+      radial-gradient(90% 80% at 8% 108%, rgba(75,159,255,.10), transparent 60%),
+      #000;
+    overflow:hidden;}
+  /* faint grid + scanline texture */
+  #tb::before{content:"";position:absolute;inset:0;opacity:.06;
+    background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);
+    background-size:64px 64px;mask:radial-gradient(120% 100% at 50% 40%,#000,transparent 85%);}
+  #tb::after{content:"";position:absolute;inset:0;pointer-events:none;
+    box-shadow:inset 0 0 220px 40px rgba(0,0,0,.85);}
+
+  .kick{position:absolute;top:52px;left:64px;font-family:var(--mono);font-weight:600;
+    letter-spacing:.34em;font-size:20px;color:var(--dim);text-transform:uppercase;}
+  .kick b{color:var(--amber);}
+
+  .head{position:absolute;left:64px;top:170px;width:820px;
+    font-weight:900;letter-spacing:-.03em;line-height:.92;font-size:118px;text-wrap:balance;}
+  .head .am{color:var(--amber);}
+  .head .strike{color:var(--dim);text-decoration:line-through;text-decoration-thickness:.07em;}
+
+  .sub{position:absolute;left:66px;top:552px;font-family:var(--mono);font-size:23px;
+    letter-spacing:.02em;color:#c7ccd6;}
+  .sub .a{color:var(--amber);}
+
+  .rail{position:absolute;left:66px;bottom:52px;font-family:var(--mono);font-size:19px;
+    letter-spacing:.12em;color:var(--dim);text-transform:uppercase;}
+  .rail .d{color:#3a3f4a;margin:0 12px;}
+
+  .wm{position:absolute;right:60px;bottom:48px;text-align:right;}
+  .wm img{display:block;width:300px;height:auto;}
+  .wm .u{font-family:var(--mono);font-size:19px;letter-spacing:.16em;color:var(--dim);margin-top:10px;}
+
+  /* signature stamp, top-right */
+  .stamp{position:absolute;right:74px;top:96px;width:340px;height:340px;
+    transform:rotate(-9deg);}
+  .stamp svg{width:100%;height:100%;overflow:visible;}
+  .stamp .ring{fill:none;stroke:var(--amber);stroke-width:6;opacity:.9;}
+  .stamp .ring2{fill:none;stroke:var(--amber);stroke-width:2;opacity:.45;}
+  .stamp .rt{font-family:var(--mono);font-weight:700;font-size:20px;letter-spacing:.28em;fill:var(--amber);}
+  .stamp .big{font-family:var(--mono);font-weight:800;font-size:52px;letter-spacing:.02em;fill:var(--amber);}
+  .stamp .sm{font-family:var(--mono);font-weight:600;font-size:17px;letter-spacing:.14em;fill:#e7b96a;}
+  .stamp .chk{stroke:var(--amber);stroke-width:10;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+</style></head>
+<body>
+<div id="tb">
+  <div class="kick">SMART-MONEY SIGNALS &nbsp;·&nbsp; <b>ed25519</b></div>
+
+  <div class="head">Signed<br><span class="am">before</span><br>the outcome.</div>
+
+  <div class="sub"><span class="a">Not</span> a screenshot posted <span class="strike" style="text-decoration:line-through">after</span> — proof, timestamped before the market closes.</div>
+
+  <div class="rail">Polymarket <span class="d">·</span> Kalshi <span class="d">·</span> Sports <span class="d">·</span> On-chain</div>
+
+  <div class="stamp">
+    <svg viewBox="0 0 340 340">
+      <circle class="ring" cx="170" cy="170" r="158"/>
+      <circle class="ring2" cx="170" cy="170" r="140"/>
+      <path id="arcTop" d="M 44 170 A 126 126 0 0 1 296 170" fill="none"/>
+      <path id="arcBot" d="M 296 170 A 126 126 0 0 1 44 170" fill="none"/>
+      <text class="rt"><textPath href="#arcTop" startOffset="50%" text-anchor="middle">TAMPER-EVIDENT</textPath></text>
+      <text class="rt"><textPath href="#arcBot" startOffset="50%" text-anchor="middle">· PREDGE · SIGNED ·</textPath></text>
+      <path class="chk" d="M 138 170 l 22 26 l 46 -52"/>
+      <text class="big" x="170" y="250" text-anchor="middle">BEFORE</text>
+    </svg>
+  </div>
+
+  <div class="wm">
+    <img src="ad-assets/predge-wordmark.png" alt="PREDGE">
+    <div class="u">PREDGE.IO</div>
+  </div>
+</div>
+</body></html>
