@@ -74,7 +74,7 @@
 
   /* ── BEAT-LOCKED TRANSITIONS ─────────────────────────────────── */
   /* zoom-punch: type frames slam in with a hard scale + micro-blur */
-  @keyframes punch{0%{transform:scale(1.09);opacity:0;}55%{opacity:1;}100%{transform:scale(1);}}
+  @keyframes punch{0%{transform:scale(1.09);}100%{transform:scale(1);}}
   .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains{animation:punch .12s cubic-bezier(.15,.9,.2,1) both;}
   /* glitch: RGB-split jitter on amber accent words as they hit */
   @keyframes glitch{
@@ -85,8 +85,7 @@
     100%{text-shadow:none;transform:translateX(0);}}
   .layer.type.on .amber,.layer.type.on .t.amber{animation:glitch .18s steps(2,end) 1;}
   /* screens rush in with a directional motion-blur wipe */
-  @keyframes screenIn{0%{opacity:0;filter:blur(4px);transform:scale(1.03);}
-    100%{opacity:1;filter:blur(0);transform:scale(1);}}
+  @keyframes screenIn{0%{transform:scale(1.05);}100%{transform:scale(1);}}
   .layer.screen.on .screen{animation:screenIn .14s cubic-bezier(.2,.85,.2,1) both;}
   /* flash: a white beat on every screen cut */
   #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
