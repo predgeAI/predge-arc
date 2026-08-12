@@ -24,12 +24,19 @@ by us.
 | Pre-commit — signed call recorded while the market was still open | [`0x6c602e9f…d52d83db`](https://testnet.arcscan.app/tx/0x6c602e9fb2e5f4ad272779bb44f620b5966dff111decde7053230cffd52d83db) |
 | Resolution — outcome welded to that commitment | [`0xfc5494b1…95363fe5da`](https://testnet.arcscan.app/tx/0xfc5494b132552936ba49c6bccc289ee9199ad8233460116cf427cc95363fe5da) |
 
-## The resolution layer (`PredgeOracle`)
+## The resolution layer — **Cachet** (`PredgeOracle`)
 
-Circle's Arc prediction-market blueprint supplies USDC gas, FX and compliance —
-but leaves open *which oracle supplies outcome data, and how outcomes are
-verified*. `PredgeOracle` is that layer, and its guarantee is structural rather
-than a promise:
+> *Pli cacheté* — the sealed envelope. From the 1600s, scientists claimed a discovery
+> they could not yet publish by lodging it in a form nobody could read but everybody
+> could later verify: Galileo announced Saturn's rings as an anagram, Hooke did the
+> same for his law of elasticity, and the Académie des Sciences kept sealed envelopes
+> whose seal and date proved afterwards who knew first — while making it impossible to
+> quietly revise the claim. A commitment scheme, three centuries before the term existed.
+
+Arc gives prediction markets USDC gas, onchain FX, compliance and deterministic
+finality. What it has no deployed answer for is *what actually happened* — Circle's own
+reference implementation resolves through a mock whose admin pushes the result. Cachet is
+that missing layer, and its guarantee is structural rather than a promise:
 
 1. **Commit first.** `commitMarket` records `keccak256` of the ed25519-signed call
    **while the market is still open**; the chain timestamps it.
