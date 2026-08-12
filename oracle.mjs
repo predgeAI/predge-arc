@@ -34,6 +34,16 @@ export const ORACLE_ABI = [
   "function publisher() view returns (address)",
   "event MarketCommitted(bytes32 indexed marketId, bytes32 indexed preCommitHash, uint64 committedAt, string marketRef)",
   "event MarketResolved(bytes32 indexed marketId, uint8 indexed outcome, bytes32 indexed contentHash, bytes32 preCommitHash, uint64 committedAt, uint64 resolvedAt, string attestationRef)",
+  // The custom errors MUST be in the ABI or ethers reports a bare "unknown custom
+  // error" — and the whole point of the demo is watching the chain refuse by NAME.
+  "error NotOwner()",
+  "error NotPublisher()",
+  "error ZeroAddress()",
+  "error ZeroHash()",
+  "error AlreadyCommitted()",
+  "error NotCommitted()",
+  "error AlreadyResolved()",
+  "error BadOutcome()",
 ];
 
 const OUTCOME = { unresolved: 0, yes: 1, no: 2, invalid: 3 };
@@ -156,8 +166,9 @@ async function cmdRead(platform, marketRef) {
   console.log("commit lead   ", Number(lead), "s before the outcome was recorded");
 }
 
-/** Extract the revert reason name from an ethers error (custom errors). */
+/** Name of the custom error the chain reverted with (ethers v6 decodes it via the ABI). */
 function revertName(e) {
+  if (e?.revert?.name) return e.revert.name;
   const s = (e?.shortMessage || e?.message || "") + " " + (e?.info?.error?.message || "");
   const m = /(AlreadyResolved|NotCommitted|AlreadyCommitted|NotPublisher|NotOwner|BadOutcome|ZeroHash)/.exec(s);
   return m ? m[1] : (e?.shortMessage || "reverted");

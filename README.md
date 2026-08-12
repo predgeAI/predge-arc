@@ -20,6 +20,36 @@ by us.
 | Agent purchase — `/v1/whales/latest`, $0.005, redeemed by tx hash | [`0x153ee694…3b8c96`](https://testnet.arcscan.app/tx/0x153ee694c352baff424ddf770021196edac2f25a3649dedefad042c4263b8c96) |
 | Agent purchase — `/v1/wallets/leaderboard`, $0.01, gateway found the event itself | [`0x6296c95b…a082f5`](https://testnet.arcscan.app/tx/0x6296c95b4bdb7c363d79ba0374f7e2c7ebc0f63adc81524c23b2a7ac3fa082f5) |
 | Hash-chain anchor (live key registry) | [`0x99e60bfa…7745e6`](https://testnet.arcscan.app/tx/0x99e60bfa7ebd187e5893854f747552126250d9b8b75d4ba84c523a9c817745e6) |
+| **`PredgeOracle`** — outcome resolution | [`0xF160AbE664C34CF4C117101b4308bb16325a1ABc`](https://testnet.arcscan.app/address/0xF160AbE664C34CF4C117101b4308bb16325a1ABc) |
+| Pre-commit — signed call recorded while the market was still open | [`0x6c602e9f…d52d83db`](https://testnet.arcscan.app/tx/0x6c602e9fb2e5f4ad272779bb44f620b5966dff111decde7053230cffd52d83db) |
+| Resolution — outcome welded to that commitment | [`0xfc5494b1…95363fe5da`](https://testnet.arcscan.app/tx/0xfc5494b132552936ba49c6bccc289ee9199ad8233460116cf427cc95363fe5da) |
+
+## The resolution layer (`PredgeOracle`)
+
+Circle's Arc prediction-market blueprint supplies USDC gas, FX and compliance —
+but leaves open *which oracle supplies outcome data, and how outcomes are
+verified*. `PredgeOracle` is that layer, and its guarantee is structural rather
+than a promise:
+
+1. **Commit first.** `commitMarket` records `keccak256` of the ed25519-signed call
+   **while the market is still open**; the chain timestamps it.
+2. **Then resolve.** `postResolution` **reverts** unless that market was committed
+   first — so an outcome can never be chosen with hindsight.
+3. **Never rewrite.** A resolution is written exactly once. There is no edit path,
+   no upgrade, no admin override — not even the publisher can change it.
+
+That is the property token-vote oracles lack, where a vote can rewrite "truth"
+after the money is known. Any Arc contract settles against it through free views
+(`getResolution` / `isResolved` / `outcomeOf` / `commitLeadTime`) — monetisation
+stays on the x402 data API, because an oracle you must pay to read is not an oracle.
+
+Watch the chain enforce both refusals live:
+
+```
+npm run oracle:demo
+# [1/5] resolving an uncommitted market   -> reverted: NotCommitted
+# [5/5] rewriting a settled resolution    -> reverted: AlreadyResolved
+```
 
 Reproduce the anchored digest yourself:
 
