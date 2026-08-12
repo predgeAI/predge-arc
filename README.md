@@ -51,6 +51,33 @@ npm run oracle:demo
 # [5/5] rewriting a settled resolution    -> reverted: AlreadyResolved
 ```
 
+## The whole story in one command
+
+```
+npm run e2e
+```
+
+Runs the complete loop on Arc testnet and prints an explorer link for every step: the chain refuses
+a hindsight resolution, Predge pre-commits its signed call, a real market deploys **bound to that
+commitment**, two wallets stake native USDC on opposite sides, the outcome settles, the chain
+refuses to rewrite it, the market settles **itself** from the oracle (no admin, no arguments), and
+the winner claims real USDC while the loser is owed nothing.
+
+A recorded run — [`ExampleMarket 0x0A63f412…0212CD`](https://testnet.arcscan.app/address/0x0A63f412B9Af24a92B04ad596F32D4568A0212CD):
+
+| Step | Tx |
+|---|---|
+| Pre-commit (signed call, before the outcome) | [`0x844a01bb…d68dce45`](https://testnet.arcscan.app/tx/0x844a01bbe3ce10f8923f5af1f5a244aff956a9ed6857cba80b501a72d68dce45) |
+| Stake 0.02 USDC on YES | [`0xee590559…8213e0fc`](https://testnet.arcscan.app/tx/0xee590559c237115f71410a5df0453297bd7a59203d9a8a422e4dc5fb8213e0fc) |
+| Stake 0.01 USDC on NO | [`0xf228b0e2…b02ea8554`](https://testnet.arcscan.app/tx/0xf228b0e2d3313d3fdb5bee8d5553440b7621c3363701fdec8364dd8b02ea8554) |
+| Resolution — 17s after the commitment, welded to it | [`0x9f1ffcdc…5e6561f7`](https://testnet.arcscan.app/tx/0x9f1ffcdce02fb8befc3b6e1106fc7bb902421e621bab386788c03ac45e6561f7) |
+| Market settles itself from the oracle → PAYOUT_YES | [`0xaebeb45f…22f46be3`](https://testnet.arcscan.app/tx/0xaebeb45f2fff344c3d8ac8d4582354dd034eb210883fba075f335e0322f46be3) |
+| Winner claims 0.03 USDC (own stake + the losing pool) | [`0x89dfe559…4f2dbe813b`](https://testnet.arcscan.app/tx/0x89dfe5590e81c8b3b808f219f5a5f63233e361b7c541fafdc0773e4f2dbe813b) |
+
+Four refusals in that run came from deployed code, not from a README: `NotCommitted`,
+`AlreadyResolved`, `BettingClosed` (no risk-free bet once the outcome is known) and
+`NothingToClaim`.
+
 Reproduce the anchored digest yourself:
 
 ```
