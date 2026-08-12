@@ -58,6 +58,37 @@ npm run oracle:demo
 # [5/5] rewriting a settled resolution    -> reverted: AlreadyResolved
 ```
 
+## Verify a resolution without trusting us
+
+```
+node verify-cachet.mjs <marketId>          # or: --platform polymarket --ref <marketRef>
+```
+
+`verify-cachet.mjs` is a single standalone file. It imports **no Predge code**, holds no
+secret, and needs nothing but a public Arc RPC endpoint. Read it before you trust it —
+that is the point. It checks, in order:
+
+1. **the chain's own record** — resolved outcome, and that the commitment timestamp
+   precedes the resolution. Nobody can revise this; the contract has no edit path.
+2. **the bytes behind the hash** — `keccak256(canonical)` must equal the contentHash the
+   chain recorded, proving the bytes you are reading are the bytes that settled.
+3. **the ed25519 signature** over exactly those bytes.
+4. **the signing key** is listed *active* in Predge's published registry.
+5. `--deep`: **the registry itself is anchored on Arc**, so even the key list is attested
+   by the chain rather than by a web server that could be swapped tomorrow.
+
+Any failure prints `FAIL` and exits non-zero. A verifier that cannot fail is decoration —
+so here are two real failures it produces today:
+
+- A resolution whose `attestationRef` is a **URL** fails at step 2 when that URL is gone:
+  a hash whose preimage lives on someone's web server proves only that *something* was
+  committed. Publish with `oracle.mjs resolve … --embed` and the entire signed envelope is
+  written **on-chain**, so verification survives predge.io disappearing entirely.
+- A resolution signed with an **ephemeral demo key** passes steps 1–3 and then fails at
+  step 4, because a signature under an unpublished key proves only that *someone* signed.
+  Set `ORACLE_SIGNING_KEY` to the key listed in the registry for a resolution that verifies
+  end to end.
+
 ## The whole story in one command
 
 ```

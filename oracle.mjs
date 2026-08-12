@@ -13,6 +13,7 @@
 // the settled outcome — which the contract refuses to accept for an uncommitted
 // market, and refuses to overwrite once written. `demo` proves both refusals on
 // a live chain, because a guarantee you cannot watch fail is just a claim.
+import crypto from "node:crypto";
 import { readFileSync, existsSync } from "node:fs";
 import { AbiCoder, Contract, Wallet, keccak256, toUtf8Bytes } from "ethers";
 import { makeProvider, withRetry, txLink, addressLink, EXPLORER } from "./lib/arc.mjs";
@@ -97,15 +98,40 @@ function connect() {
  * offline against Predge's key registry, and confirm it hashes to what settled.
  */
 export function signedHash(payload, keys) {
-  const { privateKey, publicKey } = keys ?? ephemeralKeypair();
+  const { privateKey, publicKey } = keys ?? signingKeypair();
   const att = signAttestation(payload, privateKey, publicKey);
   return { att, hash: keccak256(toUtf8Bytes(att.canonical)) };
+}
+
+/**
+ * The keypair the oracle publishes under.
+ *
+ * With ORACLE_SIGNING_KEY set (64-hex ed25519 seed) it signs with a REAL key —
+ * which must be the one listed active in Predge's published registry, or the
+ * trust chain breaks: verify-cachet.mjs will confirm the signature and then
+ * refuse the resolution at step 4, because a signature under an unpublished key
+ * proves only that *someone* signed. Without it, this falls back to an ephemeral
+ * throwaway key: fine for demonstrating the on-chain mechanics, and correctly
+ * REJECTED by the verifier. That rejection is the system working, not a bug.
+ */
+export function signingKeypair() {
+  const seed = (process.env.ORACLE_SIGNING_KEY || parseEnv(ENV).ORACLE_SIGNING_KEY || "").trim();
+  if (!/^[0-9a-fA-F]{64}$/.test(seed)) return ephemeralKeypair();
+  const PKCS8_ED25519_PREFIX = Buffer.from("302e020100300506032b657004220420", "hex");
+  const privateKey = crypto.createPrivateKey({
+    key: Buffer.concat([PKCS8_ED25519_PREFIX, Buffer.from(seed, "hex")]),
+    format: "der",
+    type: "pkcs8",
+  });
+  const publicKey = crypto.createPublicKey(privateKey);
+  return { privateKey, publicKey };
 }
 
 const arg = (flag, dflt = "") => {
   const i = process.argv.indexOf(flag);
   return i > -1 ? process.argv[i + 1] : dflt;
 };
+const has = (flag) => process.argv.includes(flag);
 
 async function cmdCommit(platform, marketRef) {
   const { contract, wallet } = connect();
@@ -145,7 +171,16 @@ async function cmdResolve(platform, marketRef, outcomeWord) {
   console.log("marketId    ", marketId);
   console.log("contentHash ", hash, "(keccak256 of the signed resolution bytes)");
   console.log("signature ok", verifyAttestation(att).valid);
-  const ref = arg("--ref", `https://predge.io/r/${marketRef}/evidence`);
+  // --embed writes the ENTIRE signed envelope on-chain instead of a URL pointing
+  // at it. It costs more gas, and it is worth it: a hash whose preimage lives on
+  // someone's web server proves only that *something* was committed. Embedded,
+  // the resolution stays independently verifiable even if predge.io disappears —
+  // which is the difference between "verify without trusting us" as a claim and
+  // as a fact. See verify-cachet.mjs.
+  const ref = has("--embed")
+    ? JSON.stringify({ canonical: att.canonical, signature: att.signature, public_key: att.public_key })
+    : arg("--ref", `https://predge.io/r/${marketRef}/evidence`);
+  if (has("--embed")) console.log("embedding   ", ref.length, "bytes of signed envelope on-chain");
   const tx = await withRetry("postResolution", () => contract.postResolution(marketId, outcome, hash, ref));
   console.log("resolve tx  ", txLink(tx.hash));
   await withRetry("wait", () => tx.wait());
