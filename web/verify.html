@@ -1,0 +1,763 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>CACHET — verify a Predge resolution in your browser</title>
+<!--
+  CACHET — browser verifier.
+
+  This is the browser twin of verify-cachet.mjs, and the whole point is what it
+  does NOT need: no build step, no npm install, no bundler, no CDN, and no Predge
+  server. Save this file to disk, open it offline a year from now, point it at any
+  Arc RPC endpoint, and it still verifies. A verifier that needs our website to run
+  proves nothing about us.
+
+  Everything below is in this one file: a keccak-256 implementation (WebCrypto has
+  no keccak), hand-rolled ABI encoding/decoding for two view calls, and an ed25519
+  check through WebCrypto. No library is loaded from anywhere — a CDN is a third
+  party that can change what your verifier does, silently, after you trusted it.
+
+  Read it before you trust it. That is the point.
+-->
+<style>
+  :root {
+    --bg: #0a0a0b;
+    --panel: #131316;
+    --panel-2: #17171b;
+    --line: #26262b;
+    --ink: #e9e7e4;
+    --muted: #8c8b87;
+    --amber: #f5a623;
+    --pass: #6fd08c;
+    --fail: #ff5f56;
+    --skip: #8c8b87;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    padding: 40px 20px 80px;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; }
+  h1 {
+    font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0 0 6px;
+  }
+  h1 .mark { color: var(--amber); }
+  .sub { color: var(--muted); margin: 0 0 28px; max-width: 62ch; }
+  h2 {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.09em;
+    color: var(--muted); font-weight: 600; margin: 32px 0 12px;
+  }
+  .panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 20px;
+  }
+  label { display: block; font-size: 12px; color: var(--muted); margin: 0 0 5px; }
+  input {
+    width: 100%; background: var(--panel-2); color: var(--ink);
+    border: 1px solid var(--line); border-radius: 6px;
+    padding: 9px 11px; font: 12.5px/1.4 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  input:focus { outline: none; border-color: var(--amber); }
+  .field { margin-bottom: 14px; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .row > .field { flex: 1 1 220px; margin-bottom: 14px; }
+  .hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+  button {
+    background: var(--amber); color: #150f02; border: 0; border-radius: 6px;
+    padding: 11px 22px; font-size: 14px; font-weight: 650; cursor: pointer;
+  }
+  button:hover:not(:disabled) { filter: brightness(1.08); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  /* ── self-test banner ── */
+  #selftest {
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 14px; margin-bottom: 22px;
+    font: 12.5px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--muted);
+  }
+  #selftest.bad {
+    border-color: var(--fail); color: var(--fail); background: rgba(255,95,86,0.07);
+    font-weight: 650;
+  }
+
+  /* ── results ── */
+  .step { border-top: 1px solid var(--line); padding-top: 16px; margin-top: 16px; }
+  .step:first-child { border-top: 0; padding-top: 0; margin-top: 0; }
+  .step-title {
+    font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em;
+    color: var(--muted); margin-bottom: 10px;
+  }
+  .check { display: flex; gap: 12px; align-items: flex-start; margin: 0 0 12px; }
+  .badge {
+    flex: none; width: 88px; text-align: center; padding: 2px 0;
+    border-radius: 4px; font: 600 11px/1.7 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    letter-spacing: 0.06em;
+  }
+  .badge.PASS { color: var(--pass); background: rgba(111,208,140,0.11); border: 1px solid rgba(111,208,140,0.32); }
+  .badge.FAIL { color: var(--fail); background: rgba(255,95,86,0.13); border: 1px solid rgba(255,95,86,0.45); }
+  .badge.SKIP,
+  .badge.UNAVAILABLE { color: var(--skip); background: rgba(140,139,135,0.09); border: 1px solid var(--line); }
+  .badge.UNAVAILABLE { font-size: 9.5px; letter-spacing: 0.02em; }
+  .check-body { min-width: 0; }
+  .check-label { font-size: 14px; }
+  .check.FAIL .check-label { color: var(--fail); font-weight: 600; }
+  .detail {
+    font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--muted); margin-top: 4px; word-break: break-all; white-space: pre-wrap;
+  }
+  .detail .k { color: var(--ink); }
+  pre.bytes {
+    background: var(--panel-2); border: 1px solid var(--line); border-radius: 6px;
+    padding: 10px 12px; margin: 8px 0 0; overflow-x: auto;
+    font: 11.5px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--muted); white-space: pre-wrap; word-break: break-all;
+  }
+  .context {
+    font: 12px/1.8 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: var(--muted); margin-bottom: 18px;
+  }
+  .context .warn { color: var(--amber); }
+
+  .verdict {
+    margin-top: 26px; border-radius: 10px; padding: 18px 20px;
+    border: 1px solid var(--line); background: var(--panel);
+  }
+  .verdict .headline { font-size: 18px; font-weight: 700; letter-spacing: 0.01em; }
+  .verdict .says { color: var(--muted); font-size: 13.5px; margin-top: 6px; max-width: 66ch; }
+  .verdict.ok { border-color: rgba(111,208,140,0.5); background: rgba(111,208,140,0.06); }
+  .verdict.ok .headline { color: var(--pass); }
+  .verdict.bad { border-color: var(--fail); background: rgba(255,95,86,0.09); }
+  .verdict.bad .headline { color: var(--fail); }
+
+  .note { color: var(--muted); font-size: 13.5px; max-width: 70ch; }
+  .note ul { padding-left: 18px; margin: 8px 0; }
+  .note li { margin-bottom: 6px; }
+  .note strong, .note b { color: var(--ink); font-weight: 600; }
+  code { font: 12.5px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: var(--ink); }
+  a { color: var(--amber); }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1><span class="mark">CACHET</span> — verify a resolution, trusting nobody</h1>
+  <p class="sub">
+    This page reads Circle Arc directly and checks a Predge resolution in front of you.
+    It has no build step, loads no library, and calls no Predge server for steps 1&ndash;3.
+    Save it to disk and it keeps working — that is the only kind of verifier worth having.
+  </p>
+
+  <div id="selftest">running self-test…</div>
+
+  <div class="panel">
+    <div class="field">
+      <label for="marketId">marketId (bytes32)</label>
+      <input id="marketId" spellcheck="false" value="0x7bd8746e2832545a34ca4685d7a8972c7c862961a78366f812a166de8fc3ad0b" />
+      <div class="hint">Or leave empty and give platform + market ref below; this page derives the id itself as keccak256(abi.encode(platform, ref)), exactly like the contract.</div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="platform">platform</label>
+        <input id="platform" spellcheck="false" placeholder="polymarket" />
+      </div>
+      <div class="field">
+        <label for="marketRef">market ref</label>
+        <input id="marketRef" spellcheck="false" placeholder="cachet-live-1786558064" />
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="rpc">Arc JSON-RPC endpoint</label>
+        <input id="rpc" spellcheck="false" value="https://rpc.testnet.arc.io" />
+      </div>
+      <div class="field">
+        <label for="oracle">PredgeOracle address</label>
+        <input id="oracle" spellcheck="false" value="0xF160AbE664C34CF4C117101b4308bb16325a1ABc" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="keysUrl">key registry (step 4 only — this one is a Predge server)</label>
+      <input id="keysUrl" spellcheck="false" value="https://x402-api-production-266e.up.railway.app/.well-known/predge-keys.json" />
+    </div>
+    <button id="verify">Verify</button>
+  </div>
+
+  <div id="out"></div>
+
+  <h2>What this page does not ask you to trust</h2>
+  <div class="note">
+    <ul>
+      <li><b>Not Predge.</b> The record comes from the chain, and <code>PredgeOracle</code> has no
+        edit path: no upgrade, no admin override, no delete. What was written stays written.</li>
+      <li><b>Not a server holding the preimage.</b> When the signed envelope is embedded on-chain,
+        the bytes you are checking arrive from the same place as the hash they must match.</li>
+      <li><b>Not a library.</b> keccak-256, the ABI codec and the RPC calls are written out in this
+        file. Nothing is fetched from a CDN, so nobody can change the verifier after you read it.</li>
+      <li><b>Not this page's word for it.</b> Every hash, key and timestamp below is printed in full
+        so you can compare it against
+        <a href="https://testnet.arcscan.app" target="_blank" rel="noopener">a block explorer</a>
+        or re-run <code>node verify-cachet.mjs</code> and get the same answer.</li>
+    </ul>
+    <p>And what it <b>does</b> depend on, stated plainly:</p>
+    <ul>
+      <li><b>The RPC endpoint you point it at.</b> A lying RPC can feed this page a lying record.
+        The field is editable for exactly that reason — use your own node, or two you don't control,
+        and see if they agree.</li>
+      <li><b>The key registry fetch, for step 4 only.</b> That is a Predge web server. Steps 1&ndash;3
+        stand entirely without it: they prove the bytes settled and were signed by a specific key.
+        Step 4 only says whose key it is.</li>
+      <li><b>Your browser's ed25519.</b> The signature check runs on WebCrypto. If the browser has no
+        ed25519, this page says <code>UNAVAILABLE</code> and refuses to call it a pass.</li>
+    </ul>
+  </div>
+
+<script>
+"use strict";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   keccak-256 — self-contained, public-domain style.
+
+   WebCrypto ships SHA-2 and SHA-3, but Ethereum uses the ORIGINAL Keccak
+   padding (0x01 … 0x80) rather than the NIST SHA3 padding (0x06 … 0x80), so
+   crypto.subtle cannot produce these hashes. Hence ~50 lines of sponge below.
+
+   Uses BigInt lanes: slower than a 32-bit split implementation, and far easier
+   to read and check against the spec — which matters more here, because the
+   only defence against a subtly wrong hash function is that you can read it.
+   The self-test at the bottom refuses to let the page run if it is wrong.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const MASK64 = (1n << 64n) - 1n;
+const rotl64 = (x, n) => n === 0n ? x : ((x << n) | (x >> (64n - n))) & MASK64;
+
+// Round constants for the iota step (24 rounds of keccak-f[1600]).
+const RC = [
+  0x0000000000000001n, 0x0000000000008082n, 0x800000000000808an, 0x8000000080008000n,
+  0x000000000000808bn, 0x0000000080000001n, 0x8000000080008081n, 0x8000000000008009n,
+  0x000000000000008an, 0x0000000000000088n, 0x0000000080008009n, 0x000000008000000an,
+  0x000000008000808bn, 0x800000000000008bn, 0x8000000000008089n, 0x8000000000008003n,
+  0x8000000000008002n, 0x8000000000000080n, 0x000000000000800an, 0x800000008000000an,
+  0x8000000080008081n, 0x8000000000008080n, 0x0000000080000001n, 0x8000000080008008n,
+];
+// Rotation offsets r[x][y]; state lane (x,y) lives at index x + 5y.
+const ROT = [
+  [0n, 36n, 3n, 41n, 18n],
+  [1n, 44n, 10n, 45n, 2n],
+  [62n, 6n, 43n, 15n, 61n],
+  [28n, 55n, 25n, 21n, 56n],
+  [27n, 20n, 39n, 8n, 14n],
+];
+
+function keccakF(A) {
+  for (let round = 0; round < 24; round++) {
+    // θ — parity of each column, folded back into every lane of the column.
+    const C = new Array(5), D = new Array(5);
+    for (let x = 0; x < 5; x++) C[x] = A[x] ^ A[x + 5] ^ A[x + 10] ^ A[x + 15] ^ A[x + 20];
+    for (let x = 0; x < 5; x++) D[x] = C[(x + 4) % 5] ^ rotl64(C[(x + 1) % 5], 1n);
+    for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) A[x + 5 * y] ^= D[x];
+
+    // ρ (rotate each lane) and π (permute lane positions), in one pass.
+    const B = new Array(25);
+    for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) {
+      B[y + 5 * ((2 * x + 3 * y) % 5)] = rotl64(A[x + 5 * y], ROT[x][y]);
+    }
+
+    // χ — the only non-linear step: each lane XORed with (~next AND next-next).
+    for (let x = 0; x < 5; x++) for (let y = 0; y < 5; y++) {
+      A[x + 5 * y] = B[x + 5 * y] ^ ((~B[(x + 1) % 5 + 5 * y] & MASK64) & B[(x + 2) % 5 + 5 * y]);
+    }
+
+    // ι — break the symmetry between rounds.
+    A[0] ^= RC[round];
+  }
+}
+
+/** keccak-256 over raw bytes -> Uint8Array(32). Rate 136 bytes, capacity 512 bits. */
+function keccak256Bytes(input) {
+  const RATE = 136;
+  const A = new Array(25).fill(0n);
+
+  // Pad: 0x01, zeros, and 0x80 in the final byte of the last block (Keccak, not SHA3).
+  const padLen = RATE - (input.length % RATE);
+  const msg = new Uint8Array(input.length + padLen);
+  msg.set(input);
+  msg[input.length] = 0x01;
+  msg[msg.length - 1] |= 0x80;
+
+  // Absorb, one 136-byte block at a time; lanes are little-endian 64-bit words.
+  for (let off = 0; off < msg.length; off += RATE) {
+    for (let i = 0; i < RATE / 8; i++) {
+      let lane = 0n;
+      for (let b = 7; b >= 0; b--) lane = (lane << 8n) | BigInt(msg[off + i * 8 + b]);
+      A[i] ^= lane;
+    }
+    keccakF(A);
+  }
+
+  // Squeeze 32 bytes — one permutation's output is more than enough at this rate.
+  const out = new Uint8Array(32);
+  for (let i = 0; i < 4; i++) {
+    let lane = A[i];
+    for (let b = 0; b < 8; b++) { out[i * 8 + b] = Number(lane & 0xffn); lane >>= 8n; }
+  }
+  return out;
+}
+
+/* ── small byte helpers ─────────────────────────────────────────────────── */
+const enc = new TextEncoder();
+const toHex = (bytes) => "0x" + Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+const fromHex = (hex) => {
+  const h = hex.replace(/^0x/, "");
+  const out = new Uint8Array(h.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(h.substr(i * 2, 2), 16);
+  return out;
+};
+const keccak256Utf8 = (str) => toHex(keccak256Bytes(enc.encode(str)));
+
+/**
+ * abi.encode(string platform, string marketRef) — the exact encoding
+ * PredgeOracle.marketIdFor uses. NOT encodePacked: packing two dynamic strings
+ * is ambiguous ("a","b:c") vs ("a:b","c"), and since resolutions are write-once
+ * a collision would park one market's outcome permanently in another's slot.
+ */
+function abiEncodeStringPair(a, b) {
+  const A = enc.encode(a), B = enc.encode(b);
+  const pad = (n) => (n + 31) & ~31;
+  const offA = 64;                       // two head words, then the first tail
+  const offB = offA + 32 + pad(A.length);
+  const out = new Uint8Array(offB + 32 + pad(B.length));
+  const word = (at, n) => { // one 32-byte big-endian word (offsets and lengths)
+    let v = n;                // division, not >>> : JS shifts wrap at 32 bits
+    for (let i = 31; i >= 0 && v > 0; i--) { out[at + i] = v % 256; v = Math.floor(v / 256); }
+  };
+  word(0, offA); word(32, offB);
+  word(offA, A.length); out.set(A, offA + 32);
+  word(offB, B.length); out.set(B, offB + 32);
+  return out;
+}
+const deriveMarketId = (platform, ref) => toHex(keccak256Bytes(abiEncodeStringPair(platform, ref)));
+
+/* ── JSON-RPC: two view calls, encoded and decoded by hand ──────────────── */
+
+// Selectors = first 4 bytes of keccak256 of the signature. Computed here from
+// the strings themselves, so you can see they are not magic numbers:
+//   getResolution(bytes32)   -> 0x03e8d652
+//   attestationRef(bytes32)  -> 0x72ea2f4f
+const SEL_GET_RESOLUTION = keccak256Utf8("getResolution(bytes32)").slice(0, 10);
+const SEL_ATTESTATION_REF = keccak256Utf8("attestationRef(bytes32)").slice(0, 10);
+
+const ARC_TESTNET_CHAIN_ID = 5042002;
+const OUTCOME_NAME = ["UNRESOLVED", "YES", "NO", "INVALID"];
+
+async function rpc(url, method, params) {
+  const r = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+    signal: AbortSignal.timeout(20000),
+  });
+  if (!r.ok) throw new Error(`RPC HTTP ${r.status}`);
+  const j = await r.json();
+  if (j.error) throw new Error(`RPC error: ${j.error.message || JSON.stringify(j.error)}`);
+  return j.result;
+}
+
+const ethCall = (url, to, data) => rpc(url, "eth_call", [{ to, data }, "latest"]);
+
+/** Six static words: bool, uint8, bytes32, bytes32, uint64, uint64. */
+function decodeResolution(hex) {
+  const d = hex.replace(/^0x/, "");
+  if (d.length < 6 * 64) throw new Error(`short return (${d.length / 2} bytes) — is that address really the oracle?`);
+  const word = (i) => d.slice(i * 64, (i + 1) * 64);
+  return {
+    resolved: BigInt("0x" + word(0)) !== 0n,
+    outcome: Number(BigInt("0x" + word(1))),
+    contentHash: "0x" + word(2),
+    preCommitHash: "0x" + word(3),
+    committedAt: Number(BigInt("0x" + word(4))),
+    resolvedAt: Number(BigInt("0x" + word(5))),
+  };
+}
+
+/** One dynamic string: head = offset, then length, then UTF-8 bytes. */
+function decodeString(hex) {
+  const d = hex.replace(/^0x/, "");
+  if (d.length < 64) return "";
+  const off = Number(BigInt("0x" + d.slice(0, 64)));
+  const len = Number(BigInt("0x" + d.slice(off * 2, off * 2 + 64)));
+  if (!len) return "";
+  const bytes = fromHex(d.slice(off * 2 + 64, off * 2 + 64 + len * 2));
+  return new TextDecoder().decode(bytes);
+}
+
+/* ── ed25519 through WebCrypto ──────────────────────────────────────────── */
+
+/**
+ * Is ed25519 usable here at all? Probed with a real public key (a point on the
+ * curve), because importKey is entitled to reject a bogus key — and "your key
+ * was rubbish" must not be misread as "this browser has no ed25519".
+ * Returns the algorithm name that worked, or null.
+ */
+async function ed25519AlgoName() {
+  if (!globalThis.crypto || !crypto.subtle) return null;
+  const probe = fromHex("a122cc095c0f7fe52645be73dd496498a2d10f7018e85db2f9d721f0a3d997e4");
+  for (const algo of ["Ed25519", "NODE-ED25519"]) {
+    try {
+      await crypto.subtle.importKey("raw", probe, { name: algo, namedCurve: algo }, false, ["verify"]);
+      return algo;
+    } catch { /* try the next spelling */ }
+  }
+  return null;
+}
+
+/**
+ * Returns "ok" | "bad" | "unavailable". Never returns "ok" by accident: an
+ * environment without ed25519 is reported as unavailable, never as a pass.
+ */
+async function verifyEd25519(canonical, signatureHex, publicKeyHex) {
+  // "Ed25519" is the standard name; "NODE-ED25519" was the older Chrome spelling.
+  const algo = await ed25519AlgoName();
+  if (!algo) return "unavailable";
+  if (!/^[0-9a-fA-F]{64}$/.test(publicKeyHex)) return "bad";
+  if (!/^[0-9a-fA-F]{128}$/.test(signatureHex)) return "bad";
+  try {
+    const key = await crypto.subtle.importKey(
+      "raw", fromHex(publicKeyHex), { name: algo, namedCurve: algo }, false, ["verify"]);
+    const ok = await crypto.subtle.verify({ name: algo }, key, fromHex(signatureHex), enc.encode(canonical));
+    return ok ? "ok" : "bad";
+  } catch {
+    // A key that will not import, or a signature the primitive rejects outright,
+    // is a failed check — not an excuse to stay silent.
+    return "bad";
+  }
+}
+
+/* ── the envelope: on-chain, or a URL (which is a dependency — say so) ───── */
+async function loadEnvelope(ref) {
+  const trimmed = (ref || "").trim();
+  if (!trimmed) return { envelope: null, source: "nothing recorded", fetched: false };
+  if (trimmed.startsWith("{")) {
+    try {
+      return { envelope: JSON.parse(trimmed), source: "on-chain (embedded in the resolution)", fetched: false };
+    } catch {
+      return { envelope: null, source: "on-chain (embedded, but not valid JSON)", fetched: false };
+    }
+  }
+  if (/^https?:\/\//.test(trimmed)) {
+    try {
+      const r = await fetch(trimmed, { signal: AbortSignal.timeout(15000) });
+      if (!r.ok) return { envelope: null, source: `${trimmed} (HTTP ${r.status})`, fetched: true };
+      const body = await r.json();
+      return { envelope: body.envelope ?? body, source: trimmed, fetched: true };
+    } catch (e) {
+      return { envelope: null, source: `${trimmed} (${e.message})`, fetched: true };
+    }
+  }
+  return { envelope: null, source: trimmed, fetched: false };
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   rendering
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+const out = document.getElementById("out");
+let failures = 0;
+let currentStep = null;
+
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+function step(title) {
+  const el = document.createElement("div");
+  el.className = "step";
+  el.innerHTML = `<div class="step-title">${esc(title)}</div>`;
+  out.appendChild(el);
+  currentStep = el;
+}
+
+function check(state, label, detail = "") {
+  if (state === "FAIL") failures += 1;
+  const el = document.createElement("div");
+  el.className = `check ${state}`;
+  el.setAttribute("data-state", state);
+  el.innerHTML =
+    `<div class="badge ${state}">${state}</div>` +
+    `<div class="check-body"><div class="check-label">${esc(label)}</div>` +
+    (detail ? `<div class="detail">${detail}</div>` : "") +
+    `</div>`;
+  (currentStep || out).appendChild(el);
+}
+
+const mono = (s) => `<span class="k">${esc(s)}</span>`;
+const iso = (sec) => new Date(sec * 1000).toISOString().replace(".000", "");
+
+function verdict(ok, headline, says) {
+  const el = document.createElement("div");
+  el.className = `verdict ${ok ? "ok" : "bad"}`;
+  el.id = "verdict";
+  el.innerHTML = `<div class="headline">${esc(headline)}</div><div class="says">${esc(says)}</div>`;
+  out.appendChild(el);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   the verification itself — same order, same spirit as verify-cachet.mjs
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+async function run() {
+  out.innerHTML = "";
+  failures = 0;
+  currentStep = null;
+
+  const rpcUrl = document.getElementById("rpc").value.trim();
+  const oracleAddr = document.getElementById("oracle").value.trim();
+  const keysUrl = document.getElementById("keysUrl").value.trim();
+  const platform = document.getElementById("platform").value.trim();
+  const marketRef = document.getElementById("marketRef").value.trim();
+  let marketId = document.getElementById("marketId").value.trim();
+  let derivedFrom = "";
+
+  if (!/^0x[0-9a-fA-F]{64}$/.test(marketId) && platform && marketRef) {
+    marketId = deriveMarketId(platform, marketRef);
+    derivedFrom = `derived as keccak256(abi.encode("${platform}", "${marketRef}"))`;
+    document.getElementById("marketId").value = marketId;
+  }
+  if (!/^0x[0-9a-fA-F]{64}$/.test(marketId)) {
+    step("input");
+    check("FAIL", "no usable marketId",
+      "Give a 0x-prefixed 32-byte marketId, or a platform and a market ref to derive one from.");
+    verdict(false, "NOT VERIFIED", "Nothing was checked — there is no market to check.");
+    return;
+  }
+  if (!/^0x[0-9a-fA-F]{40}$/.test(oracleAddr)) {
+    step("input");
+    check("FAIL", "oracle address is not a 20-byte address", mono(oracleAddr));
+    verdict(false, "NOT VERIFIED", "Nothing was checked — that is not a contract address.");
+    return;
+  }
+
+  // context header — the operator's own inputs, echoed back
+  const ctx = document.createElement("div");
+  ctx.className = "context";
+  ctx.innerHTML =
+    `market  ${esc(marketId)}${derivedFrom ? `\n        ${esc(derivedFrom)}` : ""}\n` +
+    `oracle  ${esc(oracleAddr)}\n` +
+    `rpc     ${esc(rpcUrl)}<span id="chainline"></span>`;
+  ctx.style.whiteSpace = "pre-wrap";
+  out.appendChild(ctx);
+
+  let chainId = null;
+  try { chainId = Number(BigInt(await rpc(rpcUrl, "eth_chainId", []))); } catch { /* reported below */ }
+  document.getElementById("chainline").innerHTML =
+    chainId === null ? ""
+      : chainId === ARC_TESTNET_CHAIN_ID
+        ? `\nchain   ${chainId} (Arc testnet)`
+        : `\nchain   <span class="warn">${chainId} — NOT Arc testnet (${ARC_TESTNET_CHAIN_ID}). You are reading some other network.</span>`;
+
+  /* ── 1. what the chain says ───────────────────────────────────────────── */
+  step("[1] the chain's own record");
+  let res;
+  try {
+    const raw = await ethCall(rpcUrl, oracleAddr, SEL_GET_RESOLUTION + marketId.slice(2));
+    if (!raw || raw === "0x") throw new Error("empty return — no contract code at that address on this chain");
+    res = decodeResolution(raw);
+  } catch (e) {
+    check("FAIL", "could not read the oracle", esc(e.message));
+    verdict(false, "NOT VERIFIED", "The chain could not be read, so nothing is proven either way. Check the RPC endpoint and the oracle address.");
+    return;
+  }
+
+  if (!res.resolved) {
+    check("FAIL", "market is not resolved",
+      "Nothing to verify yet — an unresolved market reads as UNRESOLVED, never as a result. " +
+      "If you expected a resolution here, you are looking at the wrong marketId or the wrong chain.");
+    verdict(false, "NOT VERIFIED", "There is no resolution at this marketId. Do not settle against this record.");
+    return;
+  }
+  check("PASS", `resolved as ${OUTCOME_NAME[res.outcome] ?? res.outcome}`, `contentHash ${mono(res.contentHash)}`);
+
+  if (res.committedAt === 0) {
+    check("FAIL", "no pre-commitment recorded",
+      "A resolution without a prior commitment should be impossible — the contract reverts on it. Investigate.");
+  } else if (res.resolvedAt > res.committedAt) {
+    check("PASS", "the commitment predates the resolution",
+      `committed ${mono(iso(res.committedAt))}\nresolved  ${mono(iso(res.resolvedAt))}\n` +
+      `${mono(res.resolvedAt - res.committedAt + "s")} later — timestamped by the chain, not by Predge`);
+  } else {
+    check("FAIL", "resolution is not after the commitment",
+      `committedAt ${mono(res.committedAt)}, resolvedAt ${mono(res.resolvedAt)}`);
+  }
+  check("PASS", "pre-commit hash on record", mono(res.preCommitHash));
+
+  /* ── 2. the bytes that settled ────────────────────────────────────────── */
+  step("[2] the signed bytes behind that hash");
+  let ref = "";
+  try {
+    ref = decodeString(await ethCall(rpcUrl, oracleAddr, SEL_ATTESTATION_REF + marketId.slice(2)));
+  } catch (e) {
+    check("FAIL", "could not read attestationRef", esc(e.message));
+  }
+  const { envelope, source, fetched } = await loadEnvelope(ref);
+
+  if (!envelope) {
+    check("FAIL", "could not obtain the signed envelope", `source: ${mono(source)}\n\n` +
+      "Without the preimage, the on-chain hash proves only that SOMETHING was committed. " +
+      "An envelope published inline on-chain (oracle.mjs resolve --embed) makes this check " +
+      "independent of any server.");
+    verdict(false, "NOT VERIFIED", "The bytes behind the on-chain hash could not be obtained, so the hash proves nothing about their content.");
+    return;
+  }
+  if (fetched) {
+    check("SKIP", "the envelope came from a URL, not from the chain",
+      `${mono(source)}\n\nThis is a dependency, and you should count it as one: whoever serves that URL ` +
+      "could serve different bytes tomorrow. The hash check below still catches that — the bytes must " +
+      "hash to the on-chain contentHash — but the record stops being self-contained.");
+  }
+
+  const canonical = envelope.canonical;
+  const signature = envelope.signature;
+  const publicKey = envelope.public_key ?? envelope.publicKey;
+  if (typeof canonical !== "string" || !signature || !publicKey) {
+    check("FAIL", "envelope is missing canonical / signature / public_key", `source: ${mono(source)}`);
+    verdict(false, "NOT VERIFIED", "The envelope is malformed; there is nothing coherent to check.");
+    return;
+  }
+
+  const recomputed = keccak256Utf8(canonical);
+  if (recomputed === res.contentHash.toLowerCase()) {
+    check("PASS", "these bytes are the bytes that settled",
+      `keccak256(canonical) == the chain's contentHash\nvia ${mono(source)}`);
+  } else {
+    check("FAIL", "the bytes do NOT match the chain",
+      `recomputed ${mono(recomputed)}\non-chain   ${mono(res.contentHash)}\n\n` +
+      "Whatever you are reading is not what settled. Do not use it.");
+  }
+  const pre = document.createElement("pre");
+  pre.className = "bytes";
+  pre.id = "canonical-bytes";
+  pre.textContent = canonical;
+  (currentStep || out).appendChild(pre);
+
+  /* ── 3. the signature over exactly those bytes ────────────────────────── */
+  step("[3] the ed25519 signature over those exact bytes");
+  const sigState = await verifyEd25519(canonical, signature, publicKey);
+  if (sigState === "ok") {
+    check("PASS", "signature is valid", `key ${mono(publicKey)}\nsig ${mono(signature)}`);
+  } else if (sigState === "bad") {
+    check("FAIL", "signature does NOT verify", `key ${mono(publicKey)}\nsig ${mono(signature)}`);
+  } else {
+    check("UNAVAILABLE", "this browser has no ed25519 in WebCrypto",
+      "The signature was NOT checked — and an unchecked signature is not a passed one. " +
+      "Use a browser with WebCrypto ed25519 (current Chrome, Safari or Firefox), or run " +
+      "node verify-cachet.mjs, which checks it with Node's crypto.");
+  }
+
+  /* ── 4. the key is published and active ───────────────────────────────── */
+  step("[4] the signing key is published and active — this step calls a Predge server");
+  try {
+    const r = await fetch(keysUrl, { signal: AbortSignal.timeout(15000) });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const registry = await r.json();
+    const entry = (registry.keys || []).find((k) => (k.public_key || "").toLowerCase() === publicKey.toLowerCase());
+    if (!entry) {
+      check("FAIL", "key is not in the published registry",
+        `key ${mono(publicKey)}\n\nA signature under an unpublished key proves only that SOMEONE signed.`);
+    } else if (entry.active === false) {
+      check("FAIL", "key is listed but REVOKED", `kid ${mono(entry.kid)}`);
+    } else {
+      check("PASS", "key is listed and active",
+        `kid ${mono(entry.kid)}${entry.role ? ` · role ${mono(entry.role)}` : ""}\n${mono(keysUrl)}`);
+    }
+  } catch (e) {
+    check("FAIL", "could not check the key registry", esc(e.message) +
+      "\n\nSteps 1-3 still hold: the bytes settled and were signed by that key. What is unproven " +
+      "is whose key it is.");
+  }
+
+  /* ── 5. the registry anchor — honestly not done here ──────────────────── */
+  step("[5] the key registry itself is anchored on Arc");
+  check("SKIP", "not attempted from a browser — and not pretended",
+    "verify-cachet.mjs --deep proves this by scanning Arc's logs backwards in windows for the " +
+    "Paid event carrying sha256(registry). From a page that is thousands of eth_getLogs calls " +
+    "against a public RPC that rate-limits ranges: slow, and likely to be cut off halfway — " +
+    "at which point a browser verifier would be tempted to report a comfortable 'not found'. " +
+    "Run the CLI with --deep for this one.");
+
+  /* ── verdict ──────────────────────────────────────────────────────────── */
+  if (failures === 0 && sigState === "ok") {
+    verdict(true, "VERIFIED",
+      "This resolution is what Predge signed before the outcome was known, and the chain proves it has not been altered since.");
+  } else if (failures === 0) {
+    verdict(false, "NOT VERIFIED — the signature was never checked",
+      "Every other check passed, but this browser could not run ed25519, so the central claim is untested. Verify elsewhere before relying on it.");
+  } else {
+    verdict(false, `NOT VERIFIED — ${failures} check(s) failed`,
+      "Do not settle against this record.");
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   self-test — a wrong hash function silently "verifies" everything, so the
+   page refuses to run until keccak-256 reproduces known vectors.
+   ═══════════════════════════════════════════════════════════════════════════ */
+(async function selfTest() {
+  const el = document.getElementById("selftest");
+  const btn = document.getElementById("verify");
+  const vectors = [
+    ["", "0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470"],
+    ["abc", "0x4e03657aea45a94fc7d47ba826c8d667c0d1e6e33a64a036ec44f58fa12d6c45"],
+    ["The quick brown fox jumps over the lazy dog",
+     "0x4d741b6f1eb29cb2a9b9911c82f56fa8d73b04959d3d9d222895df6c0b28aa15"],
+  ];
+  const bad = vectors.filter(([msg, want]) => keccak256Utf8(msg) !== want);
+  const selectorsOk = SEL_GET_RESOLUTION === "0x03e8d652" && SEL_ATTESTATION_REF === "0x72ea2f4f";
+  // The ABI encoder gets a vector too: this is what the deployed contract's own
+  // marketIdFor("polymarket", "cachet-live-1786558064") returns on Arc.
+  const abiOk = deriveMarketId("polymarket", "cachet-live-1786558064") ===
+    "0x7bd8746e2832545a34ca4685d7a8972c7c862961a78366f812a166de8fc3ad0b";
+
+  if (bad.length || !selectorsOk || !abiOk) {
+    el.className = "bad";
+    el.textContent = "SELF-TEST FAILED — this page's " +
+      (bad.length || !selectorsOk ? "keccak-256" : "ABI encoder") +
+      " does not reproduce its known vectors. Verification is disabled: broken arithmetic would 'verify' anything.";
+    btn.disabled = true;
+    return;
+  }
+
+  const algo = await ed25519AlgoName();
+  const ed = algo
+    ? `ed25519 available via WebCrypto (${algo})`
+    : "ed25519 UNAVAILABLE in this browser — step 3 cannot run here";
+  el.textContent = `self-test OK · keccak-256 matches 3 known vectors · selectors 0x03e8d652 / 0x72ea2f4f · ${ed}`;
+  el.setAttribute("data-ed25519", algo || "unavailable");
+  el.setAttribute("data-ok", "1");
+})();
+
+document.getElementById("verify").addEventListener("click", async () => {
+  const btn = document.getElementById("verify");
+  btn.disabled = true;
+  btn.textContent = "Verifying…";
+  out.innerHTML = "";
+  try {
+    await run();
+  } catch (e) {
+    out.innerHTML = "";
+    currentStep = null;
+    step("error");
+    check("FAIL", "the verifier itself threw", esc(e && e.message ? e.message : String(e)));
+    verdict(false, "NOT VERIFIED", "The check did not complete, so nothing was proven.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Verify";
+    document.body.setAttribute("data-done", "1");
+  }
+});
+</script>
+</div>
+</body>
+</html>

@@ -137,8 +137,19 @@ Reproduce the anchored digest yourself:
 
 ```
 curl -s https://x402-api-production-266e.up.railway.app/.well-known/predge-keys.json | shasum -a 256
-# 914c69c95a77fdc8f1f5b632855ea41752eee75886b09604affe272180c8ece9 — the hash in the tx meta above
+# 3229c5f0c0edecb083adf99c8683d8131da1b0d263a3f898ea4a24d386feb96f
+# anchored on Arc: 0xe8f6e9a3…8d1129e7
 ```
+
+That digest changed once, on purpose, and the change is the feature. The registry
+originally published one key and hashed to `914c69c9…` (anchored by
+[`0x99e60bfa…7745e6`](https://testnet.arcscan.app/tx/0x99e60bfa7ebd187e5893854f747552126250d9b8b75d4ba84c523a9c817745e6));
+adding the `cachet-oracle` key produced `3229c5f0…`, which was re-anchored by
+[`0xe8f6e9a3…8d1129e7`](https://testnet.arcscan.app/tx/0xe8f6e9a363b983f40936bc5da86973c4161559396df1463aeefe98cb8d1129e7).
+Both anchors stand, so the key list has a dated, on-chain history rather than a
+current state someone could quietly rewrite. Any edit to the registry moves its
+hash — which is exactly why it is worth anchoring, and why an anchor is
+worthless unless you re-run it after every change.
 
 ## How it works
 
