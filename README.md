@@ -77,6 +77,23 @@ that is the point. It checks, in order:
 5. `--deep`: **the registry itself is anchored on Arc**, so even the key list is attested
    by the chain rather than by a web server that could be swapped tomorrow.
 
+A fully verified resolution — every step, live, nothing skipped:
+
+```
+node verify-cachet.mjs 0x7bd8746e2832545a34ca4685d7a8972c7c862961a78366f812a166de8fc3ad0b --deep
+
+[1] PASS  resolved as YES; committed 4s before the outcome was recorded
+[2] PASS  keccak256(canonical) == the chain's contentHash · via on-chain (embedded)
+[3] PASS  ed25519 signature valid · key a122cc09…d997e4
+[4] PASS  key listed and active · kid a122cc095c0f7fe5
+[5] PASS  registry hash anchored on-chain · sha256 3229c5f0…feb96f
+VERIFIED
+```
+
+Follow what that does **not** rest on. The signed bytes came from the chain, not from us.
+The key is published — and the published list is itself hash-anchored on Arc, so swapping
+it out later would not go unnoticed. The only thing left to trust is arithmetic.
+
 Any failure prints `FAIL` and exits non-zero. A verifier that cannot fail is decoration —
 so here are two real failures it produces today:
 
