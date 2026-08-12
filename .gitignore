@@ -2,6 +2,7 @@
 node_modules/
 vault/deployment.json
 oracle/deployment.json
+market/deployment.json
 logs/
 
 rec/
