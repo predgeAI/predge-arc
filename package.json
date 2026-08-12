@@ -12,6 +12,7 @@
     "oracle": "node oracle.mjs",
     "oracle:demo": "node oracle.mjs demo",
     "deploy-market": "node script/deploy-market.mjs",
+    "e2e": "node e2e.mjs",
     "test:oracle": "node --test oracle/test.mjs",
     "test:vault-v2": "node --test vault/test-v2.mjs",
     "test:market": "node --test market/test.mjs",
