@@ -60,6 +60,11 @@ npm run oracle:demo
 
 ## Verify a resolution without trusting us
 
+**In a browser:** [predge-verify.vercel.app](https://predge-verify.vercel.app) — one page, no build,
+no library, no Predge server for steps 1-3. Save it to disk and it keeps working.
+
+**On the command line:**
+
 ```
 node verify-cachet.mjs <marketId>          # or: --platform polymarket --ref <marketRef>
 ```
