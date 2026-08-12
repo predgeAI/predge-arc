@@ -1,6 +1,7 @@
 .env
 node_modules/
 vault/deployment.json
+oracle/deployment.json
 logs/
 
 rec/
