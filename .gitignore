@@ -10,3 +10,4 @@ rec/
 frames/
 ad-audio/
 predge-ad-music.mp4
+oracle/*-deployment.json
