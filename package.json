@@ -11,6 +11,8 @@
     "deploy-oracle": "node script/deploy-oracle.mjs",
     "oracle": "node oracle.mjs",
     "oracle:demo": "node oracle.mjs demo",
+    "settlement": "node agent-settlement.mjs",
+    "settlement:demo": "node agent-settlement.mjs demo",
     "deploy-market": "node script/deploy-market.mjs",
     "e2e": "node e2e.mjs",
     "verify": "node verify-cachet.mjs",
@@ -26,7 +28,14 @@
     "vault": "node vault-keeper.mjs",
     "vault:run": "node vault-keeper.mjs run",
     "vault:smoke": "node vault-keeper.mjs smoke",
-    "test:vault": "node --test vault/test.mjs"
+    "test:vault": "node --test vault/test.mjs",
+    "bond": "node bond.mjs",
+    "bond:demo": "node bond.mjs demo",
+    "deploy-bond": "node script/deploy-bond.mjs",
+    "deploy-validator": "node script/deploy-validator.mjs",
+    "job": "node job.mjs",
+    "job:demo": "node job.mjs demo",
+    "deploy-job": "node script/deploy-job.mjs"
   },
   "engines": {
     "node": ">=20"
