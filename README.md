@@ -1,18 +1,39 @@
-# predge-arc — agents buy whale intelligence with native USDC on Circle Arc
+# predge-arc — a Bitcoin-final verdict layer for agent settlement, live on Circle Arc
 
-[Predge](https://x402-api-production-266e.up.railway.app) is a live pay-per-call
-API selling Polymarket whale intelligence to AI agents (x402 protocol, ed25519-signed
-responses, no API keys, no accounts). This repo is its **Circle Arc leg**: an
-autonomous agent with its own Arc wallet pays for a data route **in native USDC**
-through the deployed `PredgeSettlement` contract, and the on-chain `Paid` receipt
-**is** the access credential — the gateway verifies the receipt (or finds the
-event itself) and releases the data.
+Two things run in this repo, both live on Arc testnet:
 
-Bonus: `anchor.mjs` freezes the head of Predge's tamper-evident signed-calls
-hash chain into an Arc receipt, so the audit trail can't be rewritten — not even
-by us.
+1. **Agent settlement stack** — a native ERC-8004 validator with the guarantee the field is
+   missing: the acceptance test is committed *before* the work exists, the verdict is
+   ed25519-signed and un-rewritable, and the validator stakes native value (USDC on Arc,
+   rBTC on Rootstock via the [companion repo](https://github.com/predgeAI/predge-rootstock))
+   that anyone can slash on-chain if it lies. Plus a minimal ERC-8183 job where the
+   independent evaluator seat is filled by Predge, so settlement runs off a committed test
+   instead of "the client is also the evaluator."
+2. **Cachet — prediction-market resolution** (the first vertical) — a commit-before-outcome
+   oracle plus a real market that settles native USDC solely from the oracle. Bound by
+   `commitMarket` before the outcome is knowable, `postResolution` reverts on any rewrite,
+   free views for any Arc consumer.
 
-## Live on Arc testnet (chainId 5042002)
+Both halves settle in native value with no admin override, no upgrade path, no way to delete
+history. The mechanism is one primitive, applied twice.
+
+## Agent settlement stack — live on Arc testnet (chainId 5042002)
+
+| Contract | Address | What |
+|---|---|---|
+| `PredgeAgentValidator` | [`0xA15337574F97…675Ad967`](https://testnet.arcscan.app/address/0xA15337574F97856Ce253671E946aD5c9675Ad967) | Native **ERC-8004 Validation Registry** with commit-before-outcome |
+| `PredgeValidatorBond` | [`0xCDd95Bd9…55d2acF`](https://testnet.arcscan.app/address/0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF) | Slashable USDC bond; trustless on-chain slash via the sha256 precompile |
+| `AgentJob` | [`0x77DdcEe7…0Ed19Aaa`](https://testnet.arcscan.app/address/0x77DdcEe79Ca671f7Af36ff73A055900A0Ed19Aaa) | Minimal **ERC-8183 job** where Predge fills the evaluator seat |
+
+Three commands, each one an on-chain live run:
+
+```bash
+npm run settlement:demo    # request → deliver → response, refusals, offline check
+npm run bond:demo          # honest verdict unslashable → a lie is slashed 0.001→0 USDC
+npm run job:demo           # ERC-8183 job settled by Predge as the named evaluator
+```
+
+## Cachet — prediction-market resolution — live on Arc testnet (chainId 5042002)
 
 | What | Link |
 |---|---|
@@ -23,6 +44,18 @@ by us.
 | **`PredgeOracle`** — outcome resolution | [`0xF160AbE664C34CF4C117101b4308bb16325a1ABc`](https://testnet.arcscan.app/address/0xF160AbE664C34CF4C117101b4308bb16325a1ABc) |
 | Pre-commit — signed call recorded while the market was still open | [`0x6c602e9f…d52d83db`](https://testnet.arcscan.app/tx/0x6c602e9fb2e5f4ad272779bb44f620b5966dff111decde7053230cffd52d83db) |
 | Resolution — outcome welded to that commitment | [`0xfc5494b1…95363fe5da`](https://testnet.arcscan.app/tx/0xfc5494b132552936ba49c6bccc289ee9199ad8233460116cf427cc95363fe5da) |
+
+## Companion repos
+
+- **[predgeAI/predge-rootstock](https://github.com/predgeAI/predge-rootstock)** — the same
+  agent-settlement primitives on Rootstock testnet, plus a `VerdictAnchor` that batches
+  every verdict daily and posts the merkle root as `OP_RETURN` on Bitcoin L1. On Rootstock
+  the native token is rBTC, so the bond is literally Bitcoin at risk. Ships a "portable EVM"
+  tutorial documenting exactly what changes when you move this Solidity across.
+- **[predgeAI/rsk-l402-adapter](https://github.com/predgeAI/rsk-l402-adapter)** — Express
+  middleware that lets any Rootstock-hosted API accept Lightning L402 payments and record
+  them on-chain via `PredgeAgentValidator`, so the same slashable-bond machinery adjudicates
+  disputes even for payments that lived on Lightning. Payment on Lightning, dispute on Bitcoin.
 
 ## The resolution layer — **Cachet** (`PredgeOracle`)
 
