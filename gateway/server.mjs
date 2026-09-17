@@ -17,30 +17,32 @@ import { randomUUID } from "node:crypto";
 import { Interface } from "ethers";
 import { loadEnv } from "../lib/env.mjs";
 import {
-  ARC_CHAIN_ID,
-  DEFAULT_CONTRACT,
-  DEFAULT_RPC,
+  ARC_NETWORKS,
   SETTLEMENT_ABI,
-  addressLink,
   fmtUsdc,
   makeProvider,
   routeHash,
   settlementContract,
-  txLink,
   withRetry,
 } from "../lib/arc.mjs";
 import { CATALOG, PREDGE_UPSTREAM } from "./catalog.mjs";
 
 const env = loadEnv();
 const PORT = Number(env.GATEWAY_PORT || 8402);
-const RPC = env.ARC_RPC || DEFAULT_RPC;
-const CONTRACT = (env.ARC_CONTRACT || DEFAULT_CONTRACT);
+// Mainnet by default. ARC_NETWORK=testnet brings back the testnet setup (and honours ARC_RPC).
+const NET = ARC_NETWORKS[env.ARC_NETWORK || "mainnet"];
+if (!NET) throw new Error(`ARC_NETWORK must be one of: ${Object.keys(ARC_NETWORKS).join(", ")}`);
+const ARC_CHAIN_ID = NET.chainId;
+const RPC = NET.name === "arc-testnet" ? env.ARC_RPC || NET.rpc : env.ARC_MAINNET_RPC || NET.rpc;
+const CONTRACT = env.ARC_CONTRACT || NET.settlement;
+const txLink = (hash) => `${NET.explorer}/tx/${hash}`;
+const addressLink = (addr) => `${NET.explorer}/address/${addr}`;
 const QUOTE_TTL_MS = Number(env.QUOTE_TTL_MS || 15 * 60 * 1000); // advisory
 const QUOTE_EVICT_MS = 60 * 60 * 1000;
 const EVENT_SCAN_MAX_BLOCKS = Number(env.EVENT_SCAN_MAX_BLOCKS || 50_000);
 const EVENT_SCAN_CHUNK = Number(env.EVENT_SCAN_CHUNK || 5_000);
 
-const provider = makeProvider(RPC);
+const provider = makeProvider(RPC, ARC_CHAIN_ID);
 const contract = settlementContract(provider, CONTRACT);
 const iface = new Interface(SETTLEMENT_ABI);
 
@@ -78,7 +80,7 @@ function paymentInstructions(requestId, q) {
   return {
     error: "payment_required",
     scheme: "predge-arc-settlement-v1",
-    network: "arc-testnet",
+    network: NET.name,
     chain_id: Number(ARC_CHAIN_ID),
     contract: CONTRACT,
     route: q.route,
@@ -89,7 +91,7 @@ function paymentInstructions(requestId, q) {
     request_id: requestId,
     expires_at: q.expiresAt,
     how_to_pay:
-      `On Arc testnet (chainId ${ARC_CHAIN_ID}) call ` +
+      `On ${NET.name} (chainId ${ARC_CHAIN_ID}) call ` +
       `PredgeSettlement(${CONTRACT}).payForRoute(route_hash, request_id) ` +
       `with value = amount_wei (USDC is Arc's native token — msg.value IS the USDC payment).`,
     how_to_redeem:
@@ -214,7 +216,7 @@ app.get("/", (_req, res) => {
       "Pay-per-call gateway for Predge whale intelligence, settled natively in USDC on Circle Arc " +
       "through the PredgeSettlement contract. 402 quote -> on-chain payForRoute(routeHash, requestId) " +
       "-> retry -> the on-chain Paid receipt unlocks the data.",
-    network: "arc-testnet",
+    network: NET.name,
     chain_id: Number(ARC_CHAIN_ID),
     contract: CONTRACT,
     explorer_contract: addressLink(CONTRACT),
@@ -321,7 +323,7 @@ app.get("/v1/receipts/:txHash", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`predge arc-gateway listening on http://localhost:${PORT}`);
-  console.log(`  chain    ${ARC_CHAIN_ID} (arc-testnet)  rpc ${RPC}`);
+  console.log(`  chain    ${ARC_CHAIN_ID} (${NET.name})  rpc ${RPC}`);
   console.log(`  contract ${CONTRACT}`);
   console.log(`  key held NONE — read-only chain access; funds live in the contract`);
   for (const [path, e] of Object.entries(CATALOG))

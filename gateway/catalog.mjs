@@ -6,7 +6,7 @@
 // credentials — which we deliberately do NOT do). This Arc demo therefore
 // serves SAMPLE payloads frozen in the exact production response shape,
 // clearly labeled via `data_source: "sample"`. The paywall, quotes, on-chain
-// settlement and receipt verification are all real and live on Arc testnet.
+// settlement and receipt verification are all real and live on Arc mainnet (ARC_NETWORK=testnet for testnet).
 import { readFileSync } from "node:fs";
 
 const PREDGE_UPSTREAM = "https://x402-api-production-266e.up.railway.app";
