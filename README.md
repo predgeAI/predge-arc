@@ -17,6 +17,27 @@ Two things run in this repo, both live on Arc testnet:
 Both halves settle in native value with no admin override, no upgrade path, no way to delete
 history. The mechanism is one primitive, applied twice.
 
+## Live on Arc mainnet (chainId 5042, deployed 2026-09-17)
+
+Deployed with `script/deploy-mainnet.mjs`; every deploy tx confirmed (`0x1`), every address returns
+bytecode, and the bond's `disputeWindow()` is `86400`. Explorer: https://explorer.arc.io. Mainnet
+addresses differ from the testnet ones; don't mix them.
+
+| Contract | Arc mainnet address |
+|---|---|
+| PredgeSettlement | `0x3474Bd2747cb1D430C2F56050433fa5D6b1C82A5` |
+| PredgeOracle | `0x53685Feb21939DDA09CeB94e549f42faF51B01DA` |
+| PredgeAgentValidator (ERC-8004) | `0xbe601d486D821450F9248ab91891736B1a09699F` |
+| PredgeValidatorBond | `0x7ba297Af942f86FbB857102875244B5A1Bcf4D29` |
+| AgentJob (ERC-8183) | `0x8B9589B8F5857dDe080Ac68e8B370c3bA5E74495` |
+| PredgeSignalVault | `0x8Af9C2aBb1f4A480200d257F122E95930d017984` |
+
+`script/live-loop-mainnet.mjs` ran one full loop with a live signed Predge signal (ed25519 verified
+offline) through validator, bond, ERC-8183 job and settlement: 8/8 transactions confirmed, e.g.
+[validationResponse](https://explorer.arc.io/tx/0xb544e5af433cba2cf367ab2528726e9706664f66e396fb1b922ed2a722c4c59a)
+and [payForRoute](https://explorer.arc.io/tx/0x1628b4926207083bb4b5c3cd0b19b5f438087eeb1a9c8123cf1f0f3c06895dff).
+Receipts: `deployments/arc-mainnet/live-loop-*.json`.
+
 ## Agent settlement stack — live on Arc testnet (chainId 5042002)
 
 | Contract | Address | What |
