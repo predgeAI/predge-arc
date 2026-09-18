@@ -248,14 +248,15 @@ worthless unless you re-run it after every change.
  ──────────────────────────          ────────────────────────────         ──────────────────
  1. GET /v1/whales/latest  ────────► 402 + quote
                                      {contract, route_hash, amount_wei,
-                                      request_id}
+                                      request_id, redeem_token}
  2. payForRoute(route_hash,          ─────────────────────────────────►   PredgeSettlement
     request_id) {value: amount}                                           emits Paid(payer,
                                                                           route, amount, ts,
                                                                           meta=request_id)
- 3. GET …  X-Arc-Payment: <tx> ────► verifies the Paid receipt  ◄───────  reads receipt/logs
-    (or just ?request_id=…   ────►   …or scans Paid events for
-     and let the gateway watch)       the request_id memo)
+ 3. GET …  X-Arc-Redeem: <token> ──► checks the token, then verifies ◄──  reads receipt/logs
+    + X-Arc-Payment: <tx>            the Paid receipt
+    (or ?request_id=… and let  ────► …or scans Paid events for
+     the gateway watch)              the request_id memo
  4.                        ◄──────── 200 + data + receipt info
 ```
 
@@ -265,6 +266,10 @@ worthless unless you re-run it after every change.
 - **The gateway holds no key.** It only reads Arc. Funds accumulate in the
   contract; the owner withdraws via the contract's own `withdraw()`.
 - **One payment, one unlock.** `request_id` is single-use; replays get `409`.
+- **The token, not the memo, unlocks the data.** `request_id` travels on-chain as the
+  payment memo, so it is public the moment you pay — anyone watching `Paid` events could
+  otherwise race your retry and read what you bought. `redeem_token` comes back only in the
+  402 body, never touches the chain, and is required on redemption. Keep it secret.
 
 ## Signal-Vault — an agent manages an on-chain USDC posture (DeFi track)
 

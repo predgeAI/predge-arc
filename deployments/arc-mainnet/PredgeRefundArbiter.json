@@ -4,8 +4,10 @@
   "mock": "0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0",
   "operator": "0xEc7A344741C03b390684B162B7E49d35C9Be6223",
   "challengeWindow": 86400,
-  "minBond": "1000000000000000",
+  "minBond": "50000000000000000",
   "chainId": 5042,
   "deployTx": "0x5f0a4f9d86c0d1f7a0e6eb95d2453638346c82354cc41001a42c633aeb67f385",
-  "deployedAt": "2026-09-18T14:44:21.688Z"
+  "deployedAt": "2026-09-18T14:44:21.688Z",
+  "minBondNote": "Raised from 0.001 to 0.05 USDC after deployment via setParams tx 0xbf5070cc27713f0b82cfa9450f2dcd4926691c286e84d3c42327806d4f0b531a; a challenge costs ~0.001 USDC of gas on Arc, so the deploy-time floor paid the challenger less than it cost them. Read minBond() on chain, not this file.",
+  "minBondAtDeploy": "1000000000000000"
 }

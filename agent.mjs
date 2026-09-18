@@ -104,7 +104,9 @@ if (WATCH) {
 const redeemUrl = WATCH
   ? `${GATEWAY}${ROUTE}?request_id=${quote.request_id}`
   : `${GATEWAY}${ROUTE}`;
-const redeemHeaders = WATCH ? {} : { "X-Arc-Payment": tx.hash };
+// redeem_token, not request_id, is what proves this payment was ours: the request_id is
+// published on-chain as the memo, so anyone watching Paid events could otherwise redeem it.
+const redeemHeaders = { "X-Arc-Redeem": quote.redeem_token, ...(WATCH ? {} : { "X-Arc-Payment": tx.hash }) };
 let unlocked = null;
 for (let i = 0; i < 10; i++) {
   const r = await getJson(redeemUrl, redeemHeaders);
