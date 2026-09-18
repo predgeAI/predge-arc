@@ -45,6 +45,16 @@ const PLAN = [
 
 const argsFor = (spec, built) => (typeof spec === "function" ? spec(built) : spec);
 
+// `--only A,B` redeploys just those contracts and wires them to the siblings already on chain.
+// Everything else in this stack is live and addressed by other systems (the gateway points at
+// PredgeSettlement), so replacing the whole set to ship one fix would break them.
+const ONLY = (process.argv.find((a) => a.startsWith("--only=")) || "").split("=")[1]?.split(",").filter(Boolean);
+const PLAN_TO_RUN = ONLY ? PLAN.filter(([name]) => ONLY.includes(name)) : PLAN;
+if (ONLY) {
+  const unknown = ONLY.filter((n) => !PLAN.some(([name]) => name === n));
+  if (unknown.length) throw new Error(`--only names nothing in the plan: ${unknown.join(", ")}`);
+}
+
 function compile(name) {
   const source = readFileSync(new URL(`../contracts/${name}.sol`, import.meta.url), "utf8");
   const input = {
@@ -80,7 +90,7 @@ if (ESTIMATE) {
   // Nothing is deployed yet, so estimate against the deployer address as a stand-in for any
   // constructor argument that will be a sibling contract; the bytecode size is what matters.
   const placeholder = new Proxy({}, { get: () => wallet.address });
-  for (const [name, spec] of PLAN) {
+  for (const [name, spec] of PLAN_TO_RUN) {
     const args = argsFor(spec, placeholder);
     const { abi, bytecode } = compile(name);
     const tx = await new ContractFactory(abi, bytecode).getDeployTransaction(...args);
@@ -100,8 +110,21 @@ if (balance === 0n) {
 
 const OUT = new URL("../deployments/arc-mainnet/", import.meta.url).pathname;
 if (!existsSync(OUT)) mkdirSync(OUT, { recursive: true });
+// Seed the summary with what is already deployed so a partial run can bind to it.
 const summary = {};
-for (const [name, spec] of PLAN) {
+for (const [name] of PLAN) {
+  const f = OUT + `${name}.json`;
+  if (existsSync(f)) summary[name] = JSON.parse(readFileSync(f, "utf8")).address;
+}
+if (ONLY) {
+  console.log("redeploying only:", ONLY.join(", "));
+  for (const [name, address] of Object.entries(summary)) {
+    if (!ONLY.includes(name)) console.log(`  reusing ${name.padEnd(22)} ${address}`);
+  }
+  console.log();
+}
+
+for (const [name, spec] of PLAN_TO_RUN) {
   const args = argsFor(spec, summary);
   const { abi, bytecode } = compile(name);
   const contract = await withRetry(`deploy ${name}`, () => new ContractFactory(abi, bytecode, wallet).deploy(...args));
