@@ -1,19 +1,41 @@
 {
-  "ranAt": "2026-09-18T12:11:32.275Z",
-  "arbiter": "0x0A63f412B9Af24a92B04ad596F32D4568A0212CD",
-  "mock": "0x9E1f62C39dA26466b0540e60a2C49d3E8ba710AD",
-  "paymentID": "1789733481015",
-  "evidence": "{\"kind\":\"refund-verdict-v1\",\"paymentID\":\"1789733481015\",\"ruling\":\"refund\",\"reason\":\"merchant did not deliver; acceptance test committed before the work failed\",\"checkedAt\":\"2026-09-18T12:11:21.015Z\"}",
-  "evidenceHash": "0x0c10c89eb42ec6a0b2f6cb953e431ff89c07a4f5102178552ad47d7fb44fc5c1",
+  "ranAt": "2026-09-18T14:44:51.555Z",
+  "arbiter": "0xA15337574F97856Ce253671E946aD5c9675Ad967",
+  "mock": "0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0",
+  "payer": "0x470F818392169B39d269dA84c446a7AD1955668A",
+  "paymentID": "1789742667907",
+  "fabricatedPaymentID": "1789742667908",
+  "evidence": "{\"kind\":\"refund-verdict-v1\",\"paymentID\":\"1789742667907\",\"ruling\":\"refund\",\"reason\":\"merchant did not deliver; acceptance test committed before the work failed\",\"checkedAt\":\"2026-09-18T14:44:27.907Z\"}",
+  "evidenceHash": "0x5902a979ec16b65ab9703c867bc3941ca064b08331988aa8d5bc0c27fa64cf60",
   "receipts": [
     {
-      "step": "rule(refund)",
-      "tx": "0xe3d0a225661c3674bf2151f6a675c2d08e7681c11f7616d87677e4a2ea9eac2b",
+      "step": "fundPayer",
+      "tx": "0x42f7d2f3075e0c941447cfca0ba571822e4df4195646ec7f61f734305f6806b7",
       "status": 1
     },
     {
-      "step": "challenge",
-      "tx": "0x84ec19326e4ec4d82d4912a5c02a94ec1323221dbb5e23bafc492076ffa7b33c",
+      "step": "fileEvidence",
+      "tx": "0xd17d7a737beaaffad69373ff963a4dac12b37e6f3fe3cf9bd0b1347d28736234",
+      "status": 1
+    },
+    {
+      "step": "rule(refund)",
+      "tx": "0x9eb2727dfce551fdc41dbe4238be9caf154e0947deed19b94cba68c2790da448",
+      "status": 1
+    },
+    {
+      "step": "challenge(honest)",
+      "result": "reverted",
+      "selector": "0x40ed297f"
+    },
+    {
+      "step": "rule(fabricated)",
+      "tx": "0x30308db15c6921486e06777cfebf75775b6e3d03de0104575e4b28ac8ff702bd",
+      "status": 1
+    },
+    {
+      "step": "challenge(slash)",
+      "tx": "0x2e328b348c44415e8c0e95d87a8d9e4c7b45ab392976e080a9db18a3f27801f6",
       "status": 1
     }
   ]

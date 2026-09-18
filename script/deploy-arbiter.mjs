@@ -22,7 +22,10 @@ Object.assign(env, process.env);
 const RPC = env.ARC_MAINNET_RPC || "https://rpc.mainnet.arc.io";
 const EXPLORER = env.ARC_MAINNET_EXPLORER || "https://explorer.arc.io";
 const CHALLENGE_WINDOW = BigInt(env.CHALLENGE_WINDOW || "86400");
-const MIN_BOND = parseEther(env.MIN_BOND || "0.001");   // USDC is the native unit on Arc
+// USDC is the native unit on Arc. The floor has to clear the cost of sending a challenge by a
+// wide margin: a challenge measured at ~0.001 USDC of gas here, and a bond that does not pay
+// for itself is one nobody bothers to send, which leaves the ruling unchecked.
+const MIN_BOND = parseEther(env.MIN_BOND || "0.05");
 
 function compile(name) {
   const source = readFileSync(new URL(`../contracts/${name}.sol`, import.meta.url), "utf8");

@@ -20,7 +20,9 @@ interface IRefundProtocol {
 ///   2. Commit first. Ruling names WHOSE filed evidence it acted on and the hash it read, so the
 ///      reasoning exists before the money moves and cannot be rewritten afterwards.
 ///   3. Stake. Every ruling is backed by native value held here, reclaimable only once the
-///      challenge window has passed without a successful challenge.
+///      challenge window has passed without a successful challenge. `minBond` must stay well
+///      above what a challenge costs in gas on the chain it runs on — a bond that does not
+///      cover the challenger's gas buys no scrutiny, however slashable it is on paper.
 ///   4. Slashable, with nothing to forge. `challenge` takes no evidence from the caller: it
 ///      compares the hash the arbiter cited against the hash that party actually filed. Cite
 ///      evidence nobody filed, or a different version of it, and anyone takes the bond.
