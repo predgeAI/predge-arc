@@ -9,7 +9,8 @@
 // settlement and receipt verification are all real and live on Arc mainnet (ARC_NETWORK=testnet for testnet).
 import { readFileSync } from "node:fs";
 
-const PREDGE_UPSTREAM = "https://x402-api-production-266e.up.railway.app";
+const PREDGE_UPSTREAM =
+  process.env.PREDGE_UPSTREAM || "https://api.predge.io";
 
 const sample = (name) =>
   JSON.parse(readFileSync(new URL(`./sample/${name}`, import.meta.url), "utf8"));
