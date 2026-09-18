@@ -17,6 +17,37 @@ Two things run in this repo, both live on Arc testnet:
 Both halves settle in native value with no admin override, no upgrade path, no way to delete
 history. The mechanism is one primitive, applied twice.
 
+## Bonded refund arbiter (Arc mainnet, 2026-09-18)
+
+Circle's [Refund Protocol](https://github.com/circlefin/refund-protocol) hands one address the
+arbiter seat, and its own README carries a security notice that an arbiter can drain other users'
+payments through early withdrawal. The x402r refund extension makes that seat pluggable, so the
+open question is not whether refunds can be automated but who is allowed to rule.
+
+`PredgeRefundArbiter` takes the seat and constrains it:
+
+- **Commit first.** A ruling records `sha256(evidence)` and the direction before any money moves.
+- **Stake.** Every ruling is backed by native value held in the contract.
+- **Slashable.** Anyone can submit the evidence bytes; if they hash to something other than what was
+  committed, the bond goes to the challenger. Honest rulings are reclaimable after the window.
+
+Live on Arc mainnet with a one-day challenge window:
+
+| Contract | Address |
+|---|---|
+| PredgeRefundArbiter | [`0x0A63f412B9Af24a92B04ad596F32D4568A0212CD`](https://explorer.arc.io/address/0x0A63f412B9Af24a92B04ad596F32D4568A0212CD) |
+| MockRefundProtocol (demo target) | [`0x9E1f62C39dA26466b0540e60a2C49d3E8ba710AD`](https://explorer.arc.io/address/0x9E1f62C39dA26466b0540e60a2C49d3E8ba710AD) |
+
+A full run on mainnet, refund ruled and then slashed for evidence that did not match:
+[rule](https://explorer.arc.io/tx/0xe3d0a225661c3674bf2151f6a675c2d08e7681c11f7616d87677e4a2ea9eac2b) ·
+[challenge](https://explorer.arc.io/tx/0x84ec19326e4ec4d82d4912a5c02a94ec1323221dbb5e23bafc492076ffa7b33c).
+Receipts in `deployments/arc-mainnet/arbiter-demo.json`.
+
+```bash
+node script/deploy-arbiter.mjs     # ARBITER_TARGET=<refund protocol> to skip the mock
+node script/demo-arbiter.mjs       # rule, verify the refund landed, slash it
+```
+
 ## Live on Arc mainnet (chainId 5042, deployed 2026-09-17)
 
 Deployed with `script/deploy-mainnet.mjs`; every deploy tx confirmed (`0x1`), every address returns
