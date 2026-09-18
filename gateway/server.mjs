@@ -28,7 +28,7 @@ import {
 import { CATALOG, PREDGE_UPSTREAM } from "./catalog.mjs";
 
 const env = loadEnv();
-const PORT = Number(env.GATEWAY_PORT || 8402);
+const PORT = Number(env.PORT || env.GATEWAY_PORT || 8402);  // PORT is what hosts inject
 // Mainnet by default. ARC_NETWORK=testnet brings back the testnet setup (and honours ARC_RPC).
 const NET = ARC_NETWORKS[env.ARC_NETWORK || "mainnet"];
 if (!NET) throw new Error(`ARC_NETWORK must be one of: ${Object.keys(ARC_NETWORKS).join(", ")}`);

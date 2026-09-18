@@ -37,7 +37,8 @@
     "job:demo": "node job.mjs demo",
     "deploy-job": "node script/deploy-job.mjs",
     "deploy-mainnet": "node script/deploy-mainnet.mjs",
-    "deploy-mainnet:estimate": "node script/deploy-mainnet.mjs --estimate"
+    "deploy-mainnet:estimate": "node script/deploy-mainnet.mjs --estimate",
+    "start": "node gateway/server.mjs"
   },
   "engines": {
     "node": ">=20"
