@@ -345,6 +345,11 @@ from source (`contracts/PredgeSettlement.sol`, solc 0.8.26, optimizer 200 runs).
 
 ## Endpoints (gateway)
 
+The gateway runs publicly on Arc **mainnet** (chain 5042):
+<https://arc-gateway-production-e622.up.railway.app> (custom domain `pay.predge.io`
+pending DNS). `GET /health` returns the live chain id and head block; any paid
+route returns a real 402 quote to anyone, with no key or account required.
+
 | Route | Price | Notes |
 |---|---|---|
 | `GET /v1/whales/latest` | $0.005 | Latest Polymarket whale trades |
