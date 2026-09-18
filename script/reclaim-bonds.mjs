@@ -32,8 +32,12 @@ const NETWORKS = {
   },
 };
 
+// Two shapes of the same getter: bonds deployed before the job-bound challenge fix have no
+// jobId in the stake, so decoding falls back to the shorter tuple.
+const STAKE_WITH_JOB = "function stakes(bytes32) view returns (bytes32 expected, uint96 bond, uint64 stakedAt, uint8 score, bool scored, bool closed, uint256 jobId)";
+const STAKE_LEGACY = "function stakes(bytes32) view returns (bytes32 expected, uint96 bond, uint64 stakedAt, uint8 score, bool scored, bool closed)";
 const BOND_ABI = [
-  "function stakes(bytes32) view returns (bytes32 expected, uint96 bond, uint64 stakedAt, uint8 score, bool scored, bool closed)",
+  STAKE_WITH_JOB,
   "function disputeWindow() view returns (uint64)",
   "function validator() view returns (address)",
   "function reclaim(bytes32 requestHash)",
@@ -78,9 +82,18 @@ console.log(`operator ${wallet.address} | balance ${formatEther(await provider.g
 if (validator.toLowerCase() !== wallet.address.toLowerCase())
   throw new Error(`operator is not the validator; reclaim() would revert`);
 
+const legacy = new Contract(bondAddress, [STAKE_LEGACY], wallet);
+const stakeOf = async (h) => {
+  try {
+    return await bond.stakes(h);
+  } catch {
+    return await legacy.stakes(h);
+  }
+};
+
 const done = [];
 for (const h of hashes) {
-  const s = await bond.stakes(h);
+  const s = await stakeOf(h);
   const opensAt = Number(s.stakedAt) + Number(window);
   if (s.stakedAt === 0n) { console.log(`  ${h.slice(0, 18)}… not committed, skip`); continue; }
   if (s.closed) { console.log(`  ${h.slice(0, 18)}… already closed, skip`); continue; }

@@ -38,7 +38,8 @@
     "deploy-job": "node script/deploy-job.mjs",
     "deploy-mainnet": "node script/deploy-mainnet.mjs",
     "deploy-mainnet:estimate": "node script/deploy-mainnet.mjs --estimate",
-    "start": "node gateway/server.mjs"
+    "start": "node gateway/server.mjs",
+    "test": "node test/bond-challenge.test.mjs && node test/arbiter-challenge.test.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -47,5 +48,8 @@
     "ethers": "^6.13.4",
     "express": "^4.21.2",
     "solc": "0.8.26"
+  },
+  "devDependencies": {
+    "ganache": "^7.9.2"
   }
 }

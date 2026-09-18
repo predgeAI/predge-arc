@@ -14,21 +14,26 @@ interface IRefundProtocol {
 /// on a whim, and Circle's own README flags that an arbiter can drain payments through early
 /// withdrawal. This contract takes that seat and gives it back constraints:
 ///
-///   1. Commit first. Before ruling, the arbiter records `sha256(evidence)` and the direction it
-///      will rule, so the reasoning exists before the money moves and cannot be written afterwards.
-///   2. Stake. Every ruling is backed by native value held here. The bond is only reclaimable once
-///      the challenge window has passed without a successful challenge.
-///   3. Slashable. Anyone can submit the evidence bytes. If they hash to something other than what
-///      was committed, the ruling was not the one promised and the bond goes to the challenger.
+///   1. Evidence comes from the parties, not the arbiter. A payer or a merchant files
+///      `sha256(their evidence)` under their own key with `fileEvidence`, before any ruling.
+///      A filed record is immutable, and the arbiter cannot file on its own behalf.
+///   2. Commit first. Ruling names WHOSE filed evidence it acted on and the hash it read, so the
+///      reasoning exists before the money moves and cannot be rewritten afterwards.
+///   3. Stake. Every ruling is backed by native value held here, reclaimable only once the
+///      challenge window has passed without a successful challenge.
+///   4. Slashable, with nothing to forge. `challenge` takes no evidence from the caller: it
+///      compares the hash the arbiter cited against the hash that party actually filed. Cite
+///      evidence nobody filed, or a different version of it, and anyone takes the bond.
 ///
 /// The contract never holds user payments. It only acts on Refund Protocol, so the worst an
 /// operator can do is rule wrongly, and that costs the bond.
 contract PredgeRefundArbiter {
     struct Ruling {
-        bytes32 evidenceHash;   // sha256 of the evidence the ruling is based on, committed first
+        bytes32 evidenceHash;   // the hash the arbiter says it read, committed before the money moves
         uint96 bond;            // native value staked behind it
         uint64 ruledAt;         // chain time of the ruling
         address decidedBy;      // the operator key that ruled
+        address evidenceFrom;   // the party whose filed evidence the ruling claims to rest on
         Direction direction;    // refund the payer, or leave the payment with the recipient
         bool settled;           // bond reclaimed or slashed
     }
@@ -45,8 +50,13 @@ contract PredgeRefundArbiter {
 
     mapping(uint256 => Ruling) public rulings;   // paymentID => ruling
 
+    /// @notice paymentID => party => sha256 of the evidence that party filed. Write-once per
+    ///         party, so neither side can revise its story after seeing the ruling.
+    mapping(uint256 => mapping(address => bytes32)) public filedEvidence;
+
     event OperatorUpdated(address indexed previousOperator, address indexed newOperator);
-    event Committed(uint256 indexed paymentID, bytes32 evidenceHash, Direction direction, uint96 bond);
+    event EvidenceFiled(uint256 indexed paymentID, address indexed party, bytes32 evidenceHash);
+    event Committed(uint256 indexed paymentID, bytes32 evidenceHash, address evidenceFrom, Direction direction, uint96 bond);
     event Ruled(uint256 indexed paymentID, Direction direction, bytes32 evidenceHash, uint64 ruledAt);
     event Slashed(uint256 indexed paymentID, address indexed challenger, uint96 bond, bytes32 committed, bytes32 delivered);
     event Reclaimed(uint256 indexed paymentID, uint96 bond);
@@ -64,6 +74,9 @@ contract PredgeRefundArbiter {
     error RulingHonest(uint256 paymentID);
     error TransferFailed();
     error BadDirection();
+    error EvidenceAlreadyFiled(uint256 paymentID, address party);
+    error NoEvidenceFiled(uint256 paymentID, address party);
+    error ArbiterCannotFile();
 
     modifier onlyOwner() {
         if (msg.sender != owner) revert NotOwner();
@@ -84,12 +97,36 @@ contract PredgeRefundArbiter {
         minBond = minBond_;
     }
 
+    /// @notice A party to a dispute files the hash of its own evidence, under its own key.
+    ///         Write-once: neither side can revise its story once a ruling exists, and the
+    ///         arbiter cannot manufacture the record it will later claim to have read.
+    function fileEvidence(uint256 paymentID, bytes32 evidenceHash) external {
+        if (evidenceHash == bytes32(0)) revert ZeroHash();
+        if (msg.sender == operator || msg.sender == owner || msg.sender == address(this))
+            revert ArbiterCannotFile();
+        if (filedEvidence[paymentID][msg.sender] != bytes32(0))
+            revert EvidenceAlreadyFiled(paymentID, msg.sender);
+
+        filedEvidence[paymentID][msg.sender] = evidenceHash;
+        emit EvidenceFiled(paymentID, msg.sender, evidenceHash);
+    }
+
     /// @notice Rule on a payment, staking the bond and committing the evidence in the same call.
     /// @param paymentID    the Refund Protocol payment being ruled on
-    /// @param evidenceHash sha256 of the exact evidence bytes behind the ruling
+    /// @param evidenceFrom the party whose filed evidence this ruling rests on
+    /// @param evidenceHash the hash the arbiter says it read from that party's filing
     /// @param direction    Refund sends the payment back to the payer's refundTo; Release leaves it
-    function rule(uint256 paymentID, bytes32 evidenceHash, Direction direction) external payable onlyOperator {
+    /// @dev The filing is deliberately NOT re-checked here. The arbiter is allowed to move fast
+    ///      and refund before anyone verifies it; what it is not allowed to do is move fast and
+    ///      be wrong, because `challenge` compares this citation against the party's own record
+    ///      for as long as the window is open, and pays the bond to whoever spots the gap.
+    function rule(uint256 paymentID, address evidenceFrom, bytes32 evidenceHash, Direction direction)
+        external
+        payable
+        onlyOperator
+    {
         if (evidenceHash == bytes32(0)) revert ZeroHash();
+        if (evidenceFrom == address(0)) revert ZeroAddress();
         if (direction == Direction.None) revert BadDirection();
         if (msg.value < minBond) revert BondTooSmall();
         Ruling storage r = rulings[paymentID];
@@ -99,30 +136,35 @@ contract PredgeRefundArbiter {
         r.bond = uint96(msg.value);
         r.ruledAt = uint64(block.timestamp);
         r.decidedBy = msg.sender;
+        r.evidenceFrom = evidenceFrom;
         r.direction = direction;
         rulingCount += 1;
 
-        emit Committed(paymentID, evidenceHash, direction, uint96(msg.value));
+        emit Committed(paymentID, evidenceHash, evidenceFrom, direction, uint96(msg.value));
         if (direction == Direction.Refund) {
             refundProtocol.refundByArbiter(paymentID);
         }
         emit Ruled(paymentID, direction, evidenceHash, uint64(block.timestamp));
     }
 
-    /// @notice Show that the evidence behind a ruling is not what was committed, and take the bond.
-    /// @dev sha256 is the 0x02 precompile, so a challenge costs a few thousand gas and needs no oracle.
-    function challenge(uint256 paymentID, bytes calldata evidence) external {
+    /// @notice Show that the ruling cites evidence the named party never filed, and take the bond.
+    /// @dev Takes nothing from the caller but the payment id. Both sides of the comparison were
+    ///      written on-chain in advance by two different keys — the party's filing and the
+    ///      arbiter's citation — so a challenge against an honest ruling always reverts, and a
+    ///      challenge against a fabricated one always succeeds, for anybody who calls it.
+    function challenge(uint256 paymentID) external {
         Ruling storage r = rulings[paymentID];
         if (r.ruledAt == 0) revert NotRuled(paymentID);
         if (r.settled) revert AlreadySettled(paymentID);
-        bytes32 delivered = sha256(evidence);
-        if (delivered == r.evidenceHash) revert RulingHonest(paymentID);
+
+        bytes32 filed = filedEvidence[paymentID][r.evidenceFrom];
+        if (filed == r.evidenceHash) revert RulingHonest(paymentID);
 
         uint96 bond = r.bond;
         r.settled = true;
         r.bond = 0;
         slashCount += 1;
-        emit Slashed(paymentID, msg.sender, bond, r.evidenceHash, delivered);
+        emit Slashed(paymentID, msg.sender, bond, r.evidenceHash, filed);
         (bool ok,) = payable(msg.sender).call{value: bond}("");
         if (!ok) revert TransferFailed();
     }
@@ -159,18 +201,26 @@ contract PredgeRefundArbiter {
         emit ParamsUpdated(challengeWindow_, minBond_);
     }
 
-    /// @notice Would this evidence slash the ruling? A read-only check before spending gas.
-    function wouldSlash(uint256 paymentID, bytes calldata evidence) external view returns (bool) {
+    /// @notice Is this ruling slashable right now? A read-only check before spending gas.
+    function wouldSlash(uint256 paymentID) external view returns (bool) {
         Ruling storage r = rulings[paymentID];
-        return r.ruledAt != 0 && !r.settled && sha256(evidence) != r.evidenceHash;
+        if (r.ruledAt == 0 || r.settled) return false;
+        return filedEvidence[paymentID][r.evidenceFrom] != r.evidenceHash;
     }
 
     function rulingOf(uint256 paymentID)
         external
         view
-        returns (bytes32 evidenceHash, uint96 bond, uint64 ruledAt, Direction direction, bool settled)
+        returns (
+            bytes32 evidenceHash,
+            address evidenceFrom,
+            uint96 bond,
+            uint64 ruledAt,
+            Direction direction,
+            bool settled
+        )
     {
         Ruling storage r = rulings[paymentID];
-        return (r.evidenceHash, r.bond, r.ruledAt, r.direction, r.settled);
+        return (r.evidenceHash, r.evidenceFrom, r.bond, r.ruledAt, r.direction, r.settled);
     }
 }

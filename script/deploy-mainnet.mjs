@@ -32,14 +32,18 @@ const operator = env.ORACLE_PUBLISHER || wallet.address;
 const keeper = env.VAULT_KEEPER || wallet.address;
 const disputeWindow = BigInt(env.BOND_DISPUTE_WINDOW || "86400"); // 1 day on mainnet
 
+// Args may be a function of what is already deployed: the bond reads the provider's
+// deliverable straight off the job contract, so the job has to exist before it.
 const PLAN = [
   ["PredgeSettlement", []],
   ["PredgeOracle", [operator]],
   ["PredgeAgentValidator", [operator]],
-  ["PredgeValidatorBond", [operator, disputeWindow]],
   ["AgentJob", []],
+  ["PredgeValidatorBond", (built) => [operator, built.AgentJob, disputeWindow]],
   ["PredgeSignalVault", [keeper]],
 ];
+
+const argsFor = (spec, built) => (typeof spec === "function" ? spec(built) : spec);
 
 function compile(name) {
   const source = readFileSync(new URL(`../contracts/${name}.sol`, import.meta.url), "utf8");
@@ -73,7 +77,11 @@ if (ESTIMATE) {
   const fee = await withRetry("fee", () => provider.getFeeData());
   const price = fee.maxFeePerGas ?? fee.gasPrice;
   let total = 0n;
-  for (const [name, args] of PLAN) {
+  // Nothing is deployed yet, so estimate against the deployer address as a stand-in for any
+  // constructor argument that will be a sibling contract; the bytecode size is what matters.
+  const placeholder = new Proxy({}, { get: () => wallet.address });
+  for (const [name, spec] of PLAN) {
+    const args = argsFor(spec, placeholder);
     const { abi, bytecode } = compile(name);
     const tx = await new ContractFactory(abi, bytecode).getDeployTransaction(...args);
     const gas = await withRetry(`estimate ${name}`, () => provider.estimateGas({ ...tx, from: wallet.address }));
@@ -93,7 +101,8 @@ if (balance === 0n) {
 const OUT = new URL("../deployments/arc-mainnet/", import.meta.url).pathname;
 if (!existsSync(OUT)) mkdirSync(OUT, { recursive: true });
 const summary = {};
-for (const [name, args] of PLAN) {
+for (const [name, spec] of PLAN) {
+  const args = argsFor(spec, summary);
   const { abi, bytecode } = compile(name);
   const contract = await withRetry(`deploy ${name}`, () => new ContractFactory(abi, bytecode, wallet).deploy(...args));
   const tx = contract.deploymentTransaction();
