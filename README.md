@@ -28,20 +28,41 @@ open question is not whether refunds can be automated but who is allowed to rule
 
 - **Commit first.** A ruling records `sha256(evidence)` and the direction before any money moves.
 - **Stake.** Every ruling is backed by native value held in the contract.
-- **Slashable.** Anyone can submit the evidence bytes; if they hash to something other than what was
-  committed, the bond goes to the challenger. Honest rulings are reclaimable after the window.
+- **Slashable, with nothing for a challenger to forge.** `challenge` takes no evidence from the
+  caller. It compares the hash the arbiter cited against the hash the party filed on-chain under
+  its own key, so a ruling that cites evidence nobody filed loses the bond and an honest ruling
+  reverts every challenge. Honest rulings are reclaimable after the window.
+
+The earlier version of this contract accepted evidence bytes from the challenger and hashed
+whatever it was handed, which meant any caller with any bytes could take the bond. A searcher did
+exactly that to the validator bond on Arbitrum One within seconds of it being staked. Both
+contracts were rewritten on 2026-09-18 to compare two commitments written in advance by two
+different parties. What the bond covers is narrow and worth stating plainly: it catches an
+arbiter that fabricates the record it claims to have read. It does not establish that a ruling
+was correct, and a review of it has findings still open.
 
 Live on Arc mainnet with a one-day challenge window:
 
 | Contract | Address |
 |---|---|
-| PredgeRefundArbiter | [`0x0A63f412B9Af24a92B04ad596F32D4568A0212CD`](https://explorer.arc.io/address/0x0A63f412B9Af24a92B04ad596F32D4568A0212CD) |
-| MockRefundProtocol (demo target) | [`0x9E1f62C39dA26466b0540e60a2C49d3E8ba710AD`](https://explorer.arc.io/address/0x9E1f62C39dA26466b0540e60a2C49d3E8ba710AD) |
+| PredgeRefundArbiter | [`0xA15337574F97856Ce253671E946aD5c9675Ad967`](https://explorer.arc.io/address/0xA15337574F97856Ce253671E946aD5c9675Ad967) |
+| MockRefundProtocol (demo target) | [`0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0`](https://explorer.arc.io/address/0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0) |
 
-A full run on mainnet, refund ruled and then slashed for evidence that did not match:
-[rule](https://explorer.arc.io/tx/0xe3d0a225661c3674bf2151f6a675c2d08e7681c11f7616d87677e4a2ea9eac2b) ·
-[challenge](https://explorer.arc.io/tx/0x84ec19326e4ec4d82d4912a5c02a94ec1323221dbb5e23bafc492076ffa7b33c).
+A full run on mainnet, both directions. The payer files evidence, the arbiter rules citing exactly
+that record, the refund lands, and the challenge then reverts, because an honest ruling cannot be
+slashed: [fileEvidence](https://explorer.arc.io/tx/0xd17d7a737beaaffad69373ff963a4dac12b37e6f3fe3cf9bd0b1347d28736234) ·
+[rule](https://explorer.arc.io/tx/0x9eb2727dfce551fdc41dbe4238be9caf154e0947deed19b94cba68c2790da448).
+Then a ruling citing evidence nobody filed, which loses the bond to whoever calls first:
+[challenge](https://explorer.arc.io/tx/0x2e328b348c44415e8c0e95d87a8d9e4c7b45ab392976e080a9db18a3f27801f6).
 Receipts in `deployments/arc-mainnet/arbiter-demo.json`.
+
+A note on size, because it decides whether any of this works. That challenge cost 0.00103 USDC in
+gas against a 0.001 USDC bond, so catching a liar lost money. `minBond` on the live contract is now
+0.05 USDC. A bond that does not cover the challenger's gas buys no scrutiny, however slashable it
+is on paper.
+
+The previous, exploitable arbiter (`0x0A63f412…0212CD`) and validator bond
+(`0x7ba297Af…1Bcf4D29`) are still on chain. Nothing stakes to them.
 
 ```bash
 node script/deploy-arbiter.mjs     # ARBITER_TARGET=<refund protocol> to skip the mock
@@ -59,7 +80,7 @@ addresses differ from the testnet ones; don't mix them.
 | PredgeSettlement | `0x3474Bd2747cb1D430C2F56050433fa5D6b1C82A5` |
 | PredgeOracle | `0x53685Feb21939DDA09CeB94e549f42faF51B01DA` |
 | PredgeAgentValidator (ERC-8004) | `0xbe601d486D821450F9248ab91891736B1a09699F` |
-| PredgeValidatorBond | `0x7ba297Af942f86FbB857102875244B5A1Bcf4D29` |
+| PredgeValidatorBond | `0x9AF8233616775766a3Bf8576F8dB3f01BB290FDA` |
 | AgentJob (ERC-8183) | `0x8B9589B8F5857dDe080Ac68e8B370c3bA5E74495` |
 | PredgeSignalVault | `0x8Af9C2aBb1f4A480200d257F122E95930d017984` |
 
@@ -74,7 +95,7 @@ Receipts: `deployments/arc-mainnet/live-loop-*.json`.
 | Contract | Address | What |
 |---|---|---|
 | `PredgeAgentValidator` | [`0xA15337574F97…675Ad967`](https://testnet.arcscan.app/address/0xA15337574F97856Ce253671E946aD5c9675Ad967) | Native **ERC-8004 Validation Registry** with commit-before-outcome |
-| `PredgeValidatorBond` | [`0xCDd95Bd9…55d2acF`](https://testnet.arcscan.app/address/0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF) | Slashable USDC bond; trustless on-chain slash via the sha256 precompile |
+| `PredgeValidatorBond` | [`0xCDd95Bd9…55d2acF`](https://testnet.arcscan.app/address/0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF) | Slashable USDC bond (testnet, pre-2026-09-18 design; see the mainnet table for the current one) |
 | `AgentJob` | [`0x77DdcEe7…0Ed19Aaa`](https://testnet.arcscan.app/address/0x77DdcEe79Ca671f7Af36ff73A055900A0Ed19Aaa) | Minimal **ERC-8183 job** where Predge fills the evaluator seat |
 
 Three commands, each one an on-chain live run:
