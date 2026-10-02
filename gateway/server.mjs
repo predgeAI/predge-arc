@@ -13,7 +13,7 @@
 // (receipts + events). Funds accumulate in the contract; the owner withdraws
 // with the contract's own withdraw() — the gateway can't touch money at all.
 import express from "express";
-import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { randomBytes, randomUUID } from "node:crypto";
 import { Interface } from "ethers";
 import { loadEnv } from "../lib/env.mjs";
 import {
@@ -26,6 +26,7 @@ import {
   withRetry,
 } from "../lib/arc.mjs";
 import { CATALOG, PREDGE_UPSTREAM } from "./catalog.mjs";
+import { QuoteStore, cachedBlockNumber, clientKey, makeLimiter } from "./guards.mjs";
 
 const env = loadEnv();
 const PORT = Number(env.PORT || env.GATEWAY_PORT || 8402);  // PORT is what hosts inject
@@ -41,21 +42,31 @@ const QUOTE_TTL_MS = Number(env.QUOTE_TTL_MS || 15 * 60 * 1000); // advisory
 const QUOTE_EVICT_MS = 60 * 60 * 1000;
 const EVENT_SCAN_MAX_BLOCKS = Number(env.EVENT_SCAN_MAX_BLOCKS || 50_000);
 const EVENT_SCAN_CHUNK = Number(env.EVENT_SCAN_CHUNK || 5_000);
+// Abuse bounds (see guards.mjs). Every chain-touching request counts against
+// the caller's per-minute budget; live quotes are capped in total.
+const MAX_LIVE_QUOTES = Number(env.MAX_LIVE_QUOTES || 20_000);
+const CHAIN_REQS_PER_MIN = Number(env.CHAIN_REQS_PER_MIN || 60);
 
 const provider = makeProvider(RPC, ARC_CHAIN_ID);
 const contract = settlementContract(provider, CONTRACT);
 const iface = new Interface(SETTLEMENT_ABI);
 
 /** requestId -> quote {path, route, routeHash, amountWei, createdAt, createdBlock, expiresAt, redeemed} */
-const quotes = new Map();
+const quotes = new QuoteStore({ maxLive: MAX_LIVE_QUOTES, evictMs: QUOTE_EVICT_MS });
 /** replay guard: tx hash -> requestId it redeemed */
 const usedTxs = new Map();
+/** One getBlockNumber per 2 s for quotes and /health, instead of one per request. */
+const latestBlock = cachedBlockNumber(() => withRetry("blockNumber", () => provider.getBlockNumber()));
+const allowChainRequest = makeLimiter({ limit: CHAIN_REQS_PER_MIN, windowMs: 60_000 });
 
-function evictOldQuotes() {
-  const now = Date.now();
-  for (const [id, q] of quotes) if (now - q.createdAt > QUOTE_EVICT_MS) quotes.delete(id);
+function rateLimited(req, res) {
+  if (allowChainRequest(clientKey(req))) return false;
+  res.set("Retry-After", "60");
+  res.status(429).json({ error: "rate_limited", detail: `Max ${CHAIN_REQS_PER_MIN} chain-backed requests per minute.` });
+  return true;
 }
-setInterval(evictOldQuotes, 60_000).unref();
+
+setInterval(() => quotes.evict(), 60_000).unref();
 
 async function makeQuote(path, entry) {
   const requestId = randomUUID();
@@ -64,7 +75,7 @@ async function makeQuote(path, entry) {
   // buyer's retry and take the data they paid for. This token is returned only in the 402
   // body, never touches the chain, and is what actually unlocks the response.
   const redeemToken = randomBytes(32).toString("hex");
-  const createdBlock = await withRetry("blockNumber", () => provider.getBlockNumber());
+  const createdBlock = await latestBlock();
   const q = {
     path,
     route: entry.route,
@@ -78,7 +89,7 @@ async function makeQuote(path, entry) {
     txHash: null,
     redeemToken,
   };
-  quotes.set(requestId, q);
+  if (!quotes.add(requestId, q)) return null; // store full: refuse, never evict a live quote
   return { requestId, q };
 }
 
@@ -211,25 +222,6 @@ function redeem(res, requestId, q, payment, txHash, blockNumber, entry) {
   });
 }
 
-// The quote a redeem token belongs to, or null. Scans every live quote with a constant-time
-// compare rather than keying a map by the secret, so a wrong token costs the same everywhere.
-function quoteForToken(token) {
-  if (!token) return null;
-  for (const [requestId, q] of quotes) {
-    if (tokenMatches(token, q.redeemToken)) return { requestId, q };
-  }
-  return null;
-}
-
-// Equal-length compare that does not leak where two tokens diverge.
-function tokenMatches(given, expected) {
-  if (typeof given !== "string" || typeof expected !== "string") return false;
-  const a = Buffer.from(given);
-  const b = Buffer.from(expected);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
-}
-
 const app = express();
 app.use((req, res, next) => {
   res.set("Access-Control-Allow-Origin", "*");
@@ -268,7 +260,7 @@ app.get("/", (_req, res) => {
 
 app.get("/health", async (_req, res) => {
   try {
-    const block = await withRetry("blockNumber", () => provider.getBlockNumber());
+    const block = await latestBlock();
     res.json({ status: "ok", chain_id: Number(ARC_CHAIN_ID), latest_block: block, contract: CONTRACT });
   } catch (e) {
     res.status(503).json({ status: "degraded", detail: e.shortMessage || e.message });
@@ -279,6 +271,7 @@ app.get("/health", async (_req, res) => {
 for (const [path, entry] of Object.entries(CATALOG)) {
   app.get(path, async (req, res) => {
     try {
+      if (rateLimited(req, res)) return;
       const txHash = req.get("X-Arc-Payment");
       const requestIdParam = String(req.query.request_id || "");
       const token = req.get("X-Arc-Redeem") || String(req.query.redeem_token || "");
@@ -289,7 +282,7 @@ for (const [path, entry] of Object.entries(CATALOG)) {
       // the memo off-chain cannot even address one. Checked before any chain lookup, so a
       // stranger cannot spend our RPC budget or learn whether a request_id has been paid.
       if (txHash || requestIdParam) {
-        const owned = quoteForToken(token);
+        const owned = quotes.forToken(token);
         if (!owned || owned.q.path !== path)
           return res.status(401).json({
             error: "bad_redeem_token",
@@ -336,8 +329,12 @@ for (const [path, entry] of Object.entries(CATALOG)) {
       }
 
       // No payment evidence: quote it.
-      const { requestId, q } = await makeQuote(path, entry);
-      res.status(402).json(paymentInstructions(requestId, q));
+      const made = await makeQuote(path, entry);
+      if (!made) {
+        res.set("Retry-After", "60");
+        return res.status(503).json({ error: "quotes_at_capacity", detail: "Too many open quotes; retry shortly." });
+      }
+      res.status(402).json(paymentInstructions(made.requestId, made.q));
     } catch (e) {
       console.error("gateway error:", e);
       res.status(500).json({ error: "gateway_error", detail: e.shortMessage || e.message });
@@ -347,6 +344,7 @@ for (const [path, entry] of Object.entries(CATALOG)) {
 
 // ---- free helpers ------------------------------------------------------------
 app.get("/v1/status/:requestId", async (req, res) => {
+  if (rateLimited(req, res)) return;
   const requestId = req.params.requestId;
   const q = quotes.get(requestId);
   if (!q) return res.status(404).json({ error: "unknown_request_id" });
@@ -363,6 +361,7 @@ app.get("/v1/status/:requestId", async (req, res) => {
 });
 
 app.get("/v1/receipts/:txHash", async (req, res) => {
+  if (rateLimited(req, res)) return;
   try {
     const v = await verifyByTxHash(req.params.txHash);
     if (!v.ok) return res.status(404).json({ error: v.code, detail: v.detail });
