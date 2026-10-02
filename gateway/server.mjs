@@ -13,34 +13,36 @@
 // (receipts + events). Funds accumulate in the contract; the owner withdraws
 // with the contract's own withdraw() — the gateway can't touch money at all.
 import express from "express";
-import { randomUUID } from "node:crypto";
+import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { Interface } from "ethers";
 import { loadEnv } from "../lib/env.mjs";
 import {
-  ARC_CHAIN_ID,
-  DEFAULT_CONTRACT,
-  DEFAULT_RPC,
+  ARC_NETWORKS,
   SETTLEMENT_ABI,
-  addressLink,
   fmtUsdc,
   makeProvider,
   routeHash,
   settlementContract,
-  txLink,
   withRetry,
 } from "../lib/arc.mjs";
 import { CATALOG, PREDGE_UPSTREAM } from "./catalog.mjs";
 
 const env = loadEnv();
-const PORT = Number(env.GATEWAY_PORT || 8402);
-const RPC = env.ARC_RPC || DEFAULT_RPC;
-const CONTRACT = (env.ARC_CONTRACT || DEFAULT_CONTRACT);
+const PORT = Number(env.PORT || env.GATEWAY_PORT || 8402);  // PORT is what hosts inject
+// Mainnet by default. ARC_NETWORK=testnet brings back the testnet setup (and honours ARC_RPC).
+const NET = ARC_NETWORKS[env.ARC_NETWORK || "mainnet"];
+if (!NET) throw new Error(`ARC_NETWORK must be one of: ${Object.keys(ARC_NETWORKS).join(", ")}`);
+const ARC_CHAIN_ID = NET.chainId;
+const RPC = NET.name === "arc-testnet" ? env.ARC_RPC || NET.rpc : env.ARC_MAINNET_RPC || NET.rpc;
+const CONTRACT = env.ARC_CONTRACT || NET.settlement;
+const txLink = (hash) => `${NET.explorer}/tx/${hash}`;
+const addressLink = (addr) => `${NET.explorer}/address/${addr}`;
 const QUOTE_TTL_MS = Number(env.QUOTE_TTL_MS || 15 * 60 * 1000); // advisory
 const QUOTE_EVICT_MS = 60 * 60 * 1000;
 const EVENT_SCAN_MAX_BLOCKS = Number(env.EVENT_SCAN_MAX_BLOCKS || 50_000);
 const EVENT_SCAN_CHUNK = Number(env.EVENT_SCAN_CHUNK || 5_000);
 
-const provider = makeProvider(RPC);
+const provider = makeProvider(RPC, ARC_CHAIN_ID);
 const contract = settlementContract(provider, CONTRACT);
 const iface = new Interface(SETTLEMENT_ABI);
 
@@ -57,6 +59,11 @@ setInterval(evictOldQuotes, 60_000).unref();
 
 async function makeQuote(path, entry) {
   const requestId = randomUUID();
+  // request_id goes on-chain as the payment memo, so it is public the moment the buyer pays.
+  // Redemption therefore cannot be gated on it: anyone reading Paid events could race the
+  // buyer's retry and take the data they paid for. This token is returned only in the 402
+  // body, never touches the chain, and is what actually unlocks the response.
+  const redeemToken = randomBytes(32).toString("hex");
   const createdBlock = await withRetry("blockNumber", () => provider.getBlockNumber());
   const q = {
     path,
@@ -69,6 +76,7 @@ async function makeQuote(path, entry) {
     expiresAt: new Date(Date.now() + QUOTE_TTL_MS).toISOString(),
     redeemed: false,
     txHash: null,
+    redeemToken,
   };
   quotes.set(requestId, q);
   return { requestId, q };
@@ -78,7 +86,7 @@ function paymentInstructions(requestId, q) {
   return {
     error: "payment_required",
     scheme: "predge-arc-settlement-v1",
-    network: "arc-testnet",
+    network: NET.name,
     chain_id: Number(ARC_CHAIN_ID),
     contract: CONTRACT,
     route: q.route,
@@ -87,14 +95,17 @@ function paymentInstructions(requestId, q) {
     amount_usdc: fmtUsdc(q.amountWei),
     price_usd: q.priceUsd,
     request_id: requestId,
+    redeem_token: q.redeemToken,
     expires_at: q.expiresAt,
     how_to_pay:
-      `On Arc testnet (chainId ${ARC_CHAIN_ID}) call ` +
+      `On ${NET.name} (chainId ${ARC_CHAIN_ID}) call ` +
       `PredgeSettlement(${CONTRACT}).payForRoute(route_hash, request_id) ` +
       `with value = amount_wei (USDC is Arc's native token — msg.value IS the USDC payment).`,
     how_to_redeem:
-      `Retry this route with header "X-Arc-Payment: <txHash>" — or just retry with ` +
-      `?request_id=${requestId} and the gateway will find your Paid event on-chain itself.`,
+      `Retry this route with "X-Arc-Redeem: ${q.redeemToken}" plus either ` +
+      `"X-Arc-Payment: <txHash>" or ?request_id=${requestId}, and the gateway will match your ` +
+      `Paid event on-chain. Keep redeem_token secret: request_id is published on-chain as your ` +
+      `payment memo, so the token is what proves the payment was yours.`,
     explorer_contract: addressLink(CONTRACT),
   };
 }
@@ -200,10 +211,30 @@ function redeem(res, requestId, q, payment, txHash, blockNumber, entry) {
   });
 }
 
+// The quote a redeem token belongs to, or null. Scans every live quote with a constant-time
+// compare rather than keying a map by the secret, so a wrong token costs the same everywhere.
+function quoteForToken(token) {
+  if (!token) return null;
+  for (const [requestId, q] of quotes) {
+    if (tokenMatches(token, q.redeemToken)) return { requestId, q };
+  }
+  return null;
+}
+
+// Equal-length compare that does not leak where two tokens diverge.
+function tokenMatches(given, expected) {
+  if (typeof given !== "string" || typeof expected !== "string") return false;
+  const a = Buffer.from(given);
+  const b = Buffer.from(expected);
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
+}
+
 const app = express();
 app.use((req, res, next) => {
   res.set("Access-Control-Allow-Origin", "*");
-  res.set("Access-Control-Allow-Headers", "X-Arc-Payment, Content-Type");
+  res.set("Access-Control-Allow-Headers", "X-Arc-Payment, X-Arc-Redeem, Content-Type");
+  res.set("Access-Control-Allow-Methods", "GET, OPTIONS");
   next();
 });
 
@@ -214,7 +245,7 @@ app.get("/", (_req, res) => {
       "Pay-per-call gateway for Predge whale intelligence, settled natively in USDC on Circle Arc " +
       "through the PredgeSettlement contract. 402 quote -> on-chain payForRoute(routeHash, requestId) " +
       "-> retry -> the on-chain Paid receipt unlocks the data.",
-    network: "arc-testnet",
+    network: NET.name,
     chain_id: Number(ARC_CHAIN_ID),
     contract: CONTRACT,
     explorer_contract: addressLink(CONTRACT),
@@ -250,13 +281,35 @@ for (const [path, entry] of Object.entries(CATALOG)) {
     try {
       const txHash = req.get("X-Arc-Payment");
       const requestIdParam = String(req.query.request_id || "");
+      const token = req.get("X-Arc-Redeem") || String(req.query.redeem_token || "");
+      let ownedRequestId = null;
+
+      // Anyone presenting payment evidence must first prove the payment was theirs. The token
+      // is both the credential and the handle: it names the quote, so a caller who only read
+      // the memo off-chain cannot even address one. Checked before any chain lookup, so a
+      // stranger cannot spend our RPC budget or learn whether a request_id has been paid.
+      if (txHash || requestIdParam) {
+        const owned = quoteForToken(token);
+        if (!owned || owned.q.path !== path)
+          return res.status(401).json({
+            error: "bad_redeem_token",
+            detail:
+              "Send the redeem_token from your 402 quote as the X-Arc-Redeem header. The " +
+              "request_id alone is not proof of payment: it travels on-chain as the memo, so " +
+              "it is public as soon as you pay.",
+          });
+        // From here the caller is the buyer, and the quote is theirs by construction.
+        ownedRequestId = owned.requestId;
+      }
 
       // Path A: client presents the payment tx hash.
       if (txHash) {
         const v = await verifyByTxHash(txHash);
         if (!v.ok) return res.status(402).json({ error: v.code, detail: v.detail });
         const requestId = v.meta;
-        const q = quotes.get(requestId);
+        // The memo on the payment must be the quote the token unlocked; paying against one
+        // quote and redeeming another is what the pairing exists to prevent.
+        const q = requestId === ownedRequestId ? quotes.get(requestId) : null;
         if (!q || q.path !== path)
           return res.status(402).json({
             error: "unknown_request_id",
@@ -267,7 +320,7 @@ for (const [path, entry] of Object.entries(CATALOG)) {
 
       // Path B: client only knows its request_id — the gateway watches the chain.
       if (requestIdParam) {
-        const q = quotes.get(requestIdParam);
+        const q = requestIdParam === ownedRequestId ? quotes.get(requestIdParam) : null;
         if (!q || q.path !== path)
           return res.status(402).json({ error: "unknown_request_id" });
         if (q.redeemed)
@@ -321,7 +374,7 @@ app.get("/v1/receipts/:txHash", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`predge arc-gateway listening on http://localhost:${PORT}`);
-  console.log(`  chain    ${ARC_CHAIN_ID} (arc-testnet)  rpc ${RPC}`);
+  console.log(`  chain    ${ARC_CHAIN_ID} (${NET.name})  rpc ${RPC}`);
   console.log(`  contract ${CONTRACT}`);
   console.log(`  key held NONE — read-only chain access; funds live in the contract`);
   for (const [path, e] of Object.entries(CATALOG))

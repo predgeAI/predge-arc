@@ -1,0 +1,14 @@
+{
+  "network": "arc-mainnet",
+  "chainId": 5042,
+  "bond": "0x7ba297Af942f86FbB857102875244B5A1Bcf4D29",
+  "at": "2026-09-18T14:15:28.731Z",
+  "reclaimed": [
+    {
+      "requestHash": "0x2593d8fbdb2d819eae972d9b52493d7ac5e6a783236aa1335f398fbc0f44064d",
+      "bond": "0.00002",
+      "tx": "0xcdc2c133ed6c3a3fc3626fe93f5985f2e74e15271efa1df223e605589d067148",
+      "status": 1
+    }
+  ]
+}

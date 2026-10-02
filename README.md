@@ -17,12 +17,85 @@ Two things run in this repo, both live on Arc testnet:
 Both halves settle in native value with no admin override, no upgrade path, no way to delete
 history. The mechanism is one primitive, applied twice.
 
+## Bonded refund arbiter (Arc mainnet, 2026-09-18)
+
+Circle's [Refund Protocol](https://github.com/circlefin/refund-protocol) hands one address the
+arbiter seat, and its own README carries a security notice that an arbiter can drain other users'
+payments through early withdrawal. The x402r refund extension makes that seat pluggable, so the
+open question is not whether refunds can be automated but who is allowed to rule.
+
+`PredgeRefundArbiter` takes the seat and constrains it:
+
+- **Commit first.** A ruling records `sha256(evidence)` and the direction before any money moves.
+- **Stake.** Every ruling is backed by native value held in the contract.
+- **Slashable, with nothing for a challenger to forge.** `challenge` takes no evidence from the
+  caller. It compares the hash the arbiter cited against the hash the party filed on-chain under
+  its own key, so a ruling that cites evidence nobody filed loses the bond and an honest ruling
+  reverts every challenge. Honest rulings are reclaimable after the window.
+
+The earlier version of this contract accepted evidence bytes from the challenger and hashed
+whatever it was handed, which meant any caller with any bytes could take the bond. A searcher did
+exactly that to the validator bond on Arbitrum One within seconds of it being staked. Both
+contracts were rewritten on 2026-09-18 to compare two commitments written in advance by two
+different parties. What the bond covers is narrow and worth stating plainly: it catches an
+arbiter that fabricates the record it claims to have read. It does not establish that a ruling
+was correct, and a review of it has findings still open.
+
+Live on Arc mainnet with a one-day challenge window:
+
+| Contract | Address |
+|---|---|
+| PredgeRefundArbiter | [`0xA15337574F97856Ce253671E946aD5c9675Ad967`](https://explorer.arc.io/address/0xA15337574F97856Ce253671E946aD5c9675Ad967) |
+| MockRefundProtocol (demo target) | [`0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0`](https://explorer.arc.io/address/0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0) |
+
+A full run on mainnet, both directions. The payer files evidence, the arbiter rules citing exactly
+that record, the refund lands, and the challenge then reverts, because an honest ruling cannot be
+slashed: [fileEvidence](https://explorer.arc.io/tx/0xd17d7a737beaaffad69373ff963a4dac12b37e6f3fe3cf9bd0b1347d28736234) ·
+[rule](https://explorer.arc.io/tx/0x9eb2727dfce551fdc41dbe4238be9caf154e0947deed19b94cba68c2790da448).
+Then a ruling citing evidence nobody filed, which loses the bond to whoever calls first:
+[challenge](https://explorer.arc.io/tx/0x2e328b348c44415e8c0e95d87a8d9e4c7b45ab392976e080a9db18a3f27801f6).
+Receipts in `deployments/arc-mainnet/arbiter-demo.json`.
+
+A note on size, because it decides whether any of this works. That challenge cost 0.00103 USDC in
+gas against a 0.001 USDC bond, so catching a liar lost money. `minBond` on the live contract is now
+0.05 USDC. A bond that does not cover the challenger's gas buys no scrutiny, however slashable it
+is on paper.
+
+The previous, exploitable arbiter (`0x0A63f412…0212CD`) and validator bond
+(`0x7ba297Af…1Bcf4D29`) are still on chain. Nothing stakes to them.
+
+```bash
+node script/deploy-arbiter.mjs     # ARBITER_TARGET=<refund protocol> to skip the mock
+node script/demo-arbiter.mjs       # rule, verify the refund landed, slash it
+```
+
+## Live on Arc mainnet (chainId 5042, deployed 2026-09-17)
+
+Deployed with `script/deploy-mainnet.mjs`; every deploy tx confirmed (`0x1`), every address returns
+bytecode, and the bond's `disputeWindow()` is `86400`. Explorer: https://explorer.arc.io. Mainnet
+addresses differ from the testnet ones; don't mix them.
+
+| Contract | Arc mainnet address |
+|---|---|
+| PredgeSettlement | `0x3474Bd2747cb1D430C2F56050433fa5D6b1C82A5` |
+| PredgeOracle | `0x53685Feb21939DDA09CeB94e549f42faF51B01DA` |
+| PredgeAgentValidator (ERC-8004) | `0xbe601d486D821450F9248ab91891736B1a09699F` |
+| PredgeValidatorBond | `0x9AF8233616775766a3Bf8576F8dB3f01BB290FDA` |
+| AgentJob (ERC-8183) | `0x8B9589B8F5857dDe080Ac68e8B370c3bA5E74495` |
+| PredgeSignalVault | `0x8Af9C2aBb1f4A480200d257F122E95930d017984` |
+
+`script/live-loop-mainnet.mjs` ran one full loop with a live signed Predge signal (ed25519 verified
+offline) through validator, bond, ERC-8183 job and settlement: 8/8 transactions confirmed, e.g.
+[validationResponse](https://explorer.arc.io/tx/0xb544e5af433cba2cf367ab2528726e9706664f66e396fb1b922ed2a722c4c59a)
+and [payForRoute](https://explorer.arc.io/tx/0x1628b4926207083bb4b5c3cd0b19b5f438087eeb1a9c8123cf1f0f3c06895dff).
+Receipts: `deployments/arc-mainnet/live-loop-*.json`.
+
 ## Agent settlement stack — live on Arc testnet (chainId 5042002)
 
 | Contract | Address | What |
 |---|---|---|
 | `PredgeAgentValidator` | [`0xA15337574F97…675Ad967`](https://testnet.arcscan.app/address/0xA15337574F97856Ce253671E946aD5c9675Ad967) | Native **ERC-8004 Validation Registry** with commit-before-outcome |
-| `PredgeValidatorBond` | [`0xCDd95Bd9…55d2acF`](https://testnet.arcscan.app/address/0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF) | Slashable USDC bond; trustless on-chain slash via the sha256 precompile |
+| `PredgeValidatorBond` | [`0xCDd95Bd9…55d2acF`](https://testnet.arcscan.app/address/0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF) | Slashable USDC bond (testnet, pre-2026-09-18 design; see the mainnet table for the current one) |
 | `AgentJob` | [`0x77DdcEe7…0Ed19Aaa`](https://testnet.arcscan.app/address/0x77DdcEe79Ca671f7Af36ff73A055900A0Ed19Aaa) | Minimal **ERC-8183 job** where Predge fills the evaluator seat |
 
 Three commands, each one an on-chain live run:
@@ -196,14 +269,15 @@ worthless unless you re-run it after every change.
  ──────────────────────────          ────────────────────────────         ──────────────────
  1. GET /v1/whales/latest  ────────► 402 + quote
                                      {contract, route_hash, amount_wei,
-                                      request_id}
+                                      request_id, redeem_token}
  2. payForRoute(route_hash,          ─────────────────────────────────►   PredgeSettlement
     request_id) {value: amount}                                           emits Paid(payer,
                                                                           route, amount, ts,
                                                                           meta=request_id)
- 3. GET …  X-Arc-Payment: <tx> ────► verifies the Paid receipt  ◄───────  reads receipt/logs
-    (or just ?request_id=…   ────►   …or scans Paid events for
-     and let the gateway watch)       the request_id memo)
+ 3. GET …  X-Arc-Redeem: <token> ──► checks the token, then verifies ◄──  reads receipt/logs
+    + X-Arc-Payment: <tx>            the Paid receipt
+    (or ?request_id=… and let  ────► …or scans Paid events for
+     the gateway watch)              the request_id memo
  4.                        ◄──────── 200 + data + receipt info
 ```
 
@@ -213,6 +287,10 @@ worthless unless you re-run it after every change.
 - **The gateway holds no key.** It only reads Arc. Funds accumulate in the
   contract; the owner withdraws via the contract's own `withdraw()`.
 - **One payment, one unlock.** `request_id` is single-use; replays get `409`.
+- **The token, not the memo, unlocks the data.** `request_id` travels on-chain as the
+  payment memo, so it is public the moment you pay — anyone watching `Paid` events could
+  otherwise race your retry and read what you bought. `redeem_token` comes back only in the
+  402 body, never touches the chain, and is required on redemption. Keep it secret.
 
 ## Signal-Vault — an agent manages an on-chain USDC posture (DeFi track)
 
@@ -292,6 +370,11 @@ The contract is already deployed; `npm run deploy` only exists to reproduce it
 from source (`contracts/PredgeSettlement.sol`, solc 0.8.26, optimizer 200 runs).
 
 ## Endpoints (gateway)
+
+The gateway runs publicly on Arc **mainnet** (chain 5042) at
+**<https://pay.predge.io>**. `GET /health` returns the live chain id and head
+block; any paid route returns a real 402 quote to anyone, with no key or account
+required.
 
 | Route | Price | Notes |
 |---|---|---|

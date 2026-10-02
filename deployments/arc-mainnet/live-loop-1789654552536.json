@@ -1,0 +1,93 @@
+{
+  "network": "arc-mainnet",
+  "chainId": 5042,
+  "ranAt": "2026-09-17T14:15:52.536Z",
+  "signalUrl": "https://api.predge.io/v1/signal/0x0224bb9eb0a5c9fd261ac9123a72cbdd5748292a",
+  "signal": {
+    "attestation": {
+      "scheme": "veri402-ed25519-v1",
+      "resource": "conviction:0x0224bb9eb0a5c9fd261ac9123a72cbdd5748292a",
+      "payload": {
+        "wallet": "0x0224bb9eb0a5c9fd261ac9123a72cbdd5748292a",
+        "conviction": 100,
+        "action": "accumulate",
+        "window": "30d"
+      },
+      "issuedAt": "2026-09-17T14:15:10.427Z",
+      "nonce": "4213f81b7e89b9c43745175ee977ea8e",
+      "keyId": "13fa3d18a369e6c71bf941563ba47822b30182273d5106a0e8fb61c5016352d9"
+    },
+    "signature": "b8cb73d073248e69e4a8c0eaacfbb26bc9c9d714f9fae8797ce688103bbcdbab5a3cedda72769dd55e08b20e5fe2bbea775cbd21a45806e049026a0256f6ec0e"
+  },
+  "requestHash": "0x2593d8fbdb2d819eae972d9b52493d7ac5e6a783236aa1335f398fbc0f44064d",
+  "expectedSha256": "0x0512e8fecc13431a244a026992367b2503764a8be93e90515f76ee573f00f7e7",
+  "responseHash": "0x649207abf8aef464663601568f29bcf9bea7993f59be4bde9f9c40a311326218",
+  "verdict": {
+    "requestHash": "0x2593d8fbdb2d819eae972d9b52493d7ac5e6a783236aa1335f398fbc0f44064d",
+    "verified": true,
+    "signer": "13fa3d18a369e6c71bf941563ba47822b30182273d5106a0e8fb61c5016352d9",
+    "issuedAt": "2026-09-17T14:15:10.427Z",
+    "payload": {
+      "wallet": "0x0224bb9eb0a5c9fd261ac9123a72cbdd5748292a",
+      "conviction": 100,
+      "action": "accumulate",
+      "window": "30d"
+    }
+  },
+  "jobId": "1",
+  "values": {
+    "bond": "0.00002",
+    "escrow": "0.00001",
+    "pay": "0.000005"
+  },
+  "receipts": [
+    {
+      "step": "validationRequest",
+      "tx": "0xf0bc319407475f565235e0bebe28c0c367350899c836e3b1c3816c1d7c4a675d",
+      "status": 1,
+      "block": 21340397
+    },
+    {
+      "step": "stakeAndCommit",
+      "tx": "0x64321154b18ee67b051f515c07b489ec8c8a07a5d2961667bf54ab86824286a6",
+      "status": 1,
+      "block": 21340408
+    },
+    {
+      "step": "createJob",
+      "tx": "0x9d58bea75847199bf43f41f1638eafe7a59ce8b6306376c55c4b06c563212e00",
+      "status": 1,
+      "block": 21340418
+    },
+    {
+      "step": "submit",
+      "tx": "0xc3f3619f1e24885f9cad9d980a09a961aecf912b655e10a1524b54af2e4f8f77",
+      "status": 1,
+      "block": 21340428
+    },
+    {
+      "step": "validationResponse",
+      "tx": "0xb544e5af433cba2cf367ab2528726e9706664f66e396fb1b922ed2a722c4c59a",
+      "status": 1,
+      "block": 21340439
+    },
+    {
+      "step": "recordScore",
+      "tx": "0x17b157f698ac9144368a26c339c97a7f2e7be756126f03e2e53bf77528d1c967",
+      "status": 1,
+      "block": 21340449
+    },
+    {
+      "step": "complete",
+      "tx": "0xcd135a51ed810c2b3503185aead9bc7cd59e47d69247741e7e048841af8d2f8e",
+      "status": 1,
+      "block": 21340459
+    },
+    {
+      "step": "payForRoute",
+      "tx": "0x1628b4926207083bb4b5c3cd0b19b5f438087eeb1a9c8123cf1f0f3c06895dff",
+      "status": 1,
+      "block": 21340470
+    }
+  ]
+}
