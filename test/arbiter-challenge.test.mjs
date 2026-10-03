@@ -89,24 +89,30 @@ await check("a ruling that cites what the payer actually filed cannot be slashed
   await rejectsWith(arbiter.connect(stranger).challenge(7), "RulingHonest(uint256)");
 });
 
-await check("a ruling citing evidence nobody filed is slashable by anyone", async () => {
+await check("a ruling citing evidence nobody filed cannot be made at all", async () => {
+  // Previously this was allowed and then slashable — but that same gap let a watcher slash an
+  // HONEST operator by racing the party's filing (see arbiter-rule-before-file.test.mjs). The
+  // filing is now required up front, so the unbacked ruling never reaches the chain.
   const { arbiter } = await fresh();
-  await (await arbiter.connect(operator).rule(7, await payer.getAddress(), EVIDENCE, REFUND, { value: BOND })).wait();
-  assert.equal(await arbiter.wouldSlash(7), true);
-  const who = await stranger.getAddress();
-  const before = await balanceOf(who);
-  const rc = await (await arbiter.connect(stranger).challenge(7)).wait();
-  assert.equal((await balanceOf(who)) - before + rc.gasUsed * rc.gasPrice, BOND, "challenger takes the bond");
-  assert.equal(await arbiter.slashCount(), 1n);
+  await rejectsWith(
+    arbiter.connect(operator).rule(7, await payer.getAddress(), EVIDENCE, REFUND, { value: BOND }),
+    "NoEvidenceFiled(uint256,address)",
+  );
+  assert.equal(await arbiter.slashCount(), 0n);
+  assert.equal(await arbiter.rulingCount(), 0n);
 });
 
-await check("a ruling that misquotes the filed evidence is slashable", async () => {
+await check("a ruling that misquotes the filed evidence cannot be committed", async () => {
+  // The party filed EVIDENCE; the operator tries to cite OTHER. `rule` now checks the citation
+  // against the filing up front, so a misquote reverts instead of becoming a slashable ruling —
+  // which also means no honest operator can be griefed in the gap before its own citation lands.
   const { arbiter } = await fresh();
   await (await arbiter.connect(merchant).fileEvidence(9, EVIDENCE)).wait();
-  await (await arbiter.connect(operator).rule(9, await merchant.getAddress(), OTHER, RELEASE, { value: BOND })).wait();
-  assert.equal(await arbiter.wouldSlash(9), true);
-  await (await arbiter.connect(stranger).challenge(9)).wait();
-  assert.equal(await arbiter.slashCount(), 1n);
+  await rejectsWith(
+    arbiter.connect(operator).rule(9, await merchant.getAddress(), OTHER, RELEASE, { value: BOND }),
+    "NoEvidenceFiled(uint256,address)",
+  );
+  assert.equal(await arbiter.slashCount(), 0n);
 });
 
 await check("the old attack is dead: junk bytes no longer buy anyone the bond", async () => {
