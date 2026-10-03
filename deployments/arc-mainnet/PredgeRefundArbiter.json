@@ -1,13 +1,18 @@
 {
-  "address": "0xA15337574F97856Ce253671E946aD5c9675Ad967",
-  "refundProtocol": "0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0",
-  "mock": "0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0",
+  "address": "0xA9c39e9aEd452Ee638a10aC10f6A6288C4Ca6E89",
+  "refundProtocol": "0xf6659f725B3F790287a75f7A83C373E2a3D908aa",
+  "mock": "0xf6659f725B3F790287a75f7A83C373E2a3D908aa",
   "operator": "0xEc7A344741C03b390684B162B7E49d35C9Be6223",
   "challengeWindow": 86400,
   "minBond": "50000000000000000",
   "chainId": 5042,
-  "deployTx": "0x5f0a4f9d86c0d1f7a0e6eb95d2453638346c82354cc41001a42c633aeb67f385",
-  "deployedAt": "2026-09-18T14:44:21.688Z",
-  "minBondNote": "Raised from 0.001 to 0.05 USDC after deployment via setParams tx 0xbf5070cc27713f0b82cfa9450f2dcd4926691c286e84d3c42327806d4f0b531a; a challenge costs ~0.001 USDC of gas on Arc, so the deploy-time floor paid the challenger less than it cost them. Read minBond() on chain, not this file.",
-  "minBondAtDeploy": "1000000000000000"
+  "deployTx": "0xbb0afeed146cb99282ccf8789eb1abb634e96edac6919469e689ec8698c1b2c7",
+  "deployedAt": "2026-10-03T10:26:03.970Z",
+  "mockDeployTx": "0xc088d8bac03b8298c3a7bbbe69054cffff5ea8ff2ba20e023138d69981dc9792",
+  "setArbiterTx": "0xa5e663c7a52ec31a75026ed52c840054f803af605e349fa49e95f6e0fe2b49ae",
+  "version": "v2",
+  "source": "predge-arc@95b723d:contracts/PredgeRefundArbiter.sol",
+  "replaces": "0xA15337574F97856Ce253671E946aD5c9675Ad967",
+  "replacesMock": "0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0",
+  "fix": "rule() requires the cited evidence hash to be filed on-chain first (fileEvidence). Closes audit finding F2 (2026-10-03): a ruling could cite unfiled evidence in the same block and take an honest operator's bond."
 }

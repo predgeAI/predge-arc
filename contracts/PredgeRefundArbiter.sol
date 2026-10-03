@@ -118,10 +118,13 @@ contract PredgeRefundArbiter {
     /// @param evidenceFrom the party whose filed evidence this ruling rests on
     /// @param evidenceHash the hash the arbiter says it read from that party's filing
     /// @param direction    Refund sends the payment back to the payer's refundTo; Release leaves it
-    /// @dev The filing is deliberately NOT re-checked here. The arbiter is allowed to move fast
-    ///      and refund before anyone verifies it; what it is not allowed to do is move fast and
-    ///      be wrong, because `challenge` compares this citation against the party's own record
-    ///      for as long as the window is open, and pays the bond to whoever spots the gap.
+    /// @dev The cited evidence must already be filed on-chain by `evidenceFrom`, byte-for-byte,
+    ///      or this reverts (`NoEvidenceFiled`). `challenge` later compares the same two values,
+    ///      so requiring the match up front is what makes an honest ruling unslashable: it is
+    ///      impossible to commit a ruling that a challenger could slash the next block by racing
+    ///      the party's filing. The challenge window still pays the bond to anyone who later
+    ///      shows the cited party's filing was changed out from under the ruling (it cannot be —
+    ///      filings are write-once — but the check is kept as defence in depth).
     function rule(uint256 paymentID, address evidenceFrom, bytes32 evidenceHash, Direction direction)
         external
         payable
@@ -131,6 +134,13 @@ contract PredgeRefundArbiter {
         if (evidenceFrom == address(0)) revert ZeroAddress();
         if (direction == Direction.None) revert BadDirection();
         if (msg.value < minBond) revert BondTooSmall();
+        // The cited evidence must ALREADY be on-chain under that party's key, and match exactly.
+        // This is what makes an honest ruling unslashable: `challenge` compares the citation to
+        // the party's filing, so if the filing is not there (or differs) at ruling time, the
+        // ruling is slashable the instant it is made. Requiring the filing first closes that race
+        // and the "rule before the filing lands" path that would otherwise burn an honest bond.
+        if (filedEvidence[paymentID][evidenceFrom] != evidenceHash)
+            revert NoEvidenceFiled(paymentID, evidenceFrom);
         Ruling storage r = rulings[paymentID];
         if (r.ruledAt != 0) revert AlreadyRuled(paymentID);
 

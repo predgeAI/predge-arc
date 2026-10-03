@@ -1,12 +1,17 @@
 {
-  "address": "0x9AF8233616775766a3Bf8576F8dB3f01BB290FDA",
+  "address": "0xfeE8b89eb8aa2499F7025Cd9aaEB13a4b046d0d1",
   "deployer": "0xEc7A344741C03b390684B162B7E49d35C9Be6223",
   "chainId": 5042,
-  "deployTx": "0xbbf1261c8f8fdd5731402b91a7c37bd005bdc43f60a86036c4da8d4fb8f04e15",
-  "deployedAt": "2026-09-18T14:16:21.248Z",
+  "deployTx": "0xea7fcf827f9e07a440c23b8dfe451f25668b943c120230da4b0450314c21d7d3",
+  "deployedAt": "2026-10-03T10:26:03.970Z",
   "args": [
     "0xEc7A344741C03b390684B162B7E49d35C9Be6223",
     "0x8B9589B8F5857dDe080Ac68e8B370c3bA5E74495",
     "86400"
-  ]
+  ],
+  "version": "v2.1",
+  "source": "predge-robinhood@bc57c52:contracts/PredgeValidatorBond.sol",
+  "runtimeKeccak": "0x8bbe6f615826912df78a7b91d30e51cc5f9174aedc0b65a0ec7d223fb47a43cb",
+  "replaces": "0x9AF8233616775766a3Bf8576F8dB3f01BB290FDA",
+  "fix": "Dispute window is counted from recordScore (the verdict), not from stakeAndCommit. Closes audit finding F1 (2026-10-03): a validator could record a verdict after the window and reclaim before anyone challenged."
 }
