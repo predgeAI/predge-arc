@@ -41,12 +41,12 @@ different parties. What the bond covers is narrow and worth stating plainly: it 
 arbiter that fabricates the record it claims to have read. It does not establish that a ruling
 was correct, and a review of it has findings still open.
 
-Live on Arc mainnet with a one-day challenge window:
+Live on Arc mainnet with a one-day challenge window (redeployed 2026-10-03: `rule()` now requires the evidence it cites to have been filed on-chain first, which closes a same-block path to an honest operator's bond):
 
 | Contract | Address |
 |---|---|
-| PredgeRefundArbiter | [`0xA15337574F97856Ce253671E946aD5c9675Ad967`](https://explorer.arc.io/address/0xA15337574F97856Ce253671E946aD5c9675Ad967) |
-| MockRefundProtocol (demo target) | [`0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0`](https://explorer.arc.io/address/0x0e9c70D21BF1Bd3C7d2F40695B4C42fAe338b8F0) |
+| PredgeRefundArbiter | [`0xA9c39e9aEd452Ee638a10aC10f6A6288C4Ca6E89`](https://explorer.arc.io/address/0xA9c39e9aEd452Ee638a10aC10f6A6288C4Ca6E89) |
+| MockRefundProtocol (demo target) | [`0xf6659f725B3F790287a75f7A83C373E2a3D908aa`](https://explorer.arc.io/address/0xf6659f725B3F790287a75f7A83C373E2a3D908aa) |
 
 A full run on mainnet, both directions. The payer files evidence, the arbiter rules citing exactly
 that record, the refund lands, and the challenge then reverts, because an honest ruling cannot be
@@ -54,7 +54,7 @@ slashed: [fileEvidence](https://explorer.arc.io/tx/0xd17d7a737beaaffad69373ff963
 [rule](https://explorer.arc.io/tx/0x9eb2727dfce551fdc41dbe4238be9caf154e0947deed19b94cba68c2790da448).
 Then a ruling citing evidence nobody filed, which loses the bond to whoever calls first:
 [challenge](https://explorer.arc.io/tx/0x2e328b348c44415e8c0e95d87a8d9e4c7b45ab392976e080a9db18a3f27801f6).
-Receipts in `deployments/arc-mainnet/arbiter-demo.json`.
+Receipts in `deployments/arc-mainnet/arbiter-demo.json`. That run used the previous arbiter (`0xA1533757…5Ad967`, mock `0x0e9c70D2…38b8F0`), which is still on chain and no longer used.
 
 A note on size, because it decides whether any of this works. That challenge cost 0.00103 USDC in
 gas against a 0.001 USDC bond, so catching a liar lost money. `minBond` on the live contract is now
@@ -73,14 +73,14 @@ node script/demo-arbiter.mjs       # rule, verify the refund landed, slash it
 
 Deployed with `script/deploy-mainnet.mjs`; every deploy tx confirmed (`0x1`), every address returns
 bytecode, and the bond's `disputeWindow()` is `86400`. Explorer: https://explorer.arc.io. Mainnet
-addresses differ from the testnet ones; don't mix them.
+addresses differ from the testnet ones; don't mix them. `PredgeValidatorBond` was redeployed on 2026-10-03 (v2.1) so its dispute window runs from the verdict, not the stake; the previous bond `0x9AF82336…290FDA` is still on chain and nothing new stakes to it.
 
 | Contract | Arc mainnet address |
 |---|---|
 | PredgeSettlement | `0x3474Bd2747cb1D430C2F56050433fa5D6b1C82A5` |
 | PredgeOracle | `0x53685Feb21939DDA09CeB94e549f42faF51B01DA` |
 | PredgeAgentValidator (ERC-8004) | `0xbe601d486D821450F9248ab91891736B1a09699F` |
-| PredgeValidatorBond | `0x9AF8233616775766a3Bf8576F8dB3f01BB290FDA` |
+| PredgeValidatorBond (v2.1, 2026-10-03) | `0xfeE8b89eb8aa2499F7025Cd9aaEB13a4b046d0d1` |
 | AgentJob (ERC-8183) | `0x8B9589B8F5857dDe080Ac68e8B370c3bA5E74495` |
 | PredgeSignalVault | `0x8Af9C2aBb1f4A480200d257F122E95930d017984` |
 
