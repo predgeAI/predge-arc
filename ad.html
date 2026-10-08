@@ -3,14 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Predge — 'Don't Blink' ad (kinetic)</title>
+<title>Predge · "Don't Blink" ad v2 (kinetic)</title>
 <style>
   /* ───────────────────────────────────────────────────────────────
-     Predge kinetic-typography ad, Apple "Don't Blink" style.
-     Record this fullscreen (OBS / QuickTime, 1920×1080, 60fps).
-     Cuts are beat-locked — set BPM in the <script> to match your track,
-     then hit SPACE exactly on the drop so text and music lock together.
-     Everything on screen is our own product; no third-party assets.
+     Predge kinetic-typography ad v2, Apple "Don't Blink" style.
+     Cuts are beat-locked to BPM. Two ways to play it:
+       · live:  SPACE (count-in) or R (instant) in a browser;
+       · film:  record-ad.mjs calls window.__seek(t) frame by frame,
+                so every frame is deterministic at exactly 30 fps.
+     Aspect: ?ar=169 (default, 1920x1080) · ?ar=sq (1080x1080) · ?ar=vt (1080x1920).
+     Everything on screen is our own pixels; no AI footage, no screen capture.
+     On-screen copy rule: no em dashes (use a comma, colon or middle dot).
      ─────────────────────────────────────────────────────────────── */
   :root{
     --amber:#f5a623; --ink:#000; --fg:#fff; --dim:#8a90a0;
@@ -32,41 +35,52 @@
   .layer.on{opacity:1;visibility:visible;}
 
   /* ── TYPE cards ─────────────────────────────────────────────── */
-  .type{padding:0 8%;text-align:center;}
+  .type{padding:0 8%;text-align:center;align-content:center;}
+  .type .amber{color:var(--amber);}
+  body:not(.sq):not(.vt) .layer.screen .screen > *{zoom:1.42;}
   .type .t{
     font-weight:800;letter-spacing:-.03em;line-height:.98;text-wrap:balance;
     font-size:clamp(2.2rem,8.2vw,8rem);}
-  .type .t.sm{font-size:clamp(1.8rem,5.4vw,5rem);}
+  .type .t.sm{font-size:clamp(1.8rem,5.4vw,5rem);line-height:1.04;}
+  .type .t.xs{font-size:clamp(1.5rem,4.2vw,3.9rem);line-height:1.08;}
   .type .t.amber{color:var(--amber);}
   .type .t em{font-style:normal;color:var(--amber);}
-  .type .t .strike{color:var(--dim);text-decoration:line-through;text-decoration-thickness:.06em;}
+  .type .t.dim{color:var(--dim);}
   .type .k{font-family:var(--mono);font-weight:600;letter-spacing:.02em;
-    font-size:clamp(1.6rem,6vw,5.6rem);color:var(--fg);}
-  .type .kk{font-family:var(--mono);font-size:clamp(1rem,2.4vw,2rem);color:var(--dim);
-    letter-spacing:.12em;text-transform:uppercase;margin-top:1.2rem;}
+    font-size:clamp(1.6rem,6vw,5.6rem);color:var(--fg);font-variant-numeric:tabular-nums;}
+  .type .k.big{font-size:clamp(2.4rem,11vw,10rem);font-weight:700;letter-spacing:-.02em;}
+  .type .k.amber{color:var(--amber);}
+  .type .kk{font-family:var(--mono);font-size:clamp(1.1rem,2.6vw,2.3rem);color:var(--dim);
+    letter-spacing:.1em;text-transform:uppercase;margin-top:1.2rem;text-wrap:balance;line-height:1.35;}
+  .type .kk.w{color:#e9ecf1;}
+  .type .kk + .kk{margin-top:.5rem;}
+  .type .src{font-family:var(--mono);font-size:clamp(.9rem,1.9vw,1.6rem);color:#7a8090;
+    letter-spacing:.08em;margin-top:2rem;}
 
   /* multichain band (close) */
   .chains{text-align:center;padding:0 6%;}
-  .chains .crow{font-family:var(--mono);font-weight:700;letter-spacing:-.01em;
-    font-size:clamp(2.2rem,7vw,6rem);line-height:1;}
-  .chains .crow .camber{color:var(--amber);}
-  .chains .csub{font-family:var(--mono);color:var(--dim);letter-spacing:.06em;
-    font-size:clamp(.95rem,2.2vw,1.8rem);margin-top:1.4rem;}
+  .chains .clab{font-family:var(--mono);color:var(--dim);letter-spacing:.14em;text-transform:uppercase;
+    font-size:clamp(.95rem,2vw,1.6rem);margin-bottom:2.2rem;}
+  .chains .csub{font-family:var(--mono);color:#e9ecf1;letter-spacing:.02em;
+    font-size:clamp(1.2rem,2.8vw,2.4rem);margin-top:2.2rem;text-wrap:balance;line-height:1.4;}
+  .chains .csub .d{color:var(--amber);}
+  .chains .csub .ci{white-space:nowrap;}
+  body.sq .chains .csub .d, body.vt .chains .csub .d{display:none;}
+  body.sq .chains .csub, body.vt .chains .csub{display:flex;flex-wrap:wrap;justify-content:center;gap:.3em 1.1em;}
   .chains .clogos{display:flex;gap:clamp(1.4rem,4vw,3.4rem);justify-content:center;align-items:center;flex-wrap:wrap;}
   .chains .clogo{display:inline-flex;align-items:center;gap:.7rem;font-family:var(--mono);
     font-weight:700;font-size:clamp(1.8rem,5vw,4rem);color:var(--fg);}
   .chains .cico{width:clamp(2rem,5vw,3.6rem);height:clamp(2rem,5vw,3.6rem);flex:none;}
 
-  /* real product screenshot flashed in the ad */
-  .realui{width:min(88%,1400px);border-radius:14px;border:1px solid #23262e;
-    box-shadow:0 40px 120px rgba(0,0,0,.7);}
-
-  /* platform logo + label (Polymarket / Kalshi) */
-  .type .plat{display:inline-flex;align-items:center;gap:1rem;justify-content:center;flex-wrap:wrap;}
-  .type .plat .pico{width:clamp(2.2rem,5.5vw,4rem);height:clamp(2.2rem,5.5vw,4rem);flex:none;}
+  /* platform logo + label (Polymarket / Kalshi / sports) */
+  .type .plat{display:inline-flex;align-items:center;gap:1.2rem;justify-content:center;flex-wrap:wrap;}
+  .type .plat .pico{width:clamp(2.6rem,7vw,5.4rem);height:clamp(2.6rem,7vw,5.4rem);flex:none;}
+  .type .plat .k{font-size:clamp(2rem,7.4vw,7rem);font-weight:700;}
+  .type .sprow{display:flex;gap:clamp(1rem,3vw,2.6rem);justify-content:center;margin-top:1.6rem;}
+  .type .sprow .spi{width:clamp(3rem,7vw,7rem);height:clamp(3rem,7vw,7rem);}
 
   /* Telegram alert mockup */
-  .tg{width:min(60%,760px);border-radius:16px;border:1px solid #23262e;background:#0e1621;
+  .tg{width:min(60%,780px);border-radius:16px;border:1px solid #23262e;background:#0e1621;
     box-shadow:0 40px 120px rgba(0,0,0,.7);overflow:hidden;}
   .tg .tgbar{display:flex;align-items:center;gap:.9rem;padding:1rem 1.3rem;background:#17212b;border-bottom:1px solid #23262e;}
   .tg .tgav{width:44px;height:44px;border-radius:50%;background:var(--amber);color:#000;display:grid;place-items:center;font-family:var(--mono);font-weight:800;font-size:1.4rem;flex:none;}
@@ -76,43 +90,41 @@
   @keyframes tgslide{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
   .layer.on .tgin{animation:tgslide .26s cubic-bezier(.2,.8,.2,1) both;}
   .layer.on .tgin2{animation:tgslide .26s cubic-bezier(.2,.8,.2,1) both;animation-delay:.55s;}
-  .tg .tgmsg{background:#182533;border-radius:12px 12px 12px 4px;padding:1rem 1.2rem;max-width:82%;}
+  .tg .tgmsg{background:#182533;border-radius:12px 12px 12px 4px;padding:1rem 1.2rem;max-width:86%;}
   .tg .tgmsg.watch{border-left:3px solid var(--amber);}
   .tg .tgtitle .eye{color:var(--amber);}
   .tg .tgtitle{font-family:var(--sans);font-weight:800;color:#fff;font-size:1.3rem;margin-bottom:.4rem;}
   .tg .tgline{font-family:var(--mono);color:#e9ecf1;font-size:1.05rem;}
-  .tg .tgline .a{color:var(--amber);} .tg .tgline .s.y{color:var(--good);font-weight:700;}
+  .tg .tgline .a{color:var(--amber);} .tg .tgline .s.y{color:var(--good);font-weight:700;} .tg .tgline .s.n{color:var(--bad);font-weight:700;}
   .tg .tgmk{font-family:var(--mono);color:#8a90a0;font-size:.92rem;margin-top:.5rem;}
   .tg .tgfoot{display:flex;align-items:center;gap:.6rem;margin-top:.7rem;font-family:var(--mono);font-size:.82rem;color:#5a9;}
   .tg .tgfoot .ok{color:var(--good);} .tg .tgfoot .tgt{margin-left:auto;color:#5a6b7a;}
 
   /* APP dashboard mockup */
-  .appd{width:min(82%,1240px);}
+  .appd{width:min(84%,1260px);}
   .appd .appstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:#191c22;padding:1px;}
   .appd .ast{background:#0b0d10;padding:1rem 1.2rem;}
   .appd .ast .al{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
-  .appd .ast .av{font-family:var(--mono);font-size:clamp(1.3rem,2.4vw,2rem);font-weight:700;color:#e9ecf1;margin-top:.3rem;font-variant-numeric:tabular-nums;}
+  .appd .ast .av{font-family:var(--mono);font-size:clamp(1.2rem,2.3vw,2rem);font-weight:700;color:#e9ecf1;margin-top:.3rem;font-variant-numeric:tabular-nums;white-space:nowrap;}
   .appd .appin{padding:1rem 1.3rem;}
-  .appd .aih{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:.6rem;}
-  .appd .airow{display:grid;grid-template-columns:1fr auto auto;gap:1.3rem;align-items:center;padding:.6rem 0;border-top:1px solid #191c22;font-family:var(--mono);font-size:1rem;}
-  .appd .airow .mk{color:#e9ecf1;} .appd .airow .s.y{color:var(--good);} .appd .airow .s.n{color:var(--bad);}
-  .appd .airow .pc{color:var(--amber);font-weight:700;}
+  .appd .aih{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);margin-bottom:.6rem;display:flex;}
+  .appd .aih span:last-child{margin-left:auto;color:var(--dim);}
+  .appd .airow{display:grid;grid-template-columns:1fr 5rem 6rem;gap:1.3rem;align-items:center;padding:.6rem 0;border-top:1px solid #191c22;font-family:var(--mono);font-size:1rem;}
+  .appd .airow .mk{color:#e9ecf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .appd .airow .n{color:var(--dim);text-align:right;} .appd .airow .pc{color:var(--amber);font-weight:700;text-align:right;}
   .layer.on .appd .airow{animation:rowIn .34s cubic-bezier(.2,.8,.2,1) both;}
-  .layer.on .appd .airow:nth-of-type(2){animation-delay:.08s;}
-  .layer.on .appd .airow:nth-of-type(3){animation-delay:.16s;}
+  .layer.on .appd .airow:nth-of-type(3){animation-delay:.08s;}
+  .layer.on .appd .airow:nth-of-type(4){animation-delay:.16s;}
 
-  /* subtle entrances — kept fast so cuts read as "blinks", not fades */
+  /* subtle entrances, kept fast so cuts read as "blinks", not fades */
   @keyframes pop{from{transform:scale(.965);opacity:0;}to{transform:scale(1);opacity:1;}}
   @keyframes rise{from{transform:translateY(.5em);opacity:0;}to{transform:translateY(0);opacity:1;}}
   .layer.on .anim-pop{animation:pop .14s cubic-bezier(.2,.8,.2,1) both;}
   .layer.on .anim-rise{animation:rise .18s cubic-bezier(.2,.8,.2,1) both;}
-  @media (prefers-reduced-motion:reduce){.anim-pop,.anim-rise{animation:none!important;}}
 
   /* ── BEAT-LOCKED TRANSITIONS ─────────────────────────────────── */
-  /* zoom-punch: type frames slam in with a hard scale + micro-blur */
   @keyframes punch{0%{transform:scale(1.09);}100%{transform:scale(1);}}
   .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains{animation:punch .12s cubic-bezier(.15,.9,.2,1) both;}
-  /* glitch: RGB-split jitter on amber accent words as they hit */
   @keyframes glitch{
     0%{text-shadow:3px 0 var(--bad),-3px 0 var(--arc);transform:translateX(0);}
     25%{text-shadow:-3px 0 var(--bad),3px 0 var(--arc);transform:translateX(2px);}
@@ -120,45 +132,34 @@
     75%{text-shadow:-1px 0 var(--bad),1px 0 var(--arc);transform:translateX(1px);}
     100%{text-shadow:none;transform:translateX(0);}}
   .layer.type.on .amber,.layer.type.on .t.amber{animation:glitch .18s steps(2,end) 1;}
-  /* screens rush in with a directional motion-blur wipe */
   @keyframes screenIn{0%{transform:scale(1.05);}100%{transform:scale(1);}}
   .layer.screen.on .screen{animation:screenIn .14s cubic-bezier(.2,.85,.2,1) both;}
-  /* flash: a white beat on every screen cut */
+  /* flash: a white beat on the drop (driven by the engine, not CSS) */
   #flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:6;}
-  @keyframes flashfx{0%{opacity:0;}10%{opacity:.55;}100%{opacity:0;}}
-  #flash.hit{animation:flashfx .16s ease-out;}
-  @media (prefers-reduced-motion:reduce){
-    .layer.type.on .t,.layer.type.on .k,.layer.type.on .chains,
-    .layer.type.on .amber,.layer.screen.on .screen,#flash.hit{animation:none!important;}
-  }
 
-  /* ── LIVE SCREEN MOTION — makes the product surfaces feel alive ── */
+  /* ── LIVE SCREEN MOTION ── */
   @keyframes liveDot{0%,100%{opacity:1;}50%{opacity:.35;}}
   @keyframes glowPulse{0%,100%{text-shadow:0 0 0 transparent;}50%{text-shadow:0 0 22px color-mix(in srgb,var(--amber) 55%,transparent);}}
   @keyframes rowIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
   @keyframes caretBlink{0%,100%{opacity:1;}50%{opacity:0;}}
-  @keyframes lineIn{from{opacity:0;}to{opacity:1;}}
-  /* live dot in the window/app title bar */
+  @keyframes lineIn{from{opacity:0;transform:translateX(-6px);}to{opacity:1;transform:none;}}
+  @keyframes grow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
   .win .bar .ad::after{content:"";display:inline-block;width:8px;height:8px;margin-left:.55rem;
     border-radius:50%;background:var(--good);vertical-align:middle;}
   .layer.on .win .bar .ad::after{animation:liveDot 1.1s ease-in-out infinite;}
-  /* feed: big number glows, rows slide in staggered */
-  .layer.on .feed .big{animation:glowPulse 1.8s ease-in-out infinite;}
   .layer.on .feed .row{animation:rowIn .34s cubic-bezier(.2,.8,.2,1) both;}
-  .layer.on .feed .row:nth-of-type(1){animation-delay:.02s;}
-  .layer.on .feed .row:nth-of-type(2){animation-delay:.14s;}
-  .layer.on .feed .row:nth-of-type(3){animation-delay:.26s;}
-  /* checker verdict: pill pops, value cells glow */
+  .layer.on .feed .row:nth-of-type(2){animation-delay:.1s;}
+  .layer.on .feed .row:nth-of-type(3){animation-delay:.2s;}
+  .layer.on .feed .row:nth-of-type(4){animation-delay:.3s;}
+  .layer.on .feed .row:nth-of-type(5){animation-delay:.4s;}
   .layer.on .verdict .pill{animation:pop .3s cubic-bezier(.2,.8,.2,1) both;}
   .layer.on .verdict .v.g{animation:glowPulse 1.8s ease-in-out infinite;}
-  /* terminal / arcscan: body lines fade in top-to-bottom, blinking caret at the end */
-  .layer.on .win .body pre{animation:lineIn .4s ease both;}
+  /* terminal: lines appear one after another (each .ln gets --i), blinking caret at the end */
+  .win .body .ln{display:block;white-space:pre-wrap;}
+  .layer.on .win .body .ln{animation:lineIn .16s ease both;animation-delay:calc(var(--i,0) * .32s);}
   .caret{display:inline-block;width:.6ch;height:1.05em;margin-left:2px;
     background:var(--good);vertical-align:text-bottom;}
   .layer.on .caret{animation:caretBlink 1s steps(1) infinite;}
-  @media (prefers-reduced-motion:reduce){
-    .win .bar .ad::after,.feed .big,.feed .row,.verdict .pill,.verdict .v,.win .body pre,.caret{animation:none!important;}
-  }
 
   /* ── SCREEN mockups (our real product surfaces) ─────────────── */
   .screen{width:100%;height:100%;display:grid;place-items:center;
@@ -167,61 +168,116 @@
     background:#0b0d10;box-shadow:0 40px 120px rgba(0,0,0,.7);overflow:hidden;}
   .win .bar{display:flex;align-items:center;gap:.55rem;padding:.7rem 1rem;
     background:#131519;border-bottom:1px solid #23262e;}
-  .win .bar i{width:11px;height:11px;border-radius:50%;background:#3a3f49;display:block;}
+  .win .bar i{width:11px;height:11px;border-radius:50%;background:#3a3f49;display:block;flex:none;}
   .win .bar i.r{background:#ff5f57;}.win .bar i.y{background:#febc2e;}.win .bar i.g{background:#28c840;}
-  .win .bar .ad{margin-left:.6rem;font-family:var(--mono);font-size:.9rem;color:var(--dim);}
+  .win .bar .ad{margin-left:.6rem;font-family:var(--mono);font-size:.9rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .win .bar .ad b{color:var(--fg);font-weight:500;}
-  .win .body{padding:1.1rem 1.35rem;font-family:var(--mono);font-size:1rem;line-height:1.55;color:#e9ecf1;}
-  .win .body pre{margin:0;white-space:pre-wrap;}
-  .cd{color:var(--dim);}.ca{color:var(--amber);}.cg{color:var(--good);}.cb{color:var(--arc);}.cr{color:var(--bad);}
+  .win .body{padding:1.2rem 1.4rem;font-family:var(--mono);font-size:1.12rem;line-height:1.6;color:#e9ecf1;}
+  .cd{color:var(--dim);}.ca{color:var(--amber);}.cg{color:var(--good);}.cb{color:var(--arc);}.cr{color:var(--bad);}.cw{color:#fff;font-weight:700;}
 
-  /* dashboard feed */
-  .feed .big{font-family:var(--mono);font-size:clamp(1.8rem,4vw,3rem);font-weight:800;
-    padding:1rem 1.3rem .2rem;font-variant-numeric:tabular-nums;}
-  .feed .lbl{font-family:var(--mono);font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;
-    color:var(--dim);padding:0 1.3rem 1rem;}
-  .feed .row{display:grid;grid-template-columns:1fr auto auto;gap:1.2rem;align-items:center;
-    padding:.7rem 1.3rem;border-top:1px solid #191c22;font-family:var(--mono);font-size:1.02rem;}
+  /* live whale feed */
+  .feed .fh{display:flex;align-items:center;gap:.8rem;padding:1rem 1.3rem .8rem;font-family:var(--mono);
+    font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);}
+  .feed .fh .lv{width:9px;height:9px;border-radius:50%;background:var(--good);}
+  .layer.on .feed .fh .lv{animation:liveDot 1.1s ease-in-out infinite;}
+  .feed .fh span:last-child{margin-left:auto;color:var(--dim);}
+  .feed .row{display:grid;grid-template-columns:2.2rem 1fr 7rem 6.5rem;gap:1rem;align-items:center;
+    padding:.75rem 1.3rem;border-top:1px solid #191c22;font-family:var(--mono);font-size:1.04rem;}
+  .feed .row .dir.u{color:var(--good);} .feed .row .dir.d{color:var(--bad);}
   .feed .row .mk{color:#e9ecf1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  .feed .row .s{font-weight:700;font-size:.9rem;}.feed .row .s.y{color:var(--good);}.feed .row .s.n{color:var(--bad);}
-  .feed .row .a{color:var(--amber);font-variant-numeric:tabular-nums;}
-  .feed .sportrow{display:flex;gap:clamp(1rem,2.4vw,2rem);flex-wrap:wrap;padding:.7rem 1.3rem;border-top:1px solid #191c22;}
-  .feed .spico{display:inline-flex;align-items:center;gap:.55rem;font-family:var(--mono);font-size:clamp(.85rem,1.5vw,1.05rem);color:#e9ecf1;}
-  .feed .spico .spi{width:clamp(1.4rem,2.4vw,1.9rem);height:clamp(1.4rem,2.4vw,1.9rem);flex:none;}
-  .layer.on .feed .spico{animation:pop .3s cubic-bezier(.2,.8,.2,1) both;}
-  .layer.on .feed .spico:nth-of-type(2){animation-delay:.05s;}
-  .layer.on .feed .spico:nth-of-type(3){animation-delay:.1s;}
-  .layer.on .feed .spico:nth-of-type(4){animation-delay:.15s;}
+  .feed .row .mk small{display:block;color:var(--dim);font-size:.82rem;}
+  .feed .row .a{color:var(--amber);font-variant-numeric:tabular-nums;text-align:right;font-weight:700;}
+  .feed .row .ago{color:var(--dim);text-align:right;font-size:.9rem;}
 
-  /* checker verdict */
-  .verdict{width:min(72%,880px);border:1px solid #23262e;border-radius:16px;background:#0b0d10;
+  /* record / verdict cards */
+  .verdict{width:min(74%,980px);border:1px solid #23262e;border-radius:16px;background:#0b0d10;
     padding:1.6rem 1.8rem;box-shadow:0 40px 120px rgba(0,0,0,.7);}
   .verdict .a{font-family:var(--mono);font-size:1rem;color:var(--dim);}
-  .verdict .pill{display:inline-flex;align-items:center;gap:.45rem;margin:.9rem 0;color:var(--good);
-    font-weight:800;font-size:1.5rem;background:color-mix(in srgb,var(--good) 14%,transparent);
-    border:1px solid color-mix(in srgb,var(--good) 40%,#23262e);border-radius:999px;padding:.45rem 1.1rem;}
-  .verdict .grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid #23262e;border-radius:12px;overflow:hidden;}
-  .verdict .c{padding:.85rem 1.1rem;border-right:1px solid #191c22;border-bottom:1px solid #191c22;}
-  .verdict .c:nth-child(2n){border-right:none;}
+  .verdict .q{font-family:var(--sans);font-weight:800;font-size:clamp(1.3rem,2.4vw,2rem);color:#fff;margin-top:.35rem;letter-spacing:-.01em;}
+  .verdict .pill{display:inline-flex;align-items:center;gap:.45rem;margin:.9rem 0;color:var(--amber);
+    font-weight:800;font-size:1.25rem;background:color-mix(in srgb,var(--amber) 12%,transparent);
+    border:1px solid color-mix(in srgb,var(--amber) 40%,#23262e);border-radius:999px;padding:.4rem 1rem;}
+  .verdict .pill.g{color:var(--good);background:color-mix(in srgb,var(--good) 14%,transparent);border-color:color-mix(in srgb,var(--good) 40%,#23262e);}
+  .verdict .grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #23262e;border-radius:12px;overflow:hidden;}
+  .verdict .grid.two{grid-template-columns:1fr 1fr;}
+  .verdict .c{padding:.85rem 1.1rem;border-right:1px solid #191c22;}
+  .verdict .c:last-child{border-right:none;}
   .verdict .c .l{font-family:var(--mono);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
-  .verdict .c .v{font-family:var(--mono);font-size:1.7rem;font-weight:700;margin-top:.2rem;font-variant-numeric:tabular-nums;}
-  .verdict .c .v.g{color:var(--good);}.verdict .c .v small{font-size:.8rem;color:var(--dim);font-weight:400;}
-  .verdict .sg{margin-top:1rem;font-family:var(--mono);font-size:.86rem;color:var(--dim);}
+  .verdict .c .v{font-family:var(--mono);font-size:1.6rem;font-weight:700;margin-top:.2rem;font-variant-numeric:tabular-nums;}
+  .verdict .c .v.g{color:var(--good);} .verdict .c .v.am{color:var(--amber);} .verdict .c .v small{font-size:.8rem;color:var(--dim);font-weight:400;}
+  .verdict .tl{margin-top:1rem;font-family:var(--mono);font-size:.98rem;color:#e9ecf1;line-height:1.7;}
+  .verdict .tl .ln{display:block;}
+  .layer.on .verdict .tl .ln{animation:lineIn .16s ease both;animation-delay:calc(.25s + var(--i,0) * .3s);}
+  .verdict .sg{margin-top:1rem;font-family:var(--mono);font-size:.86rem;color:var(--dim);word-break:break-all;}
   .verdict .sg .ok{color:var(--good);}
+  .verdict .chips{display:flex;flex-wrap:wrap;gap:.6rem;margin:.4rem 0 1.1rem;}
+  .verdict .chip{font-family:var(--mono);font-size:1rem;color:#e9ecf1;border:1px solid #2c303a;border-radius:999px;padding:.35rem .9rem;background:#111318;}
+  .verdict .chip b{color:var(--amber);font-weight:700;}
+  .layer.on .verdict .chip{animation:pop .3s cubic-bezier(.2,.8,.2,1) both;}
+  .layer.on .verdict .chip:nth-child(2){animation-delay:.08s;}
+  .layer.on .verdict .chip:nth-child(3){animation-delay:.16s;}
+  /* arbiter timeline */
+  .tline{position:relative;margin:1.3rem 0 .6rem;height:68px;}
+  .tline .track{position:absolute;left:0;right:0;top:20px;height:6px;border-radius:3px;background:#1d2027;}
+  .tline .fill{position:absolute;left:0;right:0;top:20px;height:6px;border-radius:3px;background:var(--amber);transform-origin:left;}
+  .layer.on .tline .fill{animation:grow 2.2s linear both;animation-delay:.2s;}
+  .tline .dot{position:absolute;top:13px;width:20px;height:20px;border-radius:50%;background:#0b0d10;border:3px solid var(--amber);}
+  .tline .dot.e{right:0;border-color:var(--good);} .tline .dot.s{left:0;}
+  .tline .lab{position:absolute;top:44px;font-family:var(--mono);font-size:.86rem;color:var(--dim);}
+  .tline .lab.s{left:0;} .tline .lab.m{left:50%;transform:translateX(-50%);color:var(--amber);} .tline .lab.e{right:0;color:var(--good);}
+
+  /* sign-in card */
+  .signin{width:min(56%,760px);border:1px solid #23262e;border-radius:18px;background:#0b0d10;padding:2rem 2.2rem;
+    box-shadow:0 40px 120px rgba(0,0,0,.7);text-align:center;}
+  .signin .swm{width:min(320px,60%);height:auto;}
+  .signin .st{font-family:var(--sans);color:var(--dim);font-size:1.05rem;margin:.6rem 0 1.4rem;}
+  .signin .opts{display:grid;grid-template-columns:repeat(4,1fr);gap:.7rem;}
+  .signin .o{font-family:var(--mono);font-size:1rem;color:#e9ecf1;border:1px solid #2c303a;border-radius:10px;padding:.75rem .4rem;background:#111318;}
+  .signin .o.hi{border-color:color-mix(in srgb,var(--amber) 60%,#2c303a);color:var(--amber);}
+  .layer.on .signin .o{animation:pop .26s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0) * .06s);}
+
+  /* repos card */
+  .repos{display:flex;gap:1.4rem;justify-content:center;flex-wrap:wrap;margin-top:1.8rem;}
+  .repo{font-family:var(--mono);text-align:left;border:1px solid #2c303a;border-radius:14px;background:#0b0d10;padding:1rem 1.3rem;min-width:min(30rem,80vw);}
+  .repo .rn{font-size:clamp(1.1rem,2.2vw,1.8rem);color:#fff;font-weight:700;}
+  .repo .rn span{color:var(--dim);font-weight:400;}
+  .repo .rd{font-size:clamp(.8rem,1.3vw,1.05rem);color:var(--dim);margin-top:.4rem;}
 
   /* logo close */
-  .logo{display:flex;flex-direction:column;align-items:center;gap:1.4rem;text-align:center;}
-  .logo .mk{width:clamp(70px,9vw,120px);aspect-ratio:1;border-radius:22%;background:var(--amber);
-    color:#000;display:grid;place-items:center;font-weight:900;font-family:var(--mono);
-    font-size:clamp(3rem,6vw,5.5rem);}
-  .logo .wm{font-family:var(--mono);font-weight:700;letter-spacing:.06em;font-size:clamp(1.6rem,4vw,3rem);}
-  .logo .fullwm{font-family:var(--mono);font-weight:800;letter-spacing:.02em;
-    font-size:clamp(2.6rem,8vw,6.5rem);color:var(--amber);line-height:1;}
-  .logo .fullwm .dot{color:var(--amber);}
-  .logo .tag{color:var(--amber);font-weight:700;font-size:clamp(1.1rem,2.6vw,2rem);letter-spacing:-.01em;}
-  .logo .url{font-family:var(--mono);color:var(--dim);font-size:clamp(.9rem,1.8vw,1.3rem);letter-spacing:.14em;}
+  .logo{display:flex;flex-direction:column;align-items:center;gap:1.5rem;text-align:center;}
+  .logo .tag{color:#fff;font-weight:800;font-size:clamp(1.4rem,3.4vw,3rem);letter-spacing:-.02em;}
+  .logo .tag em{font-style:normal;color:var(--amber);}
+  .logo .url{font-family:var(--mono);color:var(--dim);font-size:clamp(.95rem,1.9vw,1.5rem);letter-spacing:.08em;}
+  .logo .url b{color:#e9ecf1;font-weight:500;}
 
-  /* ── countdown + operator HUD (never recorded — start, then go fullscreen) ── */
+  /* ── ASPECT VARIANTS (square for X/LinkedIn, vertical 9:16) ── */
+  body.sq #frame, body.vt #frame{width:100vw;height:100vh;}
+  body.sq{font-size:17px;} body.vt{font-size:19px;}
+  body.sq .type, body.vt .type{padding:0 6%;}
+  body.sq .type .t{font-size:9vw;} body.sq .type .t.sm{font-size:6.8vw;} body.sq .type .t.xs{font-size:5.4vw;}
+  body.vt .type .t{font-size:11vw;} body.vt .type .t.sm{font-size:7.6vw;} body.vt .type .t.xs{font-size:6.6vw;}
+  body.sq .type .k, body.vt .type .k{font-size:7.4vw;}
+  body.sq .type .k.big, body.vt .type .k.big{font-size:15vw;}
+  body.sq .type .kk, body.vt .type .kk{font-size:3.1vw;}
+  body.sq .type .plat .k, body.vt .type .plat .k{font-size:9vw;}
+  body.sq .win, body.vt .win, body.sq .verdict, body.vt .verdict, body.sq .appd, body.vt .appd{width:94%;}
+  body.sq .tg, body.vt .tg, body.sq .signin, body.vt .signin{width:88%;}
+  body.sq .verdict .grid, body.vt .verdict .grid{grid-template-columns:1fr 1fr;}
+  body.sq .verdict .grid .c:nth-child(2n), body.vt .verdict .grid .c:nth-child(2n){border-right:none;}
+  body.sq .verdict .grid .c:nth-child(-n+2), body.vt .verdict .grid .c:nth-child(-n+2){border-bottom:1px solid #191c22;}
+  body.sq .verdict .grid.two .c, body.vt .verdict .grid.two .c{border-bottom:none;}
+  body.sq .appd .appstats, body.vt .appd .appstats{grid-template-columns:1fr 1fr;}
+  body.sq .win .body, body.vt .win .body{font-size:1rem;}
+  body.sq .chains .clogo, body.vt .chains .clogo{font-size:6.5vw;}
+  body.sq .chains .csub, body.vt .chains .csub{font-size:4vw;}
+  body.sq .chains .clab, body.vt .chains .clab{font-size:3vw;}
+  body.sq .logo .tag, body.vt .logo .tag{font-size:6.6vw;}
+  body.sq .logo .url, body.vt .logo .url{font-size:3.4vw;}
+  body.vt .logo .url .sep{display:block;height:0;overflow:hidden;}
+  body.sq .repo .rn, body.vt .repo .rn{font-size:4.4vw;} body.sq .repo .rd, body.vt .repo .rd{font-size:2.6vw;}
+  body.sq .type .src, body.vt .type .src{font-size:2.6vw;}
+
+  /* ── countdown + operator HUD (never recorded) ── */
   #hud{position:fixed;left:0;right:0;bottom:0;padding:.7rem 1.2rem;background:#0a0b0e;
     border-top:1px solid #23262e;font-family:var(--mono);font-size:.8rem;color:var(--dim);
     display:flex;gap:1.4rem;align-items:center;z-index:20;}
@@ -244,9 +300,9 @@
 <div id="count"><div class="n" id="countn">3</div></div>
 
 <div id="hud">
-  <span>Predge · "Don't Blink" ad</span>
-  <span>BPM <b id="bpmv">128</b></span>
-  <span><b>SPACE</b> start on the drop</span>
+  <span>Predge · "Don't Blink" v2</span>
+  <span>BPM <b id="bpmv">130</b></span>
+  <span><b>SPACE</b> start on the beat</span>
   <span><b>R</b> restart</span>
   <span><b>F</b> fullscreen</span>
   <span><b>H</b> hide this bar</span>
@@ -255,196 +311,246 @@
 
 <script>
   // ── TIMING ────────────────────────────────────────────────────
-  // Cuts are measured in BEATS, so the whole ad retimes to any track:
-  // just set BPM to your chosen royalty-free song's tempo.
-  const BPM = 125;                     // ← Tiger Rhythm (Surkin) tempo
-  const BEAT = 60 / BPM;               // seconds per beat
-  const COUNT_IN_BEATS = 4;            // 3·2·1·GO before frame 1
+  // Cuts are measured in BEATS. Track: "Techno" by AtlasAudio (Pixabay), 130 BPM.
+  // Video beat 0 = track beat 1 (0.495 s into the file); the track's drop lands on video beat 32.
+  const BPM = 130;
+  const BEAT = 60 / BPM;
+  const AR = (new URLSearchParams(location.search).get('ar') || '169');
+  if (AR === 'sq' || AR === 'vt') document.body.classList.add(AR);
 
-  // Each frame: { b: duration in beats, html: stage content, cls: layer class }
-  // Total ≈ sum(b) beats. At 128 BPM the script below runs ~54s.
-  const T = (cls, html) => ({ cls, html });
+  // Each frame: { b: duration in beats, cls, html, flash? }
+  const T = (cls, html, extra={}) => ({ cls, html, ...extra });
   const FRAMES = [
-    // ACT 1 — the hook: the trust problem, before any single vertical
-    { b:2, ...T('type', `<div class="t anim-rise">Anyone can post</div>`) },
-    { b:2, ...T('type', `<div class="t anim-rise">a <span class="strike">winning</span> screenshot.</div>`) },
-    { b:2, ...T('type', `<div class="t sm anim-pop" style="color:var(--dim)">…after the outcome.</div>`) },
-    { b:2, ...T('type', `<div class="t anim-pop">Predge signs every call</div>`) },
-    { b:3, ...T('type', `<div class="t amber anim-pop">before it.</div>`) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">Not after.</div>`) },
-    { b:2, ...T('type', `<div class="k anim-pop">ed25519</div><div class="kk">signed while the market is still open</div>`) },
-    { b:2, ...T('type', `<div class="t sm amber anim-pop">Tamper-evident<br>by construction.</div>`) },
+    // ACT 1 · HOOK: resolved is not final (beats 0–32, the track's intro)
+    { b:2, ...T('type', `<div class="t anim-rise">A market resolves.</div>`) },
+    { b:2, ...T('type', `<div class="t anim-rise">Someone disputes it.</div>`) },
+    { b:4, ...T('type', `<div class="t sm">Resolved<br><span class="amber">is not final.</span></div>`) },
+    { b:3, ...T('type', `<div class="k big anim-pop" data-count="3005">3,005</div><div class="kk">UMA disputes on Polymarket</div>`) },
+    { b:3, ...T('type', `<div class="k big anim-pop" data-count="2666">2,666</div><div class="kk">markets disputed</div>`) },
+    { b:3, ...T('type', `<div class="k big anim-pop" data-count="323">323</div><div class="kk">disputed twice or more</div><div class="kk w">and sent to a UMA vote</div>`) },
+    { b:4, ...T('type', `<div class="k big amber anim-pop" data-count="33.5" data-dec="1" data-suffix="%">33.5%</div><div class="kk">853 of 2,543 settled disputed markets</div><div class="kk w">settled differently from the disputed proposal</div>`) },
+    { b:3, ...T('type', `<div class="t xs dim anim-pop">1 Jan to 2 Oct 2026</div><div class="src">read on-chain · UMA Optimistic Oracle · Polygon</div>`) },
+    { b:4, ...T('type', `<div class="t sm anim-pop">Predge<br><span class="amber">Settlement Risk.</span></div><div class="kk">signed records of UMA disputes on Polymarket</div>`) },
+    { b:4, ...T('type', `<div class="t sm anim-rise">Know when an outcome<br>is <span class="amber">actually final.</span></div>`) },
 
-    // ACT 2 — breadth: not one market. verifiable intelligence across all of them.
-    { b:2, ...T('type', `<div class="t sm anim-rise">Not just prediction markets.</div>`) },
-    { b:2, ...T('type', `<div class="plat anim-pop">${pmLogo()}<span class="k">Polymarket whales.</span></div>`) },
-    { b:3, ...T('screen', feedScreen()) },
-    { b:3, ...T('screen', kalshiScreen()) },
-    { b:2, ...T('type', `<div class="plat anim-pop">${kalshiLogo()}<span class="k">Kalshi institutional flow.</span></div>`) },
-    { b:3, ...T('screen', sportsScreen()) },
-    { b:2, ...T('type', `<div class="k anim-pop">Sports outcomes.</div>`) },
-    { b:2, ...T('type', `<div class="k anim-pop">On-chain activity.</div>`) },
-    { b:2, ...T('type', `<div class="t sm amber anim-pop">Every signal — signed.</div>`) },
-
-    // ACT 3 — the scale
-    { b:2, ...T('type', `<div class="k anim-pop">1,000,000+</div><div class="kk">smart-money wallets scored</div>`) },
-    { b:3, ...T('type', `<div class="k anim-pop" data-count="15753076">15,700,000</div><div class="kk">signals — every one verifiable</div>`) },
-
-    // ACT 4 — three audiences (agents first — the machine buyer leads)
-    { b:2, ...T('type', `<div class="t sm anim-rise">Agents get an <span class="amber">API.</span></div>`) },
-    { b:3, ...T('screen', termScreen()) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">Pay per call. USDC.<br>No account. No key.</div>`) },
+    // ACT 2 · BREADTH (beats 32–64, from the drop)
+    { b:2, ...T('type', `<div class="plat anim-pop">${pmLogo()}<span class="k">Polymarket</span></div>`, {flash:true}) },
+    { b:2, ...T('type', `<div class="plat anim-pop">${kalshiLogo()}<span class="k">Kalshi</span></div>`) },
+    { b:2, ...T('type', `<div class="k anim-pop" style="font-size:clamp(2rem,7.4vw,7rem);font-weight:700">Sports.</div><div class="sprow">${icoFootball()}${icoSoccer()}${icoBball()}${icoUFC()}</div>`) },
+    { b:4, ...T('screen', appScreen()) },
+    { b:4, ...T('screen', feedScreen()) },
+    { b:2, ...T('type', `<div class="k big anim-pop">2M+</div><div class="kk">wallets tracked</div>`) },
+    { b:2, ...T('type', `<div class="k big anim-pop">1.9M+</div><div class="kk">markets indexed</div>`) },
+    { b:2, ...T('type', `<div class="k big anim-pop" data-count="785300">785,300</div><div class="kk">trades in 24h · app.predge.io, 9 Oct 2026</div>`) },
+    { b:3, ...T('screen', signinScreen()) },
     { b:2, ...T('type', `<div class="t sm anim-rise">Traders get <span class="amber">alerts.</span></div>`) },
     { b:4, ...T('screen', tgScreen()) },
-    { b:3, ...T('screen', appScreen()) },
-    { b:3, ...T('screen', checkerScreen()) },
-    { b:2, ...T('type', `<div class="t sm anim-rise">Business licenses the <span class="amber">proof.</span></div>`) },
+    { b:3, ...T('type', `<div class="t sm anim-pop">Free on Telegram.</div><div class="kk w">Pro · $20 a month · no delay</div>`) },
 
-    // ACT 5 — verify it yourself
-    { b:2, ...T('type', `<div class="t anim-pop">Verify it yourself.</div>`) },
-    { b:2, ...T('type', `<div class="t sm amber anim-pop">Offline.</div>`) },
-    { b:3, ...T('screen', arcscanScreen()) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">You never take<br>our word for it.</div>`) },
-    { b:2, ...T('type', `<div class="t sm anim-rise">We stake on our own calls.</div>`) },
-    { b:3, ...T('screen', stakesScreen()) },
-    { b:2, ...T('type', `<div class="t sm anim-pop">Wrong? <span class="amber">You're refunded.</span></div>`) },
+    // ACT 3 · PROOF (beats 64–94)
+    { b:2, ...T('type', `<div class="t anim-pop">Don't take</div>`) },
+    { b:2, ...T('type', `<div class="t amber anim-pop">our word for it.</div>`) },
+    { b:6, ...T('screen', srScreen()) },
+    { b:2, ...T('type', `<div class="k big anim-pop">ed25519</div><div class="kk">signed by predge.io</div>`) },
+    { b:5, ...T('screen', verifyScreen()) },
+    { b:3, ...T('type', `<div class="t sm amber anim-pop">Verifiable offline.</div>`) },
+    { b:3, ...T('type', `<div class="t sm anim-pop">A published<br>canonicalization spec.</div>`) },
+    { b:4, ...T('type', `<div class="t sm anim-pop">Independently verified<br>by <span class="amber">FairSeal.</span></div>`) },
+    { b:3, ...T('type', `<div class="t xs anim-pop">Every chain fact,<br>re-checkable on any Polygon RPC.</div>`) },
 
-    // ACT 6 — multichain + close
-    { b:2, ...T('type', `<div class="t sm anim-rise">Settling on</div>`) },
+    // ACT 4 · AGENTS (beats 94–114)
+    { b:2, ...T('type', `<div class="t sm anim-rise">Agents get an <span class="amber">API.</span></div>`) },
+    { b:5, ...T('screen', termScreen()) },
+    { b:3, ...T('type', `<div class="t sm anim-pop">Pay per call in USDC.<br>No account. No API key.</div>`) },
+    { b:3, ...T('type', `<div class="k big amber anim-pop">27</div><div class="kk">paid routes</div><div class="kk w">Base · Arc · Solana · Algorand</div>`) },
+    { b:4, ...T('screen', circleScreen()) },
+    { b:3, ...T('type', `<div class="t xs anim-pop">Open source.</div><div class="repos">
+        <div class="repo"><div class="rn"><span>predgeAI/</span>x402-receipts</div><div class="rd">signed payment receipts, offline-verifiable</div></div>
+        <div class="repo"><div class="rn"><span>predgeAI/</span>circle-wallet-x402</div><div class="rd">pay x402 from a Circle wallet, no key held</div></div>
+      </div>`) },
+
+    // ACT 5 · ENFORCEMENT (beats 114–137)
+    { b:2, ...T('type', `<div class="t sm anim-rise">Verdicts backed by a bond</div>`) },
+    { b:2, ...T('type', `<div class="t sm amber anim-pop">you can challenge.</div>`) },
+    { b:5, ...T('screen', arbiterScreen()) },
+    { b:4, ...T('screen', guardScreen()) },
+    { b:4, ...T('screen', validatorScreen()) },
+    { b:3, ...T('type', `<div class="t xs anim-pop">Our fields, added to<br>the <span class="amber">ERC-8434</span> draft.</div>`) },
+    { b:3, ...T('type', `<div class="t xs anim-pop">Circle <span class="amber">Arc</span> accelerator cohort.</div><div class="kk">Demo Day · 9 Nov 2026</div>`) },
+
+    // ACT 6 · CLOSE (beats 137–150)
     { b:4, ...T('type', chainsBand()) },
-    { b:3, ...T('type', `<div class="t sm anim-pop">The smart money,<br><span class="amber">signed before the outcome.</span></div>`) },
-    { b:2, ...T('type', `<div class="t anim-pop">And all of it —</div>`) },
-    { b:2, ...T('type', logoClose()) },
+    { b:3, ...T('type', `<div class="t amber anim-pop">Verify, don't trust.</div>`) },
+    { b:6, ...T('type', logoClose()) },
   ];
 
-  function feedScreen(){return `<div class="screen"><div class="win feed">
-    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · live whale activity</span></div>
-    <div class="big" data-count="15753076">15,700,000</div><div class="lbl">whale trades indexed · signed &amp; verifiable</div>
-    <div class="row"><span class="mk">Bitcoin above $58,000 on Aug 31?</span><span class="s y">YES</span><span class="a">$31,215</span></div>
-    <div class="row"><span class="mk">Strait of Hormuz normal transit?</span><span class="s n">NO</span><span class="a">$39,033</span></div>
-    <div class="row"><span class="mk">Padres vs. Diamondbacks</span><span class="s n">NO</span><span class="a">$65,759</span></div>
-  </div></div>`;}
+  // ── screens ───────────────────────────────────────────────────
+  function L(i, html){ return `<span class="ln" style="--i:${i}">${html}</span>`; }
 
-  function checkerScreen(){return `<div class="screen"><div class="verdict">
-    <div class="a">0x7d83c905…bd7be92</div>
-    <div class="pill">✓ Verified smart money</div>
-    <div class="grid">
-      <div class="c"><div class="l">Win rate · resolved</div><div class="v g">97.5% <small>(≥87.1%)</small></div></div>
-      <div class="c"><div class="l">Edge over price</div><div class="v g">+46.4pp</div></div>
-      <div class="c"><div class="l">Leaderboard rank</div><div class="v">#4 <small>/ 8669</small></div></div>
-      <div class="c"><div class="l">Resolved trades</div><div class="v">40</div></div>
+  function appScreen(){return `<div class="screen"><div class="win appd">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>app.predge.io</b> · Predge Terminal · Dashboard</span></div>
+    <div class="appstats">
+      <div class="ast"><div class="al">Trades 24h</div><div class="av" data-count="785300">785,300</div></div>
+      <div class="ast"><div class="al">Volume 24h</div><div class="av" data-count="43.75" data-dec="2" data-prefix="$" data-suffix="M">$43.75M</div></div>
+      <div class="ast"><div class="al">Active whales</div><div class="av" data-count="83817">83,817</div></div>
+      <div class="ast"><div class="al">Markets tracked</div><div class="av" data-count="1992707">1,992,707</div></div>
     </div>
-    <div class="sg"><span class="ok">✓ signed</span> · ed25519 · verifiable offline</div>
+    <div class="appin">
+      <div class="aih"><span>Hot markets · 24h</span><span>trades · volume</span></div>
+      <div class="airow"><span class="mk">Buccaneers vs. Cowboys</span><span class="n">24</span><span class="pc">$501k</span></div>
+      <div class="airow"><span class="mk">Dota 2: PARIVISION vs Team Yandex (BO3)</span><span class="n">189</span><span class="pc">$380k</span></div>
+      <div class="airow"><span class="mk">Shanghai Rolex Masters: Navone vs Carreno Busta</span><span class="n">93</span><span class="pc">$352k</span></div>
+    </div>
   </div></div>`;}
 
-  function arcscanScreen(){return `<div class="screen"><div class="win">
-    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad">🔒 <b>testnet.arcscan.app</b>/tx/0x42b4692b…</span></div>
-    <div class="body"><pre><span class="cd">Transaction</span>  <span class="cg">● Success</span>
-  <span class="cd">Method</span>  <span class="ca">payForRoute</span>
-  <span class="cd">Value</span>   <span class="ca">0.005 USDC</span> <span class="cd">(native)</span>
-  <span class="cd">▸ Event</span> <span class="ca">Paid</span>(payer, routeHash, amount, requestId)
-       requestId <span class="cd">ec6fa57d…</span>  <span class="cg">← the access credential</span><span class="caret"></span></pre></div>
+  function feedScreen(){return `<div class="screen"><div class="win feed">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>app.predge.io</b> · live whale feed</span></div>
+    <div class="fh"><span class="lv"></span><span>Live feed · Polymarket</span><span>every move, as it lands</span></div>
+    <div class="row"><span class="dir d">▼</span><span class="mk">Full Game: over 49.5 points scored?<small>Wise Whale #10</small></span><span class="a">$23.9k</span><span class="ago">1m ago</span></div>
+    <div class="row"><span class="dir u">▲</span><span class="mk">Cleveland wins<small>Calm Fox #96</small></span><span class="a">$9.0k</span><span class="ago">6m ago</span></div>
+    <div class="row"><span class="dir d">▼</span><span class="mk">Stars vs. Sabres<small>Blind Hawk #96</small></span><span class="a">$7.2k</span><span class="ago">6m ago</span></div>
+    <div class="row"><span class="dir u">▲</span><span class="mk">Spread: Cowboys (-8.5)<small>Silent Hawk #22</small></span><span class="a">$5.2k</span><span class="ago">2m ago</span></div>
+  </div></div>`;}
+
+  function signinScreen(){
+    const o=['Google','Email','Telegram','X','Discord','Farcaster','Passkey','Wallet'];
+    return `<div class="screen"><div class="signin">
+    <img class="swm" src="ad-assets/predge-wordmark.svg" alt="PREDGE.">
+    <div class="st">Sign in to the terminal</div>
+    <div class="opts">${o.map((n,i)=>`<div class="o${i===2||i===7?' hi':''}" style="--i:${i}">${n}</div>`).join('')}</div>
+  </div></div>`;}
+
+  function tgScreen(){return `<div class="screen"><div class="tg">
+    <div class="tgbar"><span class="tgav">P</span><div class="tgid"><div class="tgnm">Predge Alerts</div><div class="tgst">@predge_alerts_bot · bot</div></div></div>
+    <div class="tgbody">
+      <div class="tgmsg watch tgin">
+        <div class="tgtitle"><span class="eye">👁</span> Watching wallet</div>
+        <div class="tgline"><b>Wise Whale #10</b> added to your watchlist</div>
+        <div class="tgfoot">we ping you on every move<span class="tgt">9:41</span></div>
+      </div>
+      <div class="tgmsg tgin2">
+        <div class="tgtitle">🐋 It just moved</div>
+        <div class="tgline"><b>Wise Whale #10</b> · <span class="s n">▼</span> <span class="a">$23,900</span></div>
+        <div class="tgmk">"Full Game: over 49.5 points scored?"</div>
+        <div class="tgfoot"><span class="ok">✓ signed</span> · verify offline<span class="tgt">now</span></div>
+      </div>
+    </div>
+  </div></div>`;}
+
+  // The real, signed settlement-risk record (GET api.predge.io/v1/settlement-risk/1484949, checked 8 Oct 2026).
+  function srScreen(){return `<div class="screen"><div class="verdict">
+    <div class="a">api.predge.io/v1/settlement-risk/<span style="color:#e9ecf1">1484949</span></div>
+    <div class="q">"Netanyahu out by March 31?"</div>
+    <div class="pill">◆ Signed settlement-risk record</div>
+    <div class="grid">
+      <div class="c"><div class="l">Disputes</div><div class="v am">2</div></div>
+      <div class="c"><div class="l">UMA vote</div><div class="v">yes</div></div>
+      <div class="c"><div class="l">UMA state</div><div class="v">settled</div></div>
+      <div class="c"><div class="l">On-chain</div><div class="v g">No</div></div>
+    </div>
+    <div class="tl">
+      ${L(0,`<span class="cd">01 Apr 04:06:47Z</span>  dispute 1 · proposal <span class="ca">No</span>`)}
+      ${L(1,`<span class="cd">01 Apr 04:11:07Z</span>  dispute 2 · proposal <span class="ca">No</span> → <span class="ca">UMA vote</span>`)}
+      ${L(2,`<span class="cd">resolution     </span>  on-chain · <span class="cg">No</span>`)}
+    </div>
+    <div class="sg"><span class="ok">✓ ed25519</span> · kid 13fa3d18a369e6c7 · sig 2fcdb7be88ba…d8406590b</div>
+  </div></div>`;}
+
+  // Offline check of that record: re-canonicalize, verify the ed25519 signature (we ran exactly this).
+  function verifyScreen(){return `<div class="screen"><div class="win">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad">verify · <b>offline, no network</b></span></div>
+    <div class="body">
+      ${L(0,`<span class="cd">$</span> node verify.mjs settlement-risk-1484949.json`)}
+      ${L(1,`  canonical   keys sorted · no whitespace (JCS)   <span class="cg">✓ reproduced</span>`)}
+      ${L(2,`  public key  13fa3d18…c5016352d9 <span class="cd">(predge.io)</span>`)}
+      ${L(3,`  ed25519     signature over canonical bytes      <span class="cg">✓ VALID</span>`)}
+      ${L(4,`  network     <span class="ca">none</span> · verified offline<span class="caret"></span>`)}
+    </div>
   </div></div>`;}
 
   function termScreen(){return `<div class="screen"><div class="win">
-    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad">agent.mjs — <b>x402 → pay → signed data</b></span></div>
-    <div class="body"><pre><span class="cd">GET /v1/whales/latest</span>            <span class="cr">402 Payment Required</span>
-  pay <span class="ca">0.005 USDC</span> → retry with receipt
-<span class="cg">200 OK</span>  BUY_YES $48,212  "Fed cut in Sep 2026?" <span class="cd">score 87</span>
-       <span class="cg">✓ ed25519 signed</span> · verify offline · no API key<span class="caret"></span></pre></div>
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad">agent · <b>x402: pay per call</b></span></div>
+    <div class="body">
+      ${L(0,`<span class="cd">GET</span> api.predge.io/v1/signals/consensus     <span class="cr">402 Payment Required</span>`)}
+      ${L(1,`  accepts   Base · Arc · Solana · Algorand    <span class="ca">0.03 USDC</span>`)}
+      ${L(2,`  pay on <span class="ca">Arc</span>, retry with PAYMENT-SIGNATURE`)}
+      ${L(3,`<span class="cg">200 OK</span>    signed JSON <span class="cg">✓ ed25519</span>`)}
+      ${L(4,`          payment bound into the signed record`)}
+      ${L(5,`          <span class="cd">no account · no API key</span><span class="caret"></span>`)}
+    </div>
   </div></div>`;}
 
-  function kalshiScreen(){return `<div class="screen"><div class="win feed">
-    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · Kalshi institutional flow</span></div>
-    <div class="big" data-count="2413880" data-prefix="$">$2,400,000</div><div class="lbl">large institutional prints today · signed</div>
-    <div class="row"><span class="mk">Fed decision — March FOMC</span><span class="s y">YES</span><span class="a">$412,000</span></div>
-    <div class="row"><span class="mk">CPI above 3.2% in April?</span><span class="s n">NO</span><span class="a">$188,500</span></div>
-    <div class="row"><span class="mk">Government shutdown before Q2?</span><span class="s n">NO</span><span class="a">$96,200</span></div>
+  function circleScreen(){return `<div class="screen"><div class="win">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad">circle-wallet-x402 · <b>agent run</b></span></div>
+    <div class="body">
+      ${L(0,`<span class="cd">wallet</span>   Circle developer-controlled <span class="cd">(key held by Circle)</span>`)}
+      ${L(1,`<span class="cd">agent </span>   holds <span class="ca">no private key</span> · no gas`)}
+      ${L(2,`<span class="cd">GET</span> /v1/whales/latest              <span class="cr">402</span> · <span class="ca">0.005 USDC</span>`)}
+      ${L(3,`  sign via Circle API                   <span class="cg">✓</span>`)}
+      ${L(4,`<span class="cg">200 OK</span>   signed data delivered<span class="caret"></span>`)}
+    </div>
+  </div></div>`;}
+
+  function arbiterScreen(){return `<div class="screen"><div class="verdict">
+    <div class="a">contracts · bonded verdict arbiter</div>
+    <div class="q">A verdict, with a bond behind it.</div>
+    <div class="chips" style="margin-top:1rem"><span class="chip"><b>Arc</b> mainnet</span><span class="chip"><b>Arbitrum</b> One</span><span class="chip"><b>Robinhood</b> Chain</span></div>
+    <div class="tline"><div class="track"></div><div class="fill"></div><div class="dot s"></div><div class="dot e"></div>
+      <div class="lab s">verdict posted</div><div class="lab m">24h dispute window, from the verdict</div><div class="lab e">final</div></div>
+    <div class="tl">
+      ${L(0,`challenge with evidence  →  the arbiter rules`)}
+      ${L(1,`wrong verdict            →  <span class="ca">the bond is slashed</span>`)}
+    </div>
+  </div></div>`;}
+
+  function guardScreen(){return `<div class="screen"><div class="win">
+    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad">Predge Settlement Guard · <b>Solana devnet</b></span></div>
+    <div class="body">
+      ${L(0,`<span class="cd">vault.release</span>  → predge_guard::check_settlement`)}
+      ${L(1,`  market risk    <span class="ca">ESCALATED</span> · 2 disputes · UMA vote`)}
+      ${L(2,`  <span class="cr">✗ Error: MarketEscalated</span>   funds stay locked`)}
+      ${L(3,`<span class="cd">… on-chain resolution final, cooling window passed</span>`)}
+      ${L(4,`<span class="cd">vault.release</span>  <span class="cg">✓ released</span><span class="caret"></span>`)}
+    </div>
+  </div></div>`;}
+
+  function validatorScreen(){return `<div class="screen"><div class="verdict">
+    <div class="a">erc8004-outcome-validator · Monad testnet</div>
+    <div class="q">ERC-8004 outcome validator</div>
+    <div class="pill g">✓ signed verdicts on chain</div>
+    <div class="grid two">
+      <div class="c"><div class="l">Verdicts written</div><div class="v am" data-count="145">145</div></div>
+      <div class="c"><div class="l">Slash demo</div><div class="v">bond <span class="cr">slashed</span></div></div>
+    </div>
+    <div class="sg">verdict contradicts the on-chain commitment → anyone can slash, within 24h of the verdict</div>
   </div></div>`;}
 
   function icoFootball(){return `<svg viewBox="0 0 36 22" class="spi"><ellipse cx="18" cy="11" rx="16" ry="9" fill="#7a4a2b" stroke="#e9ecf1" stroke-width="1.5"/><line x1="12" y1="11" x2="24" y2="11" stroke="#e9ecf1" stroke-width="1.5"/><line x1="15" y1="8.5" x2="15" y2="13.5" stroke="#e9ecf1"/><line x1="18" y1="8" x2="18" y2="14" stroke="#e9ecf1"/><line x1="21" y1="8.5" x2="21" y2="13.5" stroke="#e9ecf1"/></svg>`;}
   function icoSoccer(){return `<svg viewBox="0 0 32 32" class="spi"><circle cx="16" cy="16" r="14" fill="#fff" stroke="#0b0d10" stroke-width="1.5"/><path d="M16 9l5.4 3.9-2 6.4h-6.8l-2-6.4z" fill="#0b0d10"/></svg>`;}
   function icoUFC(){return `<svg viewBox="0 0 32 32" class="spi"><polygon points="10,4 22,4 30,16 22,28 10,28 2,16" fill="none" stroke="#ef5f5f" stroke-width="2.6"/></svg>`;}
   function icoBball(){return `<svg viewBox="0 0 32 32" class="spi"><circle cx="16" cy="16" r="14" fill="#e07b2b" stroke="#0b0d10" stroke-width="1"/><path d="M2 16h28M16 2v28M6.5 6c6 4.5 6 15.5 0 20M25.5 6c-6 4.5-6 15.5 0 20" fill="none" stroke="#0b0d10" stroke-width="1.3"/></svg>`;}
-
-  function sportsScreen(){return `<div class="screen"><div class="win feed">
-    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>predge.io</b> · signed sports outcomes</span></div>
-    <div class="big" data-count="1284">1,180</div><div class="lbl">resolved games attested today · ed25519</div>
-    <div class="sportrow">
-      <span class="spico">${icoFootball()}<b>Super Bowl</b></span>
-      <span class="spico">${icoSoccer()}<b>World Cup</b></span>
-      <span class="spico">${icoUFC()}<b>UFC</b></span>
-      <span class="spico">${icoBball()}<b>NBA Finals</b></span>
-    </div>
-    <div class="row"><span class="mk">Super Bowl — final</span><span class="s y">KC 27–24</span><span class="a">✓ signed</span></div>
-    <div class="row"><span class="mk">World Cup — final</span><span class="s y">3–2 AET</span><span class="a">✓ signed</span></div>
-    <div class="row"><span class="mk">UFC — main event</span><span class="s y">KO · R2</span><span class="a">✓ signed</span></div>
-  </div></div>`;}
-
-  function realScreen(){return `<div class="screen"><video class="realui" src="ad-assets/real-feed.mp4" autoplay loop muted playsinline></video></div>`;}
-
-  function tgScreen(){return `<div class="screen"><div class="tg">
-    <div class="tgbar"><span class="tgav">P</span><div class="tgid"><div class="tgnm">Predge Alerts</div><div class="tgst">bot · online</div></div></div>
-    <div class="tgbody">
-      <div class="tgmsg watch tgin">
-        <div class="tgtitle"><span class="eye">👁</span> Watching wallet</div>
-        <div class="tgline"><b>Steel Whale #53</b> · <span class="a">0x7a3f…e2</span> added to your watchlist</div>
-        <div class="tgfoot">we ping you on every signed move<span class="tgt">9:41</span></div>
-      </div>
-      <div class="tgmsg tgin2">
-        <div class="tgtitle">🐋 It just moved</div>
-        <div class="tgline"><b>Steel Whale #53</b> went <span class="s y">YES</span> · <span class="a">$40,000</span></div>
-        <div class="tgmk">"BTC above $58,000 on Aug 31?"</div>
-        <div class="tgfoot"><span class="ok">✓ signed</span> · verify offline<span class="tgt">now</span></div>
-      </div>
-    </div>
-  </div></div>`;}
-
-  function appScreen(){return `<div class="screen"><div class="win appd">
-    <div class="bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ad"><b>PREDGE</b> terminal · Dashboard</span></div>
-    <div class="appstats">
-      <div class="ast"><div class="al">Trades 24h</div><div class="av" data-count="18432">18,000</div></div>
-      <div class="ast"><div class="al">Volume 24h</div><div class="av" data-count="2410000" data-prefix="$">$2,300,000</div></div>
-      <div class="ast"><div class="al">Active whales</div><div class="av" data-count="214">200</div></div>
-      <div class="ast"><div class="al">Markets</div><div class="av" data-count="3912">3,800</div></div>
-    </div>
-    <div class="appin">
-      <div class="aih">Insider watch · signed flags</div>
-      <div class="airow"><span class="mk">Steel Whale #53 · all-in position</span><span class="s y">▲ $40k</span><span class="pc">100%</span></div>
-      <div class="airow"><span class="mk">Deep Puma #46 · fresh whale</span><span class="s n">▼ $10k</span><span class="pc">100%</span></div>
-      <div class="airow"><span class="mk">Steel Whale #53 · all-in position</span><span class="s y">▲ $12k</span><span class="pc">100%</span></div>
-    </div>
-  </div></div>`;}
-
-  function stakesScreen(){return `<div class="screen"><div class="verdict">
-    <div class="a">signal · content_hash 0x9f2a…c41</div>
-    <div class="pill">◆ Staked $0.02 · skin in the game</div>
-    <div class="grid">
-      <div class="c"><div class="l">If the call is wrong</div><div class="v g">refunded</div></div>
-      <div class="c"><div class="l">If the call is right</div><div class="v">Predge keeps it</div></div>
-    </div>
-    <div class="sg"><span class="ok">✓ signed</span> · capital-safe · ed25519</div>
-  </div></div>`;}
-
   function pmLogo(){return `<svg viewBox="0 0 52 40" class="pico"><rect x="2" y="2" width="48" height="36" rx="7" fill="none" stroke="#e9ecf1" stroke-width="3"/><path d="M9 9L25 20L9 31Z" fill="#e9ecf1"/><path d="M43 9L27 20L43 31Z" fill="#e9ecf1"/></svg>`;}
   function kalshiLogo(){return `<svg viewBox="0 0 40 40" class="pico"><rect width="40" height="40" rx="9" fill="#00C08B"/><path d="M13.5 9v22M13.5 20.5l10.5-11.5M15 21l9.5 10" stroke="#0b0d10" stroke-width="3.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;}
 
   function chainsBand(){return `<div class="chains anim-pop">
+    <div class="clab">Settling and enforcing on</div>
     <div class="clogos">
+      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><path d="M5 37C5 9 13 3 20 3s15 6 15 34h-7.2C27.8 15.5 24 12 20 12s-7.8 3.5-8 25z" fill="#e9ecf1"/></svg>Arc</span>
       <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><circle cx="20" cy="20" r="19" fill="#0052FF"/><rect x="3.5" y="17.6" width="17.5" height="4.8" rx="1" fill="#0c0d10"/></svg>Base</span>
       <span class="clogo"><img class="cico" src="ad-assets/logos/solana.svg" alt="">Solana</span>
-      <span class="clogo"><svg viewBox="0 0 40 40" class="cico"><path d="M5 37C5 9 13 3 20 3s15 6 15 34h-7.2C27.8 15.5 24 12 20 12s-7.8 3.5-8 25z" fill="#e9ecf1"/></svg>Arc</span>
     </div>
-    <div class="csub">+ Bitcoin-L2 · Polygon · ERC-8004 — and beyond</div>
+    <div class="csub"><span class="ci">Arbitrum One</span><span class="d"> · </span><span class="ci">Robinhood Chain</span><span class="d"> · </span><span class="ci">Algorand</span><span class="d"> · </span><span class="ci">Monad testnet</span></div>
   </div>`;}
 
   function logoClose(){return `<div class="logo">
-    <img class="fullwm anim-pop" src="ad-assets/predge-wordmark.svg" alt="PREDGE" style="width:min(760px,62vw);height:auto;">
-    <div class="url anim-rise">predge.io</div>
+    <img class="anim-pop" src="ad-assets/predge-wordmark.svg" alt="PREDGE." style="width:min(760px,64vw);height:auto;">
+    <div class="tag anim-rise">Verify, <em>don't trust.</em></div>
+    <div class="url anim-rise"><b>predge.io</b> · <b>app.predge.io</b><span class="sep"></span><span class="vtx"> · </span><b>@PredgeAI</b></div>
   </div>`;}
 
   // ── ENGINE ────────────────────────────────────────────────────
   const frame = document.getElementById('frame');
+  const flash = document.getElementById('flash');
   document.getElementById('bpmv').textContent = BPM;
   const layers = FRAMES.map(f=>{
     const el=document.createElement('div');
@@ -453,55 +559,62 @@
     frame.appendChild(el);
     return el;
   });
-  // cumulative start time (seconds) of each frame
+  if (AR==='vt') document.querySelectorAll('.vtx').forEach(n=>n.remove());
   const starts=[]; let acc=0;
   FRAMES.forEach(f=>{starts.push(acc); acc+=f.b*BEAT;});
   const TOTAL=acc;
+  window.__ad = { BPM, BEAT, TOTAL, starts, beats: FRAMES.map(f=>f.b), n: FRAMES.length };
 
   let raf=null, t0=0, cur=-1, running=false;
   const clock=document.getElementById('clock');
 
-  // Count a number up to its data-count target over ~1s when its frame opens.
-  function runCountUp(el){
+  // Count-ups: value is a pure function of time-in-frame (so seeking is deterministic).
+  function setCounts(el, dt){
     el.querySelectorAll('[data-count]').forEach(node=>{
-      const target=parseInt(node.getAttribute('data-count'),10);
-      const prefix=node.getAttribute('data-prefix')||'';
-      const start=Math.round(target*0.955); const dur=600; const t0=performance.now();
-      const fmt=n=>prefix+n.toLocaleString('en-US');
-      (function step(now){
-        const p=Math.min(1,(now-t0)/dur);
-        const eased=1-Math.pow(1-p,3);
-        node.textContent=fmt(Math.round(start+(target-start)*eased));
-        if(p<1 && cur>=0 && layers[cur]===el) requestAnimationFrame(step);
-      })(t0);
+      const target=parseFloat(node.getAttribute('data-count'));
+      const dec=parseInt(node.getAttribute('data-dec')||'0',10);
+      const prefix=node.getAttribute('data-prefix')||'', suffix=node.getAttribute('data-suffix')||'';
+      const start=target*0.955, p=Math.min(1,Math.max(0,dt/0.6)), eased=1-Math.pow(1-p,3);
+      const v=start+(target-start)*eased;
+      node.textContent=prefix+v.toLocaleString('en-US',{minimumFractionDigits:dec,maximumFractionDigits:dec})+suffix;
     });
+  }
+  function frameAt(t){
+    let i=starts.length-1;
+    for(let k=0;k<starts.length;k++){ if(t<starts[k]){ i=k-1; break; } }
+    return Math.max(0,Math.min(i,layers.length-1));
   }
   function showFrame(i){
     if(i===cur) return;
     if(cur>=0) layers[cur].classList.remove('on');
     cur=i;
-    if(i>=0 && i<layers.length){
-      // re-trigger entrance animations
-      const el=layers[i];
-      el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
-      runCountUp(el);
-    }
+    const el=layers[i];
+    el.classList.remove('on'); void el.offsetWidth; el.classList.add('on');
   }
+  function flashAt(i, dt){
+    if(!FRAMES[i].flash || dt>0.18){ flash.style.opacity=0; return; }
+    flash.style.opacity = dt<0.018 ? (0.55*dt/0.018) : (0.55*(1-(dt-0.018)/0.162));
+  }
+  // Deterministic seek used by the recorder: pause every CSS animation and set it to the frame-local time.
+  window.__seek = (t)=>{
+    const i=frameAt(t); showFrame(i);
+    const dt=t-starts[i];
+    for(const a of document.getAnimations()){ a.pause(); a.currentTime=dt*1000; }
+    setCounts(layers[i], dt); flashAt(i, dt);
+    return i;
+  };
+
   function tick(now){
     const t=(now-t0)/1000;
-    let i=starts.length-1;
-    for(let k=0;k<starts.length;k++){ if(t<starts[k]){ i=k-1; break; } }
-    if(i<0) i=0;
-    showFrame(Math.min(i,layers.length-1));
+    const i=frameAt(t); showFrame(i);
+    setCounts(layers[i], t-starts[i]); flashAt(i, t-starts[i]);
     clock.textContent=t.toFixed(1)+'s · frame '+(cur+1)+'/'+layers.length;
-    if(t<TOTAL){ raf=requestAnimationFrame(tick); }
-    else{ running=false; }
+    if(t<TOTAL){ raf=requestAnimationFrame(tick); } else { running=false; }
   }
   function play(){
     cancelAnimationFrame(raf); cur=-1; layers.forEach(l=>l.classList.remove('on'));
     running=true; t0=performance.now(); raf=requestAnimationFrame(tick);
   }
-  // 3·2·1·GO count-in synced to the beat, then play
   const count=document.getElementById('count'), countn=document.getElementById('countn');
   function startWithCountIn(){
     if(running) return;
@@ -513,17 +626,14 @@
       else{ clearInterval(iv); count.classList.remove('on'); play(); }
     }, BEAT*1000);
   }
-
   addEventListener('keydown',e=>{
     const k=e.key.toLowerCase();
     if(e.key===' '){ e.preventDefault(); startWithCountIn(); }
-    else if(k==='r'){ e.preventDefault(); play(); }               // instant restart, no count-in
+    else if(k==='r'){ e.preventDefault(); play(); }
     else if(k==='f'){ e.preventDefault(); (document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen()); }
     else if(k==='h'){ e.preventDefault(); document.body.classList.toggle('recording'); }
   });
-
-  // show the opening frame at rest so the stage isn't black before start
-  showFrame(0);
+  showFrame(0); setCounts(layers[0], 1);
 </script>
 </body>
 </html>

@@ -1,177 +1,147 @@
-# Predge — «Don't Blink» ad · frame spec
+# Predge · "Don't Blink" ad v2 · frame spec
 
-Kinetic-typography ad in the Apple "Don't Blink" style. Single self-contained
-`ad.html` played in a headless browser and recorded to mp4. Everything is our
-own pixels — no AI-generated footage, no screen capture.
+Kinetic-typography ad in the Apple "Don't Blink" style. One self-contained
+`ad.html`, rendered frame by frame by `record-ad.mjs`. Everything is our own
+pixels: no AI-generated footage, no screen capture, no AI voice.
 
-- **Length:** ~45.7s · **39 frames** · **93 beats @ 125 BPM** (matched to the track).
-  Note: after adding a beat to the TG frame (#24), frame timings from #25 on shift +~0.5s vs the table below.
-- **Aspect:** 16:9, 1920×1080
-- **Source:** `ad.html` (the whole ad — CSS/JS, all screens, all copy)
-- **Repo:** `predgeAI/predge-arc` (push with `GH_TOKEN=$(gh auth token --user predge-ai)`)
+- **Length:** 69.2 s · **47 frames** · **150 beats @ 130 BPM** (matched to the track).
+- **Aspects:** 16:9 1920x1080 (master), 1:1 1080x1080 (X / LinkedIn), 9:16 1080x1920 (Shorts / Reels). Same cut, layout adapts (`?ar=169|sq|vt`).
+- **Source:** `ad.html` (CSS/JS, all screens, all copy).
+- **v1** (45.7 s, 39 frames, 125 BPM, YouTube xy8P-JVHH8Y) is in git history before this commit.
+- **Repo:** `predgeAI/predge-arc` (push with `GH_TOKEN=$(gh auth token --user predge-ai)`).
 
----
+## What changed from v1
 
-## Frame-by-frame (at 125 BPM; beats × 0.48s)
-
-Legend: `▸` = text card, `▪` = product-screen mockup, **amber** = the amber accent word.
-
-### ACT 1 — the hook: trust problem (0.0–8.2s)
-| # | t | b | frame |
-|---|---|---|---|
-| 1 | 0.0 | 2 | ▸ "Anyone can post" |
-| 2 | 1.0 | 2 | ▸ "a ~~winning~~ screenshot." |
-| 3 | 1.9 | 2 | ▸ "…after the outcome." (dim) |
-| 4 | 2.9 | 2 | ▸ "Predge signs every call" |
-| 5 | 3.8 | 3 | ▸ **"before it."** |
-| 6 | 5.3 | 2 | ▸ "Not after." |
-| 7 | 6.2 | 2 | ▸ "ed25519 — signed while the market is still open" |
-| 8 | 7.2 | 2 | ▸ **"Tamper-evident by construction."** |
-
-### ACT 2 — breadth: not one market (8.2–18.2s)
-| # | t | b | frame |
-|---|---|---|---|
-| 9 | 8.2 | 2 | ▸ "Not just prediction markets." |
-| 10 | 9.1 | 2 | ▸ [Polymarket logo] "Polymarket whales." |
-| 11 | 10.1 | 3 | ▪ **feedScreen** — live whale feed, `15,753,076` count-up |
-| 12 | 11.5 | 3 | ▪ **kalshiScreen** — `$2.41M` count-up institutional prints |
-| 13 | 13.0 | 2 | ▸ [Kalshi logo] "Kalshi institutional flow." |
-| 14 | 13.9 | 3 | ▪ **sportsScreen** — `1,284` + emblems (Super Bowl/World Cup/UFC/NBA) |
-| 15 | 15.4 | 2 | ▸ "Sports outcomes." |
-| 16 | 16.3 | 2 | ▸ "On-chain activity." |
-| 17 | 17.3 | 2 | ▸ **"Every signal — signed."** |
-
-### ACT 3 — the scale (18.2–20.6s)
-| # | t | b | frame |
-|---|---|---|---|
-| 18 | 18.2 | 2 | ▸ "1,000,000+ smart-money wallets scored" |
-| 19 | 19.2 | 3 | ▸ `15,700,000` count-up — "signals — every one verifiable" |
-
-### ACT 4 — three audiences, agents first (20.6–30.2s)
-| # | t | b | frame |
-|---|---|---|---|
-| 20 | 20.6 | 2 | ▸ **"Agents get an API."** |
-| 21 | 21.6 | 3 | ▪ **termScreen** — x402: 402 → pay USDC → signed data |
-| 22 | 23.0 | 2 | ▸ "Pay per call. USDC. No account. No key." |
-| 23 | 24.0 | 2 | ▸ **"Traders get alerts."** |
-| 24 | 25.0 | 4 | ▪ **tgScreen** — Telegram "Predge Alerts" bot, 2 bubbles: 👁 *Watching wallet* (Steel Whale #53 · 0x7a3f…e2 added to watchlist) → 🐋 *It just moved* (YES $40k, signed) |
-| 25 | 26.4 | 3 | ▪ **appScreen** — terminal dashboard, 24h stats count-up + insider watch |
-| 26 | 27.8 | 3 | ▪ **checkerScreen** — wallet verdict (win-rate, edge, signed) |
-| 27 | 29.3 | 2 | ▸ **"Business licenses the proof."** |
-
-### ACT 5 — verify + skin in the game (30.2–37.9s)
-| # | t | b | frame |
-|---|---|---|---|
-| 28 | 30.2 | 2 | ▸ "Verify it yourself." |
-| 29 | 31.2 | 2 | ▸ **"Offline."** |
-| 30 | 32.2 | 3 | ▪ **arcscanScreen** — Paid event = the access credential |
-| 31 | 33.6 | 2 | ▸ "You never take our word for it." |
-| 32 | 34.6 | 2 | ▸ "We stake on our own calls." |
-| 33 | 35.5 | 3 | ▪ **stakesScreen** — staked signal: wrong→refunded, right→Predge keeps (capital-safe) |
-| 34 | 37.0 | 2 | ▸ **"Wrong? You're refunded."** |
-
-### ACT 6 — multichain + close (37.9–44.2s)
-| # | t | b | frame |
-|---|---|---|---|
-| 35 | 37.9 | 2 | ▸ "Settling on" |
-| 36 | 38.9 | 4 | ▸ **chainsBand** — Base · Solana · Arc + Bitcoin-L2 · Polygon · ERC-8004 |
-| 37 | 40.8 | 3 | ▸ **"The smart money, signed before the outcome."** |
-| 38 | 42.2 | 2 | ▸ "And all of it —" |
-| 39 | 43.2 | 2 | ▸ **logoClose** — "PREDGE." wordmark + predge.io (hard cut) |
+- New lead: Settlement Risk ("resolved is not final") with the verified UMA dispute numbers.
+- New surfaces: app.predge.io terminal (live stats, hot markets, live feed), sign-in options, the signed settlement-risk record for market 1484949 and its offline check, Circle wallet x402, bonded arbiter, Solana Settlement Guard, ERC-8004 validator, open-source repos, ERC-8434, Circle Arc cohort.
+- Removed: the checker card with win-rate and edge; the `15,700,000 signals` count-up; "We stake on our own calls" / "Wrong? You're refunded" (live bonds are 0 today; we say "Verdicts backed by a bond you can challenge"); v1 copy with em dashes.
+- Copy rules held: no em dashes on screen; never "flipped", "edited rules", "payout", "markets settle wrong"; no customer or revenue claims.
+- Rendering: real-time `recordVideo` replaced with a deterministic seek (`window.__seek(t)`) + screenshot per frame piped to ffmpeg at exactly 30 fps.
 
 ---
 
-## Product-screen mockups (all CSS in `ad.html`, no personal data)
+## Frame-by-frame (130 BPM; 1 beat = 0.4615 s)
 
-| function | shows | live animation |
-|---|---|---|
-| `feedScreen` | predge.io live whale feed | `15,753,076` count-up, rows stagger, live dot |
-| `kalshiScreen` | Kalshi institutional flow | `$2.41M` count-up |
-| `sportsScreen` | signed sports outcomes | `1,284` count-up, emblem row pops in |
-| `termScreen` | agent.mjs x402 loop | blinking caret |
-| `tgScreen` | Telegram "Predge Alerts" bot — wallet-watch → signed alert | two bubbles slide in (2nd delayed .55s) |
-| `appScreen` | terminal dashboard | 4 stats count-up, insider rows stagger |
-| `checkerScreen` | wallet verdict card | pill pop, value glow |
-| `arcscanScreen` | Arc Paid receipt | blinking caret |
-| `stakesScreen` | staked signal (skin in the game) | value glow |
-| `chainsBand` | multichain close | logo row pop |
+Legend: `▸` text card, `▪` product-screen mockup, **bold** = amber accent.
+
+### ACT 1 · Hook: resolved is not final (0.00–14.77 s, the track's intro)
+| # | t | b | frame | source |
+|---|---|---|---|---|
+| 1 | 0.00 | 2 | ▸ "A market resolves." | |
+| 2 | 0.92 | 2 | ▸ "Someone disputes it." | |
+| 3 | 1.85 | 4 | ▸ "Resolved **is not final.**" | |
+| 4 | 3.69 | 3 | ▸ `3,005` count-up · UMA disputes on Polymarket | settlement-risk verify 04.10 (RECOMPUTE.md); `context` block of api.predge.io/v1/settlement-risk |
+| 5 | 5.08 | 3 | ▸ `2,666` · markets disputed | same |
+| 6 | 6.46 | 3 | ▸ `323` · disputed twice or more, and sent to a UMA vote | same |
+| 7 | 7.85 | 4 | ▸ **`33.5%`** · 853 of 2,543 settled disputed markets settled differently from the disputed proposal | same |
+| 8 | 9.69 | 3 | ▸ "1 Jan to 2 Oct 2026" · read on-chain · UMA Optimistic Oracle · Polygon | same |
+| 9 | 11.08 | 4 | ▸ "Predge **Settlement Risk.**" · signed records of UMA disputes on Polymarket | |
+| 10 | 12.92 | 4 | ▸ "Know when an outcome is **actually final.**" | predge-solana-guard README tagline |
+
+### ACT 2 · Breadth (14.77–29.54 s, from the drop; white flash on frame 11)
+| # | t | b | frame | source |
+|---|---|---|---|---|
+| 11 | 14.77 | 2 | ▸ [Polymarket glyph] Polymarket | |
+| 12 | 15.69 | 2 | ▸ [Kalshi glyph] Kalshi | api.predge.io Kalshi routes |
+| 13 | 16.62 | 2 | ▸ Sports. + 4 generic sport glyphs | `/v1/sports/attest` route |
+| 14 | 17.54 | 4 | ▪ **appScreen**: app.predge.io dashboard · Trades 24h 785,300 · Volume 24h $43.75M · Active whales 83,817 · Markets tracked 1,992,707 · Hot markets 24h (3 real rows) | app.predge.io, read 9 Oct 2026 (API snapshot 8 Oct: 783,623 / $43.76M / 83,659 / 1,991,893) |
+| 15 | 19.38 | 4 | ▪ **feedScreen**: live whale feed, 4 real rows (aliases as shown in the app) | app.predge.io live feed, 9 Oct 2026 |
+| 16 | 21.23 | 2 | ▸ `2M+` · wallets tracked | predge.io homepage |
+| 17 | 22.15 | 2 | ▸ `1.9M+` · markets indexed | predge.io homepage; /api/stats/global `markets_active` 1,991,893 |
+| 18 | 23.08 | 2 | ▸ `785,300` · trades in 24h · app.predge.io, 9 Oct 2026 | app.predge.io dashboard (dated snapshot) |
+| 19 | 24.00 | 3 | ▪ **signinScreen**: Google · Email · Telegram · X · Discord · Farcaster · Passkey · Wallet | app.predge.io sign-in card |
+| 20 | 25.38 | 2 | ▸ "Traders get **alerts.**" | |
+| 21 | 26.31 | 4 | ▪ **tgScreen**: @predge_alerts_bot · watch wallet → it just moved ($23,900) | bot handle from api.predge.io description |
+| 22 | 28.15 | 3 | ▸ "Free on Telegram." · Pro · $20 a month · no delay | predge.io pricing |
+
+### ACT 3 · Proof (29.54–43.38 s)
+| # | t | b | frame | source |
+|---|---|---|---|---|
+| 23 | 29.54 | 2 | ▸ "Don't take" | |
+| 24 | 30.46 | 2 | ▸ **"our word for it."** | |
+| 25 | 31.38 | 6 | ▪ **srScreen**: signed record, market 1484949 "Netanyahu out by March 31?" · disputes 2 · UMA vote yes · UMA state settled · on-chain No · dispute times · kid 13fa3d18a369e6c7 · sig prefix/suffix | GET api.predge.io/v1/settlement-risk/1484949, checked 8 Oct 2026 |
+| 26 | 34.15 | 2 | ▸ `ed25519` · signed by predge.io | |
+| 27 | 35.08 | 5 | ▪ **verifyScreen**: re-canonicalize (keys sorted, no whitespace) → ed25519 VALID, no network | we ran this check on that exact record with Node crypto: signature valid |
+| 28 | 37.38 | 3 | ▸ **"Verifiable offline."** | |
+| 29 | 38.77 | 3 | ▸ "A published canonicalization spec." | `verify` field of every record; x402-receipts spec |
+| 30 | 40.15 | 4 | ▸ "Independently verified by **FairSeal.**" | owner brief (not re-checked here) |
+| 31 | 42.00 | 3 | ▸ "Every chain fact, re-checkable on any Polygon RPC." | `data_basis` of the record |
+
+### ACT 4 · Agents (43.38–52.62 s)
+| # | t | b | frame | source |
+|---|---|---|---|---|
+| 32 | 43.38 | 2 | ▸ "Agents get an **API.**" | |
+| 33 | 44.31 | 5 | ▪ **termScreen**: GET /v1/signals/consensus → 402 · accepts Base · Arc · Solana · Algorand · 0.03 USDC → pay on Arc → 200 signed JSON, payment bound into the signed record | api.predge.io root (`networks`, prices); record `verify` text on `payload.payment` |
+| 34 | 46.62 | 3 | ▸ "Pay per call in USDC. No account. No API key." | |
+| 35 | 48.00 | 3 | ▸ **`27`** · paid routes · Base · Arc · Solana · Algorand | api.predge.io root: 29 routes, 2 free |
+| 36 | 49.38 | 4 | ▪ **circleScreen**: Circle developer-controlled wallet, agent holds no key and no gas, 402 → sign via Circle API → 200 | predgeAI/circle-wallet-x402 |
+| 37 | 51.23 | 3 | ▸ "Open source." · predgeAI/x402-receipts · predgeAI/circle-wallet-x402 | public GitHub repos |
+
+### ACT 5 · Enforcement (52.62–63.23 s)
+| # | t | b | frame | source |
+|---|---|---|---|---|
+| 38 | 52.62 | 2 | ▸ "Verdicts backed by a bond" | |
+| 39 | 53.54 | 2 | ▸ **"you can challenge."** | |
+| 40 | 54.46 | 5 | ▪ **arbiterScreen**: Arc mainnet · Arbitrum One · Robinhood Chain · 24h dispute window from the verdict · challenge with evidence → arbiter rules · wrong verdict → bond slashed | contract deploys (03.10 audit); bond on Arbitrum One has code on chain |
+| 41 | 56.77 | 4 | ▪ **guardScreen**: Solana devnet · vault.release → check_settlement → `MarketEscalated`, funds locked → after final + cooling → released | predgeAI/predge-solana-guard README (error names are real) |
+| 42 | 58.62 | 4 | ▪ **validatorScreen**: ERC-8004 outcome validator · Monad testnet · 145 verdicts · slash demo | owner brief (145); erc8004-outcome-validator README (24h window, slashable) |
+| 43 | 60.46 | 3 | ▸ "Our fields, added to the **ERC-8434** draft." | owner brief |
+| 44 | 61.85 | 3 | ▸ "Circle **Arc** accelerator cohort." · Demo Day · 9 Nov 2026 | owner brief |
+
+### ACT 6 · Close (63.23–69.23 s)
+| # | t | b | frame |
+|---|---|---|---|
+| 45 | 63.23 | 4 | ▸ **chainsBand**: "Settling and enforcing on" Arc · Base · Solana + Arbitrum One · Robinhood Chain · Algorand · Monad testnet |
+| 46 | 65.08 | 3 | ▸ **"Verify, don't trust."** |
+| 47 | 66.46 | 6 | ▸ **logoClose**: PREDGE. wordmark (SVG) · "Verify, don't trust." · predge.io · app.predge.io · @PredgeAI. Music hard-cuts here; ~2.8 s hold in silence. |
+
+Section starts sit on the track's phrase changes: drop at beat 32, phrases at 64 and 96.
+
+---
 
 ## Logos
 
-- **Canonical wordmark** — the **real predge.io header logotype**: **Syne ExtraBold**,
-  `PREDGE` in amber `#f5a623` + `.` in `#e8e8f0`.
-  - `ad-assets/predge-wordmark.svg` — **primary**, Syne outlined to `<path>` curves
-    (font-independent, scalable). Used in `logoClose` (final frame) + the thumbnail.
-  - `ad-assets/predge-wordmark.png` — raster export (transparent, 5084×736) for
-    places that need a bitmap.
-  - **Always use these files for the wordmark** — never retype it in another font.
-    Regenerate the outline: instantiate `Syne[wght].ttf` at wght=800 in a clean
-    arm64 fonttools venv, draw glyphs `PREDGE.` with SVGPathPen (+.01em tracking).
-- **Official SVGs** (in `ad-assets/logos/`): Solana, Polygon, Bitcoin.
-- **Rebuilt SVGs** (inline in `ad.html`, brand-accurate from the owner's references):
-  Base (circle+bar), Arc (arch), Polymarket (bowtie), Kalshi (green mark).
-- **Sport emblems** (inline): american football, soccer ball, UFC octagon,
-  basketball — generic sport glyphs, **no NFL/FIFA/UFC trademarks**.
-- To swap in exact official files: drop `base.svg` / `polymarket.svg` /
-  `kalshi.svg` / `arc.svg` in `ad-assets/logos/` and point the mockups at them.
+- **Wordmark:** always `ad-assets/predge-wordmark.svg` (Syne ExtraBold outlined). Never retype it.
+- **Official SVGs** in `ad-assets/logos/`: Solana (used), Polygon, Bitcoin.
+- **Rebuilt inline:** Base, Arc, Polymarket, Kalshi (as v1). Arbitrum, Robinhood Chain, Algorand, Monad appear as text only.
+- **Sport emblems:** generic glyphs, no league trademarks.
 
 ## Audio
 
-- **Tiger Rhythm — Surkin**, 125 BPM, used **under the owner's written permission**.
-- File `ad-audio/tiger.mp3` and the music cut `predge-ad-music.mp4` are
-  **gitignored** — the public repo stays music-free (permission covers the
-  owner, not open redistribution). Music starts at the **drop (4.0s)**.
-- **TG notification SFX** — `ad-audio/tg-notify.mp3` (gitignored), a Telegram
-  "message received" ding, mixed in at **~25.5s** (when the tgScreen bot appears,
-  right after "Traders get alerts"). Mixed with `normalize=0` so the music bed
-  doesn't duck; `alimiter` prevents clipping.
-- **Punch ending** — the music **hard-stops (~50ms cut) at ~44.15s**, exactly as
-  the final **PREDGE** logo punches in; the logo then holds ~1.5s in silence.
-  (These timestamps are tied to the current recording's lead-in — if frames move,
-  re-derive with the frame-montage method: `ffmpeg -ss T -i predge-ad.mp4 -vf fps=10,tile`.)
+- **"Techno" by AtlasAudio** (Pixabay), 130 BPM, Pixabay Content License, no Content ID badge. Details and hash: `ad-assets/MUSIC-LICENSE.md`.
+- File: `ad-audio/atlasaudio-techno-606278.mp3` (gitignored: the license does not allow redistributing the audio by itself).
+- Sync: video t=0 = track 0.495 s (track beat 1). Track drop (beat 33) lands on video beat 32 = 14.77 s.
+- **Punch ending:** music hard-stops (50 ms fade) at 66.46 s, exactly as the logo cuts in.
+- No voice, no sound effects (the v1 Telegram ding is not used).
 
----
-
-## Pipeline (regenerate the video)
+## Pipeline
 
 ```bash
 cd predge-arc
-node record-ad.mjs                       # plays ad.html headless → rec/*.webm
-WEBM=$(ls rec/*.webm | head -1)
-# silent cut (committed):
-ffmpeg -y -i "$WEBM" -an -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 18 -r 30 -movflags +faststart predge-ad.mp4
-# music cut (owner only, gitignored) — Tiger from the drop + TG ding + punch ending.
-# DING_MS = tgScreen onset in ms (~25500). CUT = logo onset − ~0.05s (~44.15). Re-derive both via frame montage if the cut changes.
-ffmpeg -y -i "$WEBM" -ss 4.0 -i ad-audio/tiger.mp3 -i ad-audio/tg-notify.mp3 \
-  -filter_complex "[1:a]afade=t=in:st=0:d=0.2,afade=t=out:st=<CUT>:d=0.05[m]; \
-    [2:a]adelay=<DING_MS>|<DING_MS>,volume=0.95[ding]; \
-    [m][ding]amix=inputs=2:duration=first:normalize=0,alimiter=limit=0.98[a]" \
-  -map 0:v:0 -map "[a]" -c:v libx264 -profile:v high -pix_fmt yuv420p -crf 18 -r 30 \
-  -c:a aac -b:a 192k -shortest -movflags +faststart predge-ad-music.mp4
+node record-ad.mjs 169            # → rec/ad-169.mp4 (silent, 1920x1080, 30 fps)
+node record-ad.mjs sq             # → rec/ad-sq.mp4  (1080x1080)
+node record-ad.mjs vt             # → rec/ad-vt.mp4  (1080x1920)
+node record-ad.mjs 169 grid       # → rec/grid-169/NN.png, one still per cut, for review
+# mux (same for each aspect):
+ffmpeg -y -i rec/ad-169.mp4 -ss 0.495 -i ad-audio/atlasaudio-techno-606278.mp3 \
+  -filter_complex "[1:a]atrim=0:66.46,afade=t=out:st=66.41:d=0.05,apad,alimiter=limit=0.97[a]" \
+  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 192k -shortest -movflags +faststart predge-intro-v2.mp4
 ```
 
-`DURATION_MS` in `record-ad.mjs` must be ≥ the ad length (`~ Σbeats × 0.48s`).
+Run heavy renders with `taskpolicy -b nice -n 10` (the recorder already caps ffmpeg at 3 threads).
+Env overrides: `PLAYWRIGHT` (path to playwright `index.js`), `CHROME` (browser executable).
 
 ## How to edit
 
-- **Copy / order / add a frame:** the `FRAMES` array in `ad.html`. Each entry is
-  `{ b: <beats>, ...T('type'|'screen', <html>) }`.
-- **Tempo:** `const BPM` (retimes the whole cut; keep it = the track's BPM).
-- **A cut's duration:** its `b` (beats). Screens want ≥3 for the count-up to read.
-- **A screen's content:** its `*Screen()` function.
-- **Entrances:** `punch` (type) / `screenIn` (screens) keyframes — kept blur-free
-  and opacity-instant so fast cuts don't smear or flash black.
-
-## Adding new-functionality frames later
-
-1. Write a `newFeatureScreen()` mockup function (copy an existing one's structure).
-2. Insert `{ b:3, ...T('screen', newFeatureScreen()) }` into the right ACT in `FRAMES`.
-3. Add a lead-in text card if needed.
-4. Re-run the pipeline. Check length stays ≲60s; nudge other `b` values down if tight.
+- **Copy / order / add a frame:** the `FRAMES` array in `ad.html`: `{ b:<beats>, ...T('type'|'screen', <html>) }`.
+- **Tempo:** `const BPM`. If you change the track, re-measure BPM and the downbeat offset and move the drop.
+- **Count-ups:** `data-count` (+ `data-dec`, `data-prefix`, `data-suffix`); value is a function of time, so seeks are exact.
+- **Terminal lines:** wrap each in `L(i, html)`; line i appears at i × 0.32 s.
+- **Stats** are dated snapshots. Before re-rendering, re-read https://predge.io/api/stats/global and app.predge.io and update frames 14 and 18.
 
 ## Guardrails
 
-- Push only to `predgeAI` (never `latcomblockchain`); commit author = predge-ai noreply.
-- Never commit `tiger.mp3` / `predge-ad-music.mp4` (licensed track).
-- Mockups must carry **no personal data** (no real email / account).
-- Sport/partner emblems: generic glyphs unless the owner supplies licensed files.
+- Push only to `predgeAI`; commit author = Predge noreply (predge-ai). No AI attribution anywhere.
+- Never commit audio files (`ad-audio/` is gitignored).
+- Mockups carry no personal data: wallet aliases only, no addresses of people, no emails.
+- On-screen copy: no em dashes; no win-rate or edge claims; no "flipped", "edited rules", "payout", "markets settle wrong"; no customer or revenue claims.
