@@ -36,8 +36,8 @@ html,body{width:__W__px;height:__H__px;}
 .tshot .bar{margin-top:40px;width:1100px;max-width:100%;height:26px;border-radius:13px;background:rgba(0,0,0,.14);overflow:hidden;}
 .tshot .bar i{display:block;width:33.5%;height:100%;background:#0B0B0D;transform-origin:0 50%;}
 .tshot .chips{display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center;}
-.tshot .persona{height:130px;font-size:68px;padding:0 54px 0 30px;border-radius:65px;gap:24px;margin:0;}
-.tshot .persona i{width:76px;height:76px;} .tshot .persona i svg{width:40px;height:40px;}
+.tshot .persona{height:160px;font-size:88px;padding:0 64px 0 36px;border-radius:80px;gap:28px;margin:0;}
+.tshot .persona i{width:96px;height:96px;} .tshot .persona i svg{width:52px;height:52px;}
 .tshot .persona.soon{padding:0 40px;}
 .tshot .cc{height:110px;padding:0 44px 0 28px;border-radius:55px;background:#fff;border:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:18px;font-size:48px;font-weight:800;}
 .tshot .cc i{width:44px;height:44px;border-radius:50%;}
@@ -64,19 +64,30 @@ html,body{width:__W__px;height:__H__px;}
 .ar-vt .tshot.xl .t{font-size:180px;} .ar-vt .tshot.l .t{font-size:120px;} .ar-vt .tshot.m .t{font-size:88px;} .ar-vt .tshot.s .t{font-size:46px;}
 .ar-sq .tshot.n .t.num{font-size:220px;} .ar-vt .tshot.n .t.num{font-size:250px;}
 .ar-sq .tshot.n .lab{font-size:44px;} .ar-vt .tshot.n .lab{font-size:54px;}
-.ar-sq .tshot .persona,.ar-vt .tshot .persona{height:96px;font-size:48px;}
+.ar-sq .tshot .persona,.ar-vt .tshot .persona{height:110px;font-size:56px;}
+.ar-sq .tshot .persona i,.ar-vt .tshot .persona i{width:66px;height:66px;}
 .ar-sq .tshot .cc,.ar-vt .tshot .cc{height:84px;font-size:40px;}
 .ar-sq .tshot .wm,.ar-vt .tshot .wm{width:900px;}
 .ar-sq .tshot .tag{font-size:40px;} .ar-vt .tshot .tag{font-size:46px;}
 .ar-sq .tshot .urls,.ar-vt .tshot .urls{flex-direction:column;gap:12px;font-size:40px;} .ar-sq .tshot .urls i,.ar-vt .tshot .urls i{display:none;}
 .ar-sq .illus,.ar-vt .illus{right:30px;bottom:24px;font-size:15px;}
+/* r4: one black ground for the whole film */
+.tshot .t,.tshot.n .lab{color:#F4F2EC;}
+.tshot .t em{color:var(--amber);}
+.tshot.amber .t.num{color:var(--amber);}
+.tshot .bar{background:rgba(255,255,255,.14);} .tshot .bar i{background:var(--amber);}
+.tshot .foot{margin-top:40px;font-family:var(--mono);font-size:30px;color:#9A9DA6;letter-spacing:.01em;}
+.ar-sq .tshot .foot,.ar-vt .tshot .foot{font-size:24px;}
+.panel{border-color:rgba(255,255,255,.16);box-shadow:0 40px 120px -20px rgba(245,166,35,.10),0 0 0 1px rgba(255,255,255,.04);}
+.phone{box-shadow:0 0 0 2px #2A2C31 inset,0 40px 120px -20px rgba(245,166,35,.12);}
+.illus{color:#8A8F9A;}
+.keycap.big{box-shadow:0 24px 0 #8f8b80,0 60px 90px rgba(0,0,0,.5);}
 </style>
 </head>
 <body>
 <div id="root" class="ar-__AR__" data-composition-id="main" data-start="0" data-duration="__TOTAL__" data-width="__W__" data-height="__H__">
  <div id="stage" class="clip" data-start="0" data-duration="__TOTAL__" data-track-index="0">
   <div class="bgl" id="bgD"><div class="dark-bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="leak"></div><div class="vign"></div><div class="grain"></div></div></div>
-  <div class="bgl" id="bgL"><div class="light-bg"><div class="gridlines"></div><div class="lightwash"></div></div></div>
 
   <div class="layer ul" id="Lmcard"><div class="punch"><div class="lcam"><div class="panel mcard" id="mcard">
         <div class="mc-body">
@@ -210,154 +221,89 @@ const ICON = {
 const persona = (k, label, soon) => `<div class="chips"><div class="persona"><i>${ICON[k]}</i>${label}</div>${soon ? '<div class="persona soon">Coming soon</div>' : ""}</div>`;
 
 /* ── THE SHOT LIST ───────────────────────────────────────────────────────────
-   [beat, kind, spec]. A shot runs until the next shot's beat (hard cut).
-   T = type shot {bg: L paper | K ink | A amber | D dark mesh, size, html}; <b> = the part that slams in.
-   N = number shot {bg, num, to, dec, suf, lab}; U = UI shot {layer, focus: selectors | null, act}.  */
-const T = (b, bg, size, html) => [b, "T", { bg, size, html }];
-const N = (b, bg, num, lab, count) => [b, "N", { bg, num, lab, count }];
-const U = (b, layer, focus, act, o) => [b, "U", Object.assign({ layer, focus, act }, o || {})];
+   [beat, kind, spec]. A shot runs until the next shot's beat (hard cut). One black ground for
+   the whole film; amber only as an accent. Default shot 2 beats, a full bar for long lines and UI.
+   T = type {size, html, steps}: each <b> builds in on its step (beats from the cut), nothing is replaced.
+   N = number {num, lab, count}. U = UI {layer, focus: selectors | null (whole panel), acts: [[beat offset, action]]}. */
+const T = (b, size, html, steps) => [b, "T", { size, html, steps }];
+const N = (b, num, lab, count, o) => [b, "N", Object.assign({ num, lab, count }, o || {})];
+const U = (b, layer, focus, acts, o) => [b, "U", Object.assign({ layer, focus, acts }, o || {})];
 const S = [
-  // INTRO (track intro, beats 0 to 8)
-  [0, "T", { bg: "D", size: "m", html: `<div class="wm">${WM}</div>`, arrive: true }],
-  T(2, "D", "l", "<b>Know</b>"),
-  T(3, "D", "l", "Know <b>when an outcome</b>"),
-  T(4, "D", "l", "Know when an outcome <b>is actually</b>"),
-  T(5, "D", "l", "Know when an outcome is actually <b><em>final.</em></b>"),
-  [6, "T", { bg: "D", size: "m", html: `<div class="wm">${WM}</div><div class="tag">Settlement risk for <em>prediction markets.</em></div>` }],
-  // DROP 1 (beat 8): the hook, half-beat snaps on the words
-  T(8, "L", "xl", "A <b>market</b>"),
-  T(8.5, "L", "xl", "A market <b>resolves.</b>"),
-  U(9, "Lmcard", null, "prop"),
-  U(10, "Lmcard", ["#stProp", "#winbar"], null),
-  T(11, "K", "xl", "<b>Someone</b>"),
-  T(11.5, "K", "xl", "Someone <b>disputes it.</b>"),
-  U(12, "Lmcard", null, "disp"),
-  U(13, "Lmcard", ["#stDisp"], null),
-  T(14, "L", "xl", "<b>Resolved</b>"),
-  T(14.5, "L", "xl", "Resolved <b>is not</b>"),
-  T(15, "A", "xl", "Resolved is not <b><em>final.</em></b>"),
-  U(16, "Lmcard", ["#stFinal"], "final"),
-  U(17, "Lmcard", null, null),
-  T(18, "L", "l", "<b>Predge</b>"),
-  T(19, "L", "l", "Predge <b>reads the dispute</b>"),
-  T(20, "L", "l", "Predge reads the dispute <b><em>on-chain.</em></b>"),
-  U(21, "Lgraph", null, "gin"),
-  U(22, "Lgraph", null, "ghub"),
-  U(23, "Lgraph", null, "gout"),
-  U(24, "Lgraph", ["#o1", "#o2", "#o3", "#o4"], null),
-  T(25, "L", "xl", "<b>Signed.</b>"),
-  T(26, "K", "m", "<b>Re-checkable</b> on any Polygon RPC."),
-  T(27, "L", "l", "<b>Verifiable <em>offline.</em></b>"),
-  // BREAK (beats 28 to 32)
-  T(28, "D", "xl", "<b>How</b>"),
-  T(29, "D", "xl", "How <b>often</b>"),
-  T(30, "D", "xl", "How often <b>does this</b>"),
-  T(31, "D", "xl", "How often does this <b><em>happen?</em></b>"),
-  // DROP 2 (beat 32): the numbers, half-beat snaps
-  N(32, "L", "3,005", "", [0, 3005]),
-  N(32.5, "L", "3,005", "<b>UMA disputes</b>"),
-  N(33, "L", "3,005", "UMA disputes <b>on Polymarket.</b>"),
-  N(34, "K", "2,666", "", [0, 2666]),
-  N(34.5, "K", "2,666", "<b>markets disputed.</b>"),
-  N(36, "L", "323", "", [0, 323]),
-  N(36.5, "L", "323", "<b>disputed twice or more</b>"),
-  N(37, "L", "323", "disputed twice or more <b>and sent to a UMA vote.</b>"),
-  T(39, "K", "l", "<b>853 of 2,543</b>"),
-  T(39.5, "K", "l", "853 of 2,543 <b>settled disputed markets</b>"),
-  T(40, "K", "m", "853 of 2,543 settled disputed markets <b><em>settled differently from the disputed proposal.</em></b>"),
-  [41, "N", { bg: "A", num: "33.5%", lab: "", count: [0, 33.5, 1, "%"], bar: true }],
-  T(42.5, "L", "s", "<b>1 Jan to 2 Oct 2026</b> · read on-chain · UMA Optimistic Oracle · Polygon"),
+  // INTRO (track intro)
+  [0, "T", { size: "m", html: `<div class="wm">${WM}</div>`, arrive: true }],
+  T(4, "xl", "<b>Settlement risk</b> <b>for <em>prediction markets.</em></b>", [0, 1]),
+  // DROP 1: the hook
+  T(8, "xl", "<b>A market resolves.</b>"),
+  U(10, "Lmcard", null, [[0, "prop"]]),
+  U(12, "Lmcard", null, [[0, "disp"]]),
+  T(14, "xl", "<b>Someone disputes it.</b>"),
+  U(16, "Lmcard", ["#stDisp"], [], { narrow: ["#stDisp .sdot", "#stDisp b"] }),
+  T(18, "xl", "<b>Resolved</b> <b>is <em>not final.</em></b>", [0, 1]),
+  U(22, "Lmcard", ["#stFinal"], [[0, "final"]]),
+  T(24, "xl", "<b>Predge reads the dispute</b> <b><em>on-chain.</em></b>", [0, 1]),
+  U(28, "Lgraph", null, [[0, "gin"], [1, "ghub"]]),
+  U(30, "Lgraph", null, [[0, "gout"]]),
+  // DROP 2: the numbers
+  N(32, "3,005", "UMA disputes on Polymarket.", [0, 3005]),
+  N(34, "2,666", "markets disputed.", [0, 2666]),
+  N(36, "323", "disputed twice or more", [0, 323]),
+  N(38, "323", "sent to a UMA vote."),
+  N(40, "33.5%", "of settled disputed markets", [0, 33.5, 1, "%"], { amber: true, bar: true }),
+  [42, "T", { size: "l", html: '<div class="t"><b>settled differently from the <em>disputed proposal.</em></b></div><div class="foot">853 of 2,543 · 1 Jan to 2 Oct 2026 · read on-chain</div>' }],
   // A LENDING DESK
-  [44, "T", { bg: "L", size: "m", html: persona("desk", "A lending desk") }],
-  T(45, "L", "xl", "<b>Price</b>"),
-  T(46, "L", "xl", "Price <b>the risk</b>"),
-  T(47, "L", "l", "Price the risk <b><em>before it settles.</em></b>"),
-  U(48, "Ldesk", null, null, { illus: 1 }),
-  U(49, "Ldesk", ["#toast"], "toast", { illus: 1, pad: 0 }),
-  U(50, "Ldesk", ["#c1b"], "chip", { illus: 1, pad: 18 }),
-  U(51, "Ldesk", ["#r1"], "ltv", { illus: 1 }),
-  U(52, "Ldesk", [".deskfoot"], "bp", { illus: 1 }),
-  U(53, "Ldesk", null, "pop", { illus: 1 }),
-  T(55, "K", "xl", "<b>Automatically.</b>"),
+  [44, "T", { size: "m", html: persona("desk", "A lending desk") }],
+  T(46, "xl", "<b>Price the risk</b> <b><em>before it settles.</em></b>", [0, 1]),
+  U(50, "Ldesk", null, [[0, "toast"]], { illus: 1 }),
+  U(52, "Ldesk", ["#r1"], [[0, "chip"], [0, "ltv"]], { illus: 1, narrow: ["#ltv1", "#c1b"] }),
+  U(54, "Ldesk", [".deskfoot"], [[0, "bp"]], { illus: 1, narrow: ["#paused", "#bp"] }),
   // AN AGENT
-  [56, "T", { bg: "L", size: "m", html: persona("agent", "An agent") }],
-  T(57, "K", "xl", "<b>Pays</b>"),
-  T(58, "K", "xl", "Pays <b><em>per call.</em></b>"),
-  U(59, "Lkey", null, "key", { illus: 1 }),
-  U(60, "Lterm", ["#tbody .ln:nth-child(1)", "#tbody .ln:nth-child(3)"], "t402", { illus: 1 }),
-  U(61, "Lterm", ["#tbody .ln:nth-child(4)"], "tpay", { illus: 1 }),
-  U(62, "Lterm", ["#tbody .ln:nth-child(5)"], "t200", { illus: 1 }),
-  T(63, "A", "xl", "<b>No account.</b>"),
-  T(64, "K", "xl", "No account. <b><em>No API key.</em></b>"),
-  U(65, "Lterm", null, "tcheck", { illus: 1 }),
-  U(66, "Lterm", ["#tbody .ln:nth-child(8)"], null, { illus: 1 }),
-  U(67, "Lterm", ["#tbody .ln:nth-child(9)"], "tverify", { illus: 1 }),
-  U(68, "Lterm", ["#tbody .ln:nth-child(10)"], "tdec", { illus: 1 }),
+  [56, "T", { size: "m", html: persona("agent", "An agent") }],
+  T(58, "xl", "<b>Agents pay <em>per call.</em></b>"),
+  U(60, "Lkey", null, [[0, "key"]], { illus: 1 }),
+  U(62, "Lterm", ["#tbody .ln:nth-child(1)", "#tbody .ln:nth-child(4)"], [[0, "t402"], [0, "tpay"]], { illus: 1 }),
+  T(64, "xl", "<b>No account. <em>No API key.</em></b>"),
+  U(66, "Lterm", ["#tbody .ln:nth-child(5)", "#tbody .ln:nth-child(8)"], [[0, "t200"], [0, "tcheck"]], { illus: 1 }),
+  U(68, "Lterm", ["#tbody .ln:nth-child(9)", "#tbody .ln:nth-child(10)"], [[0, "tverify"], [0, "tdec"]], { illus: 1 }),
   // A VAULT
-  [70, "T", { bg: "L", size: "m", html: persona("vault", "A vault") }],
-  T(71, "L", "xl", "<b>Funds wait</b>"),
-  T(72, "L", "xl", "Funds wait <b><em>for final.</em></b>"),
-  U(73, "Lvault", null, "vaim", { illus: 1 }),
-  U(74, "Lvault", [".vrow"], "vblock", { illus: 1 }),
-  U(75, "Lvault", [".vlog .ln:nth-child(1)"], "vlog1", { illus: 1 }),
-  U(76, "Lvault", [".steps"], "vsettled", { illus: 1 }),
-  U(77, "Lvault", [".steps"], "vcool", { illus: 1 }),
-  U(78, "Lvault", [".steps"], "vfinal", { illus: 1 }),
-  U(79, "Lvault", null, "vrelease", { illus: 1 }),
-  U(80, "Lvault", [".vrow"], null, { illus: 1 }),
-  [81, "T", { bg: "L", size: "m", html: `<div class="t" style="margin-bottom:44px">Contracts on</div><div class="chips"><div class="cc"><i style="background:linear-gradient(135deg,#9945FF,#14F195)"></i>Solana</div><div class="cc"><i style="background:#1E3A8A"></i>Arc</div><div class="cc"><i style="background:#28A0F0"></i>Arbitrum One</div></div>` }],
+  [70, "T", { size: "m", html: persona("vault", "A vault") }],
+  T(72, "xl", "<b>Funds wait <em>for final.</em></b>"),
+  U(74, "Lvault", null, [[0, "vaim"]], { illus: 1 }),
+  U(76, "Lvault", [".vrow", ".vlog .ln:nth-child(1)"], [[0, "vblock"], [0, "vlog1"]], { illus: 1 }),
+  U(78, "Lvault", [".steps"], [[0, "vsettled"], [0.5, "vcool"], [1, "vfinal"]], { illus: 1 }),
+  U(80, "Lvault", [".vrow"], [[0, "vrelease"]], { illus: 1, narrow: ["#relbtn", "#vok"] }),
   // A TRADER (coming soon)
-  [83, "T", { bg: "L", size: "m", html: persona("trader", "A trader", true) }],
-  T(84, "L", "xl", "<b>Know</b>"),
-  T(85, "L", "xl", "Know <b>before it</b>"),
-  T(86, "L", "xl", "Know before it <b><em>costs you.</em></b>"),
-  U(87, "Lphone", null, "notif", { illus: 2 }),
-  U(88, "Lphone", ["#notif"], null, { illus: 2 }),
-  U(89, "Lphone", null, "chat", { illus: 2 }),
-  U(90, "Lphone", ["#m1", "#ib"], "tap", { illus: 2 }),
-  U(91, "Lphone", ["#m2"], "m2", { illus: 2 }),
-  U(92, "Lphone", ["#m3"], "m3", { illus: 2 }),
-  T(94, "A", "m", "Coming soon to <b>@predge_alerts_bot</b>"),
-  // FINAL SECTION (beat 96): proof
-  T(96, "L", "xl", "<b>Every</b>"),
-  T(96.5, "L", "xl", "Every <b>answer</b>"),
-  T(97, "L", "xl", "Every answer <b><em>is signed.</em></b>"),
-  U(98, "Lrec", null, "rec"),
-  U(99, "Lrec", ["#rec .ln:nth-child(6)", "#rec .ln:nth-child(7)"], null),
-  U(100, "Lrec", ["#rec .sigrow"], null),
-  T(101, "K", "xl", "<b>Verify,</b>"),
-  T(101.5, "K", "xl", "Verify, <b><em>don't trust.</em></b>"),
-  U(103, "Lver", ["#ver .ln:nth-child(1)", "#ver .ln:nth-child(2)"], "v1"),
-  U(104, "Lver", ["#ver .ln:nth-child(3)"], "v2"),
-  U(105, "Lver", ["#ver .ln:nth-child(4)"], "v3"),
-  U(106, "Lver", ["#okbig"], "valid"),
-  T(108, "L", "l", "<b>One signed answer:</b>"),
-  T(109, "L", "l", "One signed answer: <b><em>is it final?</em></b>"),
-  U(110, "Lhub", null, "h1"),
-  U(111, "Lhub", null, "h2"),
-  U(112, "Lhub", null, "h3"),
-  U(113, "Lhub", null, "h4"),
-  U(114, "Lhub", null, "hglow"),
-  T(116, "L", "xl", "<b>Lending desks.</b>"),
-  T(116.5, "K", "xl", "<b>Agents.</b>"),
-  T(117, "L", "xl", "<b>Vaults.</b>"),
-  T(117.5, "A", "xl", "<b>Traders.</b>"),
+  [82, "T", { size: "m", html: persona("trader", "A trader", true) }],
+  T(84, "xl", "<b>Know before it</b> <b><em>costs you.</em></b>", [0, 1]),
+  U(88, "Lphone", null, [[0, "notif"]], { illus: 2 }),
+  U(90, "Lphone", ["#m1", "#ib"], [[0, "chat"], [1, "tap"]], { illus: 2 }),
+  U(92, "Lphone", ["#m2", "#m3"], [[0, "m2"], [0, "m3"]], { illus: 2 }),
+  T(94, "xl", "<b>Coming soon to <em>@predge_alerts_bot</em></b>"),
+  // PROOF
+  T(96, "xl", "<b>Every answer <em>is signed.</em></b>"),
+  U(98, "Lrec", null, [[0, "rec"]]),
+  U(100, "Lrec", ["#rec .ln:nth-child(6)", "#rec .sigrow"], []),
+  T(102, "xl", "<b>Verify, <em>don't trust.</em></b>"),
+  U(104, "Lver", null, [[0, "v1"], [0, "v2"], [0, "v3"]]),
+  U(106, "Lver", ["#okbig"], [[0, "valid"]]),
+  // ONE ANSWER
+  T(108, "xl", "<b>One signed answer:</b> <b><em>is it final?</em></b>", [0, 1]),
+  U(112, "Lhub", null, [[0, "h1"], [0.5, "h2"], [1, "h3"], [1.5, "h4"], [2, "hglow"]]),
+  [116, "T", { size: "l", html: `<div class="t" style="margin-bottom:44px">Contracts on</div><div class="chips"><div class="cc"><i style="background:linear-gradient(135deg,#9945FF,#14F195)"></i>Solana</div><div class="cc"><i style="background:#1E3A8A"></i>Arc</div><div class="cc"><i style="background:#28A0F0"></i>Arbitrum One</div></div>` }],
   // CLOSE
-  T(118, "D", "l", "<b>Know</b>"),
-  T(119, "D", "l", "Know <b>when an outcome</b>"),
-  T(120, "D", "l", "Know when an outcome <b>is actually</b>"),
-  T(121, "D", "l", "Know when an outcome is actually <b><em>final.</em></b>"),
-  [124, "T", { bg: "D", size: "m", html: `<div class="wm">${WM}</div><div class="urls"><span class="u">predge.io</span><i></i><span class="u">app.predge.io</span><i></i><span class="u">@PredgeAI</span></div>`, arrive: true, urls: true }],
+  T(118, "xl", "<b>Know when an outcome</b> <b>is <em>actually final.</em></b>", [0, 2]),
+  [124, "T", { size: "m", html: `<div class="wm">${WM}</div>`, arrive: true }],
+  [126, "T", { size: "m", html: `<div class="wm">${WM}</div><div class="urls"><span class="u">predge.io</span><i></i><span class="u">app.predge.io</span><i></i><span class="u">@PredgeAI</span></div>`, urls: true }],
 ];
 const END = 128.5;
-const FLASH = [8, 32, 96];
+const FLASH = [8, 32];
+const SECTIONS = [44, 56, 70, 82, 96, 108, 118];
 
 /* ── build the type-shot DOM ── */
 const types = $("#types");
 S.forEach((s, i) => {
   if (s[1] !== "T" && s[1] !== "N") return;
   const o = s[2], el = document.createElement("div");
-  el.className = `layer tshot bg-${o.bg} ${s[1] === "N" ? "n" : (o.size || "l")}`;
+  el.className = `layer tshot bg-D ${s[1] === "N" ? "n" : (o.size || "l")}${o.amber ? " amber" : ""}`;
   if (s[1] === "T") el.innerHTML = o.html.startsWith("<div") ? o.html : `<div class="t">${o.html}</div>`;
   else el.innerHTML = `<div class="t num">${o.num}</div>${o.lab ? `<div class="lab">${o.lab}</div>` : ""}${o.bar ? '<div class="bar"><i></i></div>' : ""}`;
   types.appendChild(el); s.el = el;
@@ -376,7 +322,7 @@ const wide = AR === "169";
 function placeAll(box, items, w, h) { box.style.width = w + "px"; box.style.height = h + "px";
   items.forEach(([sel, x, y]) => { const e = $(sel); e.style.left = x + "px"; e.style.top = y + "px"; }); }
 function rectIn(e) { return { x: e.offsetLeft, y: e.offsetTop, w: e.offsetWidth, h: e.offsetHeight }; }
-function edge(svg, d) { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("fill", "none"); p.setAttribute("stroke", "rgba(20,20,20,.28)"); p.setAttribute("stroke-width", "3"); svg.appendChild(p);
+function edge(svg, d) { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("fill", "none"); p.setAttribute("stroke", "rgba(255,255,255,.26)"); p.setAttribute("stroke-width", "3"); svg.appendChild(p);
   const q = document.createElementNS(NS, "path"); q.setAttribute("d", d); q.setAttribute("fill", "none"); q.setAttribute("stroke", "#F5A623"); q.setAttribute("stroke-width", "6"); q.setAttribute("stroke-linecap", "round"); svg.appendChild(q);
   const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; q.style.strokeDasharray = `60 ${L + 80}`; q.style.strokeDashoffset = 60; return { p, q, L }; }
 const gbox = $("#gbox"), gsvg = $("#gsvg");
@@ -408,7 +354,7 @@ function frame(layer, sels, o) {
   boxes.forEach((e) => { const p = offTL(e, cam); x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x + e.offsetWidth); y1 = Math.max(y1, p.y + e.offsetHeight); });
   const pad = sels ? (o.pad ?? 8) : 0, uw = x1 - x0 + 2 * pad, uh = y1 - y0 + 2 * pad;
   const full = !sels;
-  const s = Math.min((full ? 0.86 : 0.84) * W / uw, (full ? 0.8 : 0.62) * H / uh, full ? 1.6 : 3.2);
+  const s = Math.min((full ? 0.86 : (AR === "vt" ? 0.9 : 0.84)) * W / uw, (full ? 0.8 : 0.62) * H / uh, full ? 1.6 : 3.2);
   const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
   const f = { s, x: -(cx - W / 2) * s, y: -(cy - H / 2) * s, crop: "none" };
   if (!full) { const hw = uw * s / 2, hh = uh * s / 2; f.crop = `inset(${H / 2 - hh}px ${W / 2 - hw}px ${H / 2 - hh}px ${W / 2 - hw}px round 16px)`; }
@@ -417,7 +363,7 @@ function frame(layer, sels, o) {
 
 /* ── timeline ── */
 const tl = gsap.timeline({ paused: true });
-const LAYERS = $$(".layer"), BGL = { L: $("#bgL"), D: $("#bgD") };
+const LAYERS = $$(".layer");
 const fmt = (v, d) => Number(v).toLocaleString("en-US", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
 const count = (el, from, to, t, dur, dec, suf, pre) => { const o = { v: from };
   tl.to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: () => { el.textContent = (pre || "") + fmt(o.v, dec) + (suf || ""); } }, t); };
@@ -494,38 +440,44 @@ tl.fromTo("#bgD .leak", { x: 0 }, { x: 3600, duration: B(8), ease: "none" }, 0);
 tl.fromTo("#bgD .grain", { x: 0, y: 0 }, { x: 237, y: -173, duration: B(END), ease: `steps(${Math.round(B(END) * 15)})` }, 0);
 
 let prevLayer = null;
+gsap.set("#bgD", { visibility: "visible" });
+// after the opener the glow settles down so type and panels own the frame
+tl.to("#bgD .blob", { opacity: 0.5, duration: 0.3, ease: "none" }, B(8));
 S.forEach((s, i) => {
   const b = s[0], kind = s[1], o = s[2], t = B(b), tEnd = B(i + 1 < S.length ? S[i + 1][0] : END);
   const layer = kind === "U" ? $("#" + o.layer) : s.el;
   cut.times.push(t); cut.shots.push({ b, dur: (tEnd - t) / BEAT, kind });
-  // HARD CUT: exactly one layer and one ground visible
+  // HARD CUT: exactly one layer visible, always on the same black ground
   LAYERS.forEach((l) => { if (l === layer || l === prevLayer) set(l, { visibility: l === layer ? "visible" : "hidden" }, t); });
-  const bg = kind === "U" ? (o.bg || "L") : o.bg;
-  Object.entries(BGL).forEach(([k, el]) => set(el, { visibility: k === bg ? "visible" : "hidden" }, t));
   set("#illus1", { visibility: o.illus === 1 ? "visible" : "hidden" }, t);
   set("#illus2", { visibility: o.illus === 2 ? "visible" : "hidden" }, t);
   prevLayer = layer;
-  const bar = Number.isInteger(b) && b % 4 === 0 && !FLASH.includes(b) && !o.arrive;
+  let body;
   if (kind === "U") {
-    if (o.act) ACT[o.act](t);
-    const f = frame(layer, o.focus, o);
+    (o.acts || []).forEach(([off, name]) => ACT[name](t + off * BEAT));
+    const f = frame(layer, AR !== "169" && o.narrow ? o.narrow : o.focus, o);
     set($(".lcam", layer), { scale: f.s, x: f.x, y: f.y }, t);
     set(layer, { clipPath: f.crop }, t);
-    // snap punch-in on the cut
-    tl.fromTo($(".punch", layer), { scale: o.focus ? 0.9 : 1.08 }, { scale: 1, duration: 0.16, ease: "power4.out", immediateRender: false }, t);
+    body = $(".punch", layer);
+    tl.fromTo(body, { scale: o.focus ? 0.94 : 1.04 }, { scale: 1, duration: 0.16, ease: "power4.out", immediateRender: false }, t);
   } else {
-    // word slam: overshoot capped so the scaled word box never leaves the frame
-    $$("b", layer).forEach((p) => { const r = p.getBoundingClientRect(), hw = r.width / 2, hh = r.height / 2, cx = r.left + hw, cy = r.top + hh;
-      const cap = Math.min(r.width > W * 0.3 ? 1.08 : 1.45, (cx - 8) / hw, (W - 8 - cx) / hw, (cy - 8) / hh, (H - 8 - cy) / hh);
-      slam(p, t, Math.max(1, cap)); });
-    tl.fromTo(layer.firstElementChild, { scale: 1.05 }, { scale: 1, duration: 0.14, ease: "power4.out", immediateRender: false }, t);
+    body = layer.firstElementChild;
+    // words build in on their beats (capped overshoot so a scaled word never leaves the frame)
+    $$("b", layer).forEach((p, k) => { const at = t + ((o.steps && o.steps[k]) || 0) * BEAT;
+      const r = p.getBoundingClientRect(), hw = r.width / 2, hh = r.height / 2, cx = r.left + hw, cy = r.top + hh;
+      const cap = Math.min(r.width > W * 0.3 ? 1.08 : 1.3, (cx - 8) / hw, (W - 8 - cx) / hw, (cy - 8) / hh, (H - 8 - cy) / hh);
+      if (at > t) set(p, { opacity: 0 }, t);
+      slam(p, at, Math.max(1, cap)); });
     if (kind === "N" && o.count) count($(".num", layer), o.count[0], o.count[1], t, BEAT * 0.5, o.count[2] || 0, o.count[3] || "");
     if (o.bar) tl.fromTo($(".bar i", layer), { scaleX: 0 }, { scaleX: 1, duration: BEAT, ease: "power2.out", immediateRender: false }, t);
-    if (o.arrive) tl.fromTo(layer.firstElementChild, { scale: 1.12, filter: "blur(10px)" }, { scale: 1, filter: "blur(0px)", duration: 0.3, ease: "expo.out", immediateRender: false }, t);
-    if (o.urls) $$(".urls > *", layer).forEach((u, k) => { set(u, { opacity: 0 }, t); set(u, { opacity: 1 }, B(125 + k * 0.5)); });
+    if (o.arrive) tl.fromTo(body, { scale: 1.12, filter: "blur(10px)" }, { scale: 1, filter: "blur(0px)", duration: 0.3, ease: "expo.out", immediateRender: false }, t);
+    if (o.urls) $$(".urls > *", layer).forEach((u, k) => { set(u, { opacity: 0 }, t); set(u, { opacity: 1 }, t + k * 0.5 * BEAT); });
   }
-  // whip on the bar line: the incoming shot arrives already moving, blurred, and snaps to rest
-  if (bar) tl.fromTo(layer, { x: WHIP, filter: "blur(12px)" }, { x: 0, filter: "blur(0px)", duration: 0.12, ease: "power3.out", immediateRender: false }, t);
+  // a slow push-in for the rest of the shot
+  const t0 = t + (o.arrive ? 0.3 : 0.16);
+  tl.fromTo(body, { scale: 1 }, { scale: 1.03, duration: Math.max(0.1, tEnd - t0), ease: "none", immediateRender: false }, t0);
+  // whip only at section boundaries
+  if (SECTIONS.includes(b)) tl.fromTo(layer, { x: WHIP, filter: "blur(12px)" }, { x: 0, filter: "blur(0px)", duration: 0.12, ease: "power3.out", immediateRender: false }, t);
 });
 // flash frames on the drops (2 frames)
 FLASH.forEach((b) => { set("#flash", { opacity: 0.9 }, B(b)); set("#flash", { opacity: 0 }, B(b) + 2 / 30); });
