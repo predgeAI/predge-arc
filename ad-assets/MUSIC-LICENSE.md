@@ -1,19 +1,17 @@
-# Music: ad v2
+# Music: intro ad v3
 
 | | |
 |---|---|
-| Track | "Techno" by AtlasAudio |
-| Page | https://pixabay.com/music/techno-trance-techno-606278/ |
-| File | `atlasaudio-techno-606278.mp3` (Pixabay CDN, published 18 Sep 2026), 1:46, sha256 `db2437894192b4d04f3c24035a80c05a403be30688e64c11db40c9296f06c819` |
-| License | Pixabay Content License: https://pixabay.com/service/license-summary/ (full terms: https://pixabay.com/service/terms/) |
-| Downloaded | 9 Oct 2026 |
-| Tempo | 130 BPM, measured (librosa onset envelope + fine comb search); drop on track beat 33 (~15.26 s) |
+| Track | "Tiger Rhythm" |
+| Artist | Surkin |
+| Use | Used with the artist's written permission to Predge. Same track as the original "Don't Blink" ad (v1). |
+| File | `ad-audio/tiger.mp3`, 62.0 s, sha256 `5edc723be4bd899eb1812b5798546b3c710d38dc1189053b6533748b201569b2` |
+| Tempo | 125.0 BPM, measured (onset envelope + comb search); first downbeat at 0.27 s |
+| Structure | intro beats 0 to 8; drop on beat 8 (4.11 s); short break on beats 28 to 32; second drop on beat 32 (15.63 s); breakdown beats 61 to 96; final section beats 96 to 124; natural decay to the end of the file |
 
-Why this track:
+The permission covers syncing the track to Predge's videos. It does not let anyone else reuse
+the audio, so the file is not redistributed: the mp3 stays in `ad-audio/` (gitignored) and only
+the finished video carries it. Never commit the mp3 or a music-carrying mp4.
 
-- Pixabay Content License: free for commercial use, attribution not required, can be modified and synced to video.
-- The track page shows **no "Content ID Registered" badge** (checked 9 Oct 2026), so a YouTube upload should not draw an automated claim. Several other candidates were dropped because they were Content ID registered or the author added extra restrictions.
-- The author adds no extra restriction on the page ("No copyright music for your videos").
-
-What the license does not allow: redistributing the audio file on its own. So the mp3 stays in
-`ad-audio/` (gitignored); only the finished video carries it.
+v2 (69 s, 130 BPM) used "Techno" by AtlasAudio under the Pixabay Content License; that track
+is no longer used. See git history of this file for its record.

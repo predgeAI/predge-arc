@@ -50,11 +50,12 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 #flash{position:absolute;inset:0;background:var(--amber);opacity:0;pointer-events:none;}
 
 /* ── scene scaffolding ───────────────────────────────────── */
-.cam{position:absolute;inset:0;display:flex;align-items:center;padding:0 110px 0 150px;gap:80px;transform-origin:50% 50%;}
-.copy{flex:0 0 680px;position:relative;}
+.cam{position:absolute;inset:0;display:flex;align-items:center;padding:0 110px 0 150px;gap:60px;transform-origin:50% 50%;}
+.copy{flex:0 0 620px;position:relative;}
 .pw{flex:1 1 auto;display:flex;justify-content:center;align-items:center;position:relative;}
 .persona{display:inline-flex;align-items:center;gap:12px;height:48px;padding:0 20px 0 14px;border-radius:24px;background:#fff;
   border:1px solid rgba(0,0,0,.08);box-shadow:0 6px 18px rgba(30,25,10,.06);font-weight:600;font-size:22px;color:var(--ink);margin-bottom:34px;}
+.persona.soon{background:var(--amber);border-color:var(--amber);color:#1A1205;padding:0 20px;margin-left:8px;}
 .persona i{width:28px;height:28px;border-radius:50%;background:var(--amber);display:grid;place-items:center;}
 .persona i svg{width:16px;height:16px;}
 .hls{display:grid;}
@@ -63,7 +64,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .hl em{font-style:normal;color:var(--amberInk);}
 .hl .w{display:inline-block;will-change:transform;}
 .sub{margin-top:30px;font-size:27px;line-height:1.38;color:var(--ink2);font-weight:500;max-width:600px;}
-.illus{position:absolute;right:42px;bottom:32px;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink3);font-weight:600;}
+.illus{position:absolute;right:42px;bottom:32px;font-size:16px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);font-weight:600;}
 
 /* dark product panels */
 .panel{position:relative;background:var(--ui);color:var(--uiFg);border-radius:26px;border:1px solid #23252C;
@@ -106,7 +107,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .mc-status{margin-top:26px;display:flex;flex-direction:column;gap:12px;}
 .st{display:flex;align-items:center;gap:14px;height:62px;padding:0 20px;border-radius:14px;background:var(--ui2);font-size:22px;color:#C9CCD3;opacity:0;}
 .st b{color:#fff;font-weight:700;}
-.st .tm{margin-left:auto;font-family:var(--mono);font-size:16px;color:var(--uiDim);}
+.st .tm{margin-left:auto;font-family:var(--mono);font-size:17px;color:var(--uiDim);}
 .st .sdot{width:14px;height:14px;}
 .st-disp{background:rgba(245,166,35,.10);border:1px solid rgba(245,166,35,.35);}
 .st-disp b{color:var(--amber);}
@@ -129,8 +130,9 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .node.out i{background:var(--amberSoft);color:var(--amberInk);}
 
 /* ── S4 numbers ──────────────────────────────────────────── */
-.strip{position:absolute;left:0;top:0;height:100%;display:flex;}
-.station{width:1920px;height:100%;display:flex;flex-direction:column;justify-content:center;padding:0 170px;}
+.strip{position:absolute;inset:0;}
+.station{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;padding:0 170px;}
+.station > *{opacity:0;}
 .big{font-weight:800;font-size:300px;line-height:.9;letter-spacing:-.055em;font-variant-numeric:tabular-nums;color:var(--ink);}
 .big.amber{color:var(--amberInk);}
 .biglab{margin-top:34px;font-size:46px;font-weight:600;letter-spacing:-.02em;line-height:1.2;max-width:1400px;color:var(--ink);}
@@ -144,33 +146,37 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .pips i b{display:block;width:100%;height:100%;border-radius:3px;background:var(--ink);transform-origin:0 50%;transform:scaleX(0);}
 
 /* ── S5 lending desk ─────────────────────────────────────── */
-.desk{width:960px;}
+.desk{width:1000px;}
+.desk .chrome{font-size:20px;height:62px;}
+.desk .chip{height:46px;padding:0 18px;font-size:22px;border-radius:23px;}
+.desk .chip .sdot{width:12px;height:12px;}
 .tbl{padding:10px 30px 24px;}
-.tr{display:grid;grid-template-columns:1fr 150px 110px 230px;align-items:center;gap:12px;height:86px;border-bottom:1px solid var(--uiLine);font-size:22px;position:relative;}
-.tr.th{height:58px;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--uiDim);font-weight:600;}
+.tr{display:grid;grid-template-columns:1fr 150px 110px 200px;align-items:center;gap:12px;height:100px;border-bottom:1px solid var(--uiLine);font-size:27px;position:relative;}
+.tr.th{height:60px;font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--uiDim);font-weight:600;}
 .tr .mk{font-weight:600;line-height:1.2;}
-.tr .mk small{display:block;font-size:16px;color:var(--uiDim);font-weight:500;margin-top:3px;}
-.tr .num{font-family:var(--mono);font-size:21px;text-align:right;padding-right:6px;}
-.tr .ltv{font-family:var(--mono);font-size:21px;text-align:right;padding-right:6px;}
-.tr .sett{position:relative;height:36px;}
+.tr .mk small{display:block;font-size:19px;color:var(--uiDim);font-weight:500;margin-top:3px;}
+.tr .num{font-family:var(--mono);font-size:25px;text-align:right;padding-right:6px;}
+.tr .ltv{font-family:var(--mono);font-size:30px;font-weight:700;text-align:right;padding-right:6px;}
+.tr .sett{position:relative;height:46px;}
 .tr .sett .chip{position:absolute;right:0;top:0;}
 .rowhl{position:absolute;inset:6px -14px;border-radius:14px;background:rgba(245,166,35,.09);border:1px solid rgba(245,166,35,.32);opacity:0;}
-.deskfoot{display:flex;align-items:center;justify-content:space-between;padding:22px 30px 26px;font-size:20px;color:var(--uiDim);}
-.deskfoot .bp{font-family:var(--mono);font-size:30px;font-weight:700;color:#fff;}
-.deskfoot .tag{font-size:17px;}
-.toast{position:absolute;right:24px;top:78px;width:470px;padding:16px 20px;border-radius:16px;background:#23262E;border:1px solid #3A3D46;
+.deskfoot{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 30px 24px;font-size:23px;color:var(--uiDim);}
+.deskfoot .bp{font-family:var(--mono);font-size:46px;font-weight:700;color:#fff;}
+.deskfoot .tag{font-size:20px;font-weight:600;}
+.toast{position:absolute;right:24px;top:80px;width:520px;padding:16px 20px;border-radius:16px;background:#23262E;border:1px solid #3A3D46;
   box-shadow:0 20px 40px rgba(0,0,0,.45);display:flex;gap:14px;align-items:flex-start;z-index:5;opacity:0;}
 .toast .ti{width:38px;height:38px;border-radius:10px;background:var(--amber);display:grid;place-items:center;flex:none;font-weight:900;color:#1A1205;font-size:20px;}
-.toast b{display:block;font-size:19px;color:#fff;}
-.toast span{font-size:16px;color:var(--uiDim);font-family:var(--mono);}
-.pop{position:absolute;width:390px;padding:18px 20px;border-radius:16px;background:#fff;color:var(--ink);box-shadow:0 24px 50px rgba(0,0,0,.45);z-index:6;opacity:0;font-size:18px;line-height:1.5;}
-.pop b{font-size:20px;display:block;margin-bottom:6px;}
-.pop .k{font-family:var(--mono);font-size:15px;color:var(--ink2);}
+.toast b{display:block;font-size:23px;color:#fff;}
+.toast span{font-size:18px;color:var(--uiDim);font-family:var(--mono);}
+.pop{position:absolute;width:440px;padding:20px 22px;border-radius:16px;background:#fff;color:var(--ink);box-shadow:0 24px 50px rgba(0,0,0,.45);z-index:6;opacity:0;font-size:20px;line-height:1.45;}
+.pop b{font-size:23px;display:block;margin-bottom:6px;}
+.pop .k{font-family:var(--mono);font-size:16px;color:var(--ink2);}
 
 /* ── S6 agent terminal ───────────────────────────────────── */
 .term{width:980px;}
-.tbody{padding:26px 32px 30px;font-family:var(--mono);font-size:21px;line-height:1.5;min-height:560px;}
+.tbody{padding:26px 32px 30px;font-family:var(--mono);font-size:23px;line-height:1.5;min-height:560px;}
 .ln{opacity:0;white-space:pre;display:flex;gap:14px;}
+#rec .ln{border-radius:6px;margin-left:-8px;margin-right:-8px;padding:0 8px;}
 .ln + .ln{margin-top:7px;}
 .ln .p{color:var(--amber);} .ln .g{color:var(--good);} .ln .r{color:var(--bad);} .ln .dm{color:var(--uiDim);} .ln .wh{color:#fff;}
 .ln.dec{margin-top:18px !important;padding:14px 18px;border-radius:12px;background:rgba(47,191,113,.12);border:1px solid rgba(47,191,113,.35);color:#fff;}
@@ -183,19 +189,19 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .vault{width:900px;}
 .vbody{padding:30px 36px 30px;}
 .vlab{font-size:17px;letter-spacing:.1em;text-transform:uppercase;color:var(--uiDim);font-weight:600;}
-.vmk{margin-top:8px;font-size:26px;font-weight:600;}
+.vmk{margin-top:8px;font-size:28px;font-weight:600;}
 .vamt{margin-top:22px;display:flex;align-items:baseline;gap:14px;}
 .vamt b{font-family:var(--mono);font-size:64px;font-weight:700;letter-spacing:-.02em;}
 .vamt span{font-size:24px;color:var(--uiDim);font-weight:600;}
 .steps{margin-top:28px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
-.step{position:relative;height:66px;border-radius:12px;background:var(--ui2);display:flex;align-items:flex-end;padding:0 0 12px 14px;font-size:16px;font-weight:600;color:var(--uiDim);overflow:hidden;}
+.step{position:relative;height:70px;border-radius:12px;background:var(--ui2);display:flex;align-items:flex-end;padding:0 0 12px 14px;font-size:19px;font-weight:600;color:var(--uiDim);overflow:hidden;}
 .step i{position:absolute;left:0;top:0;height:6px;width:100%;background:var(--uiLine);}
 .step i b{display:block;height:100%;width:100%;transform-origin:0 50%;transform:scaleX(0);background:var(--amber);}
 .vrow{margin-top:30px;display:flex;align-items:center;gap:22px;}
 .btn{height:78px;padding:0 44px;border-radius:18px;background:var(--amber);color:#1A1205;font-weight:800;font-size:28px;display:flex;align-items:center;}
-.vmsg{font-size:22px;font-weight:700;opacity:0;}
-.vlog{margin-top:26px;padding:16px 20px;border-radius:14px;background:#0A0B0D;border:1px solid var(--uiLine);font-family:var(--mono);font-size:18px;line-height:1.6;min-height:110px;}
-.vlog .ln{font-size:18px;}
+.vmsg{font-size:25px;font-weight:700;opacity:0;}
+.vlog{margin-top:26px;padding:16px 20px;border-radius:14px;background:#0A0B0D;border:1px solid var(--uiLine);font-family:var(--mono);font-size:20px;line-height:1.6;min-height:120px;}
+.vlog .ln{font-size:20px;}
 .chains{position:absolute;left:0;right:0;bottom:-104px;display:flex;justify-content:center;gap:14px;align-items:center;}
 .chains .lab{font-size:19px;color:var(--ink);font-weight:600;margin-right:6px;opacity:0;}
 .chains .cc{height:52px;padding:0 22px 0 14px;border-radius:26px;background:#fff;border:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:10px;font-size:21px;font-weight:700;opacity:0;}
@@ -210,17 +216,17 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .lock .dt{font-size:20px;color:rgba(255,255,255,.75);font-weight:500;}
 .notif{position:absolute;left:14px;right:14px;top:330px;padding:16px 18px;border-radius:24px;background:rgba(40,40,46,.86);color:#fff;display:flex;gap:14px;opacity:0;z-index:4;}
 .notif .ai{width:46px;height:46px;border-radius:12px;background:var(--amber);flex:none;display:grid;place-items:center;font-weight:900;color:#1A1205;font-size:24px;}
-.notif b{font-size:17px;display:block;}
-.notif span{font-size:17px;line-height:1.3;color:rgba(255,255,255,.88);display:block;margin-top:2px;}
+.notif b{font-size:18px;display:block;}
+.notif span{font-size:18px;line-height:1.3;color:rgba(255,255,255,.88);display:block;margin-top:2px;}
 .chat{position:absolute;inset:0;background:#0F1621;opacity:0;z-index:6;}
 .chat .ch{height:118px;padding:58px 20px 0;display:flex;align-items:center;gap:12px;background:#17212B;border-bottom:1px solid #22303D;}
 .chat .ch .av{width:40px;height:40px;border-radius:50%;background:var(--amber);display:grid;place-items:center;font-weight:900;color:#1A1205;font-size:20px;}
 .chat .ch b{font-size:17px;color:#fff;display:block;} .chat .ch span{font-size:14px;color:#6FA8DC;}
 .msgs{padding:18px 14px;display:flex;flex-direction:column;gap:12px;}
-.msg{background:#182533;border-radius:18px 18px 18px 6px;padding:14px 16px;color:#E9ECF1;font-size:17px;line-height:1.38;opacity:0;}
+.msg{background:#182533;border-radius:18px 18px 18px 6px;padding:14px 16px;color:#E9ECF1;font-size:19px;line-height:1.38;opacity:0;}
 .msg .t{font-weight:800;font-size:19px;margin-bottom:4px;}
 .msg .t.am{color:var(--amber);} .msg .t.gd{color:var(--good);}
-.msg .mm{font-family:var(--mono);font-size:14px;color:#8FA3B8;margin-top:6px;}
+.msg .mm{font-family:var(--mono);font-size:16px;color:#8FA3B8;margin-top:6px;}
 .ibtns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:-4px;opacity:0;}
 .ibtns div{height:46px;border-radius:12px;background:#22303D;color:#BFD6EA;font-size:16px;font-weight:600;display:grid;place-items:center;}
 .phonewrap{position:relative;}
@@ -228,7 +234,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 /* ── S9 proof ────────────────────────────────────────────── */
 .proof{display:flex;gap:28px;align-items:stretch;}
 .rec{width:560px;}
-.rec .tbody,.ver .tbody{min-height:0;font-size:19px;line-height:1.55;padding:22px 26px 24px;}
+.rec .tbody,.ver .tbody{min-height:0;font-size:20px;line-height:1.55;padding:22px 26px 24px;}
 .ver{width:450px;}
 .jk{color:#9BB7FF;} .js{color:#E9D5A6;}
 .sigrow{margin-top:14px;padding-top:14px;border-top:1px solid var(--uiLine);font-size:16px;color:var(--uiDim);}
@@ -262,7 +268,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .ar-sq .persona{margin-bottom:20px;height:42px;font-size:19px;}
 .ar-sq .sub{font-size:22px;margin-top:16px;max-width:none;}
 .ar-vt .sub{max-width:none;}
-.ar-vt .pw{zoom:1.06;}
+.ar-vt .pw{zoom:1;}
 .ar-vt .cam{padding:0 80px;gap:64px;}
 .ar-sq .illus,.ar-vt .illus{right:30px;bottom:24px;font-size:14px;}
 .ar-sq .wm{width:820px;} .ar-vt .wm{width:880px;}
@@ -287,27 +293,31 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 .ar-sq .proof{flex-direction:row;align-items:stretch;}
 .ar-sq .rec{width:560px;} .ar-sq .ver{width:450px;}
 .ar-sq .cam.opener,.ar-vt .cam.opener,.ar-sq .cam.endcard,.ar-vt .cam.endcard,.ar-sq .cam.closeline,.ar-vt .cam.closeline{align-items:center;}
-.ar-sq .pw{zoom:.8;} .ar-sq #s9 .pw{zoom:.88;} .ar-sq #s8 .pw{zoom:.66;}
+.ar-sq .pw{zoom:.8;} .ar-sq #s9 .pw{zoom:.88;} .ar-sq #s8 .pw{zoom:.8;}
+.ar-vt #s8 .pw{zoom:1.3;}
+.ar-vt #s6 .tbody{font-size:27px;}
+.ar-vt .rec .tbody,.ar-vt .ver .tbody{font-size:24px;}
+.ar-vt .desk .tr:not(.th){font-size:29px;}
 .ar-vt .copy{padding:0 10px;} .ar-vt .hl{font-size:92px;} .ar-vt .sub{font-size:30px;}
 .ar-vt #s9 .pw{zoom:1.05;}
 </style>
 </head>
 <body>
-<div id="root" class="ar-169" data-composition-id="main" data-start="0" data-duration="69.2308" data-width="1920" data-height="1080">
+<div id="root" class="ar-169" data-composition-id="main" data-start="0" data-duration="61.68" data-width="1920" data-height="1080">
 
   <!-- shared grounds -->
-  <div id="bgDark1" class="clip" data-start="0" data-duration="3.6923" data-track-index="0">
+  <div id="bgDark1" class="clip" data-start="0" data-duration="3.84" data-track-index="0">
     <div class="dark-bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="leak"></div><div class="vign"></div><div class="grain"></div></div>
   </div>
-  <div id="bgLight" class="clip" data-start="3.6923" data-duration="58.1538" data-track-index="0">
+  <div id="bgLight" class="clip" data-start="3.84" data-duration="52.8" data-track-index="0">
     <div class="light-bg"><div class="gridlines"></div><div class="lightwash"></div><div id="flash"></div></div>
   </div>
-  <div id="bgDark2" class="clip" data-start="61.8462" data-duration="7.3846" data-track-index="0">
+  <div id="bgDark2" class="clip" data-start="56.64" data-duration="5.04" data-track-index="0">
     <div class="dark-bg"><div class="blob b1 k1"></div><div class="blob b2 k2"></div><div class="blob b3 k3"></div><div class="vign"></div><div class="grain"></div></div>
   </div>
 
   <!-- S1 · opener -->
-  <section id="s1" class="clip" data-start="0" data-duration="3.6923" data-track-index="1">
+  <section id="s1" class="clip" data-start="0" data-duration="3.84" data-track-index="1">
     <div class="cam opener">
       <div class="wm" id="s1wm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="48 -680 7667 720" role="img" aria-label="PREDGE">
   
@@ -321,7 +331,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
   </section>
 
   <!-- S2 · hook -->
-  <section id="s2" class="clip" data-start="3.6923" data-duration="7.3846" data-track-index="1">
+  <section id="s2" class="clip" data-start="3.84" data-duration="6.72" data-track-index="1">
     <div class="cam">
       <div class="copy">
         <div class="hls">
@@ -349,7 +359,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
   </section>
 
   <!-- S3 · pipeline graph -->
-  <section id="s3" class="clip" data-start="11.0769" data-duration="3.6923" data-track-index="1">
+  <section id="s3" class="clip" data-start="10.56" data-duration="4.8" data-track-index="1">
     <div class="cam graph" id="s3cam">
       <div class="ghead"><h1 class="hl" id="s3h">Predge reads the disputes <em>on-chain.</em></h1></div>
       <svg class="gsvg" id="gsvg" viewBox="0 0 1920 1080" fill="none"></svg>
@@ -365,13 +375,13 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 </div></div>
       <div class="node out" id="o1"><i>sig</i>Signed record</div>
       <div class="node out" id="o2"><i>402</i>API · x402</div>
-      <div class="node out" id="o3"><i>tg</i>Telegram alerts</div>
+      <div class="node out" id="o3"><i>get</i>Free signed check</div>
       <div class="node out" id="o4"><i>sol</i>On-chain guard</div>
     </div>
   </section>
 
   <!-- S4 · numbers (on the drop) -->
-  <section id="s4" class="clip" data-start="14.7692" data-duration="6.4615" data-track-index="1">
+  <section id="s4" class="clip" data-start="15.36" data-duration="5.76" data-track-index="1">
     <div class="cam" style="display:block;padding:0" id="s4cam">
       <div class="strip" id="strip">
         <div class="station"><div class="big" id="n3005">3,005</div><div class="biglab">UMA disputes on Polymarket.</div></div>
@@ -385,7 +395,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
   </section>
 
   <!-- S5 · a lending desk -->
-  <section id="s5" class="clip" data-start="21.2308" data-duration="6.4615" data-track-index="1">
+  <section id="s5" class="clip" data-start="21.12" data-duration="5.76" data-track-index="1">
     <div class="cam">
       <div class="copy">
         <div class="persona"><i><svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><path d="M3 10l9-6 9 6M5 10v9M19 10v9M9.5 10v9M14.5 10v9M3 20h18"/></svg></i>A lending desk</div>
@@ -411,7 +421,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
   </section>
 
   <!-- S6 · an agent -->
-  <section id="s6" class="clip" data-start="27.6923" data-duration="7.3846" data-track-index="1">
+  <section id="s6" class="clip" data-start="26.88" data-duration="6.72" data-track-index="1">
     <div class="cam">
       <div class="copy">
         <div class="persona"><i><svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></i>An agent</div>
@@ -443,7 +453,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
   </section>
 
   <!-- S7 · a vault -->
-  <section id="s7" class="clip" data-start="35.0769" data-duration="6.4615" data-track-index="1">
+  <section id="s7" class="clip" data-start="33.6" data-duration="6.24" data-track-index="1">
     <div class="cam">
       <div class="copy">
         <div class="persona"><i><svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="12" cy="12" r="3.2"/><path d="M12 8.8V7M15.2 12H17"/></svg></i>A vault</div>
@@ -478,12 +488,12 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
   </section>
 
   <!-- S8 · a trader -->
-  <section id="s8" class="clip" data-start="41.5385" data-duration="6.4615" data-track-index="1">
+  <section id="s8" class="clip" data-start="39.84" data-duration="6.24" data-track-index="1">
     <div class="cam">
       <div class="copy">
-        <div class="persona"><i><svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg></i>A trader</div>
+        <div class="persona"><i><svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg></i>A trader</div> <div class="persona soon">Coming soon</div>
         <h1 class="hl">Know before it <em>costs you.</em></h1>
-        <p class="sub">An alert the moment a market you watch is disputed, and again when it is final.</p>
+        <p class="sub">Dispute and final alerts for markets you watch, coming soon to @predge_alerts_bot.</p>
       </div>
       <div class="pw"><div class="phonewrap" id="phonewrap"><div class="phone" id="phone"><div class="screen">
         <div class="notch"></div>
@@ -501,11 +511,11 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
       </div></div>
       <div class="cursor" id="cur8"><svg viewBox="0 0 24 24"><path d="M3 2 L3 19.5 L7.6 15.4 L10.9 22.2 L14 20.8 L10.8 14.2 L17.2 14.2 Z" fill="#1c1c1c" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg></div></div></div>
     </div>
-    <div class="illus">Product illustration</div>
+    <div class="illus">Product illustration · coming soon</div>
   </section>
 
   <!-- S9 · proof -->
-  <section id="s9" class="clip" data-start="48" data-duration="7.3846" data-track-index="1">
+  <section id="s9" class="clip" data-start="46.08" data-duration="5.76" data-track-index="1">
     <div class="cam">
       <div class="copy" style="flex-basis:480px">
         <div class="hls">
@@ -546,7 +556,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
   </section>
 
   <!-- S10 · hub -->
-  <section id="s10" class="clip" data-start="55.3846" data-duration="6.4615" data-track-index="1">
+  <section id="s10" class="clip" data-start="51.84" data-duration="4.8" data-track-index="1">
     <div class="cam graph" id="s10cam">
       <div class="hubhead"><h1 class="hl" id="s10h">One signed answer: <em>is it final?</em></h1></div>
       <svg class="gsvg" id="hsvg" viewBox="0 0 1920 1080" fill="none"></svg>
@@ -560,19 +570,19 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
       <div class="tile" id="t1"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><path d="M3 10l9-6 9 6M5 10v9M19 10v9M9.5 10v9M14.5 10v9M3 20h18"/></svg></i><div>Lending desks<small>price settlement risk</small></div></div>
       <div class="tile" id="t2"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></i><div>Agents<small>check before they act</small></div></div>
       <div class="tile" id="t3"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="12" cy="12" r="3.2"/></svg></i><div>Vaults<small>release only when final</small></div></div>
-      <div class="tile" id="t4"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg></i><div>Traders<small>alerts on disputes</small></div></div>
+      <div class="tile" id="t4"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg></i><div>Traders<small>alerts coming soon</small></div></div>
     </div>
   </section>
 
   <!-- S11 · closing line -->
-  <section id="s11" class="clip" data-start="61.8462" data-duration="4.6154" data-track-index="1">
+  <section id="s11" class="clip" data-start="56.64" data-duration="2.88" data-track-index="1">
     <div class="cam closeline" id="s11cam">
       <h1 class="hl" id="s11h">Know when an outcome is <em>actually final.</em></h1>
     </div>
   </section>
 
   <!-- S12 · end card -->
-  <section id="s12" class="clip" data-start="66.4615" data-duration="2.7692" data-track-index="1">
+  <section id="s12" class="clip" data-start="59.52" data-duration="2.16" data-track-index="1">
     <div class="cam endcard" id="s12cam">
       <div class="wm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="48 -680 7667 720" role="img" aria-label="PREDGE">
   
@@ -588,7 +598,7 @@ body{font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased
 
 <script>
 (function(){
-const BPM = 130, BEAT = 60 / BPM;
+const BPM = 125, BEAT = 60 / BPM;
 const B = (n) => n * BEAT;
 const AR = "169";
 const W = 1920, H = 1080;
@@ -627,16 +637,19 @@ function build(){
   const count = (el, from, to, t, dur, dec, suf, pre) => { const o = { v: from }; el.textContent = (pre || "") + fmt(from, dec) + (suf || "");
     tl.to(o, { v: to, duration: dur, ease: "power3.out", onUpdate: () => { el.textContent = (pre || "") + fmt(o.v, dec) + (suf || ""); } }, t); };
 
+  /* Partial travel for every seam and text cut. Kept small enough that no text ever
+     crosses the frame edge, even mid-transition (copy sits 150 px in on 16:9, 70 px on 1:1 and 9:16). */
+  const TRAVEL = AR === "169" ? 100 : 56;
   /* waterfall entry: words whip up from below, binary opacity, shrinking gaps */
   const waterIn = (words, t, dy) => { let at = t, gap = 0.06; words.forEach((w) => { tl.set(w, { opacity: 1 }, at); tl.fromTo(w, { y: dy || 70 }, { y: 0, duration: 0.42, ease: "power4.out", immediateRender: false }, at); at += gap; gap *= 0.84; }); };
   /* waterfall cut: outgoing words peel left, incoming cascade in mid-flight */
   const waterCut = (outW, inW, t) => {
-    outW.forEach((w, i) => { const s = t - 0.34 + i * 0.022 - (outW.length - 1) * 0.022; tl.to(w, { x: -230, duration: 0.34, ease: "power4.in" }, s); tl.to(w, { opacity: 0, duration: 0.18, ease: "none" }, s + 0.16); });
-    let at = t, gap = 0.05; inW.forEach((w) => { tl.fromTo(w, { x: 230, opacity: 0.35 }, { x: 0, opacity: 1, duration: 0.3, ease: "power4.out", immediateRender: false }, at); at += gap; gap *= 0.84; });
+    outW.forEach((w, i) => { const s = t - 0.34 + i * 0.022 - (outW.length - 1) * 0.022; tl.to(w, { x: -TRAVEL, duration: 0.34, ease: "power4.in" }, s); tl.to(w, { opacity: 0, duration: 0.18, ease: "none" }, s + 0.16); });
+    let at = t, gap = 0.05; inW.forEach((w) => { tl.fromTo(w, { x: TRAVEL, opacity: 0.35 }, { x: 0, opacity: 1, duration: 0.3, ease: "power4.out", immediateRender: false }, at); at += gap; gap *= 0.84; });
   };
   /* cut-the-curve scene seam on the current (LEFT) */
-  const seamOut = (cam, t) => { tl.to(cam, { x: -230, duration: 0.3, ease: "power4.in" }, t - 0.3); tl.to(cam, { opacity: 0, duration: 0.2, ease: "none" }, t - 0.21); };
-  const seamIn = (cam, t) => { tl.fromTo(cam, { x: 230, opacity: 0.35 }, { x: 0, opacity: 1, duration: 0.42, ease: "power4.out", immediateRender: false }, t); };
+  const seamOut = (cam, t) => { tl.to(cam, { x: -TRAVEL, duration: 0.3, ease: "power4.in" }, t - 0.3); tl.to(cam, { opacity: 0, duration: 0.2, ease: "none" }, t - 0.21); };
+  const seamIn = (cam, t) => { tl.fromTo(cam, { x: TRAVEL, opacity: 0.35 }, { x: 0, opacity: 1, duration: 0.42, ease: "power4.out", immediateRender: false }, t); };
   /* grid carrier: the ground slides with every left seam */
   let gridX = 0;
   const gridSlide = (t) => { gridX -= 192; tl.to(".gridlines", { x: gridX, duration: 0.72, ease: "power4.inOut" }, t - 0.36); };
@@ -653,10 +666,10 @@ function build(){
   tl.fromTo("#bgDark1 .b2", { x: 140, y: 40 }, { x: -180, y: -80, duration: B(8), ease: "none" }, 0);
   tl.fromTo("#bgDark1 .b3", { x: 0, y: 90 }, { x: 120, y: -40, duration: B(8), ease: "none" }, 0);
   tl.fromTo("#bgDark1 .leak", { x: 0 }, { x: 3600, duration: B(7), ease: "power1.inOut" }, B(0.5));
-  tl.fromTo("#bgDark2 .b1", { x: 300, y: 200, scale: .8 }, { x: -60, y: -40, scale: 1.1, duration: B(16), ease: "none" }, B(134));
-  tl.fromTo("#bgDark2 .b2", { x: -200, y: 120 }, { x: 160, y: -60, duration: B(16), ease: "none" }, B(134));
-  tl.fromTo("#bgDark2 .b3", { x: 200, y: -100 }, { x: -100, y: 60, duration: B(16), ease: "none" }, B(134));
-  ["#bgDark1 .grain", "#bgDark2 .grain"].forEach((g, k) => { const t0 = k ? B(134) : 0, d = k ? B(16) : B(8);
+  tl.fromTo("#bgDark2 .b1", { x: 300, y: 200, scale: .8 }, { x: -60, y: -40, scale: 1.1, duration: B(10.5), ease: "none" }, B(118));
+  tl.fromTo("#bgDark2 .b2", { x: -200, y: 120 }, { x: 160, y: -60, duration: B(10.5), ease: "none" }, B(118));
+  tl.fromTo("#bgDark2 .b3", { x: 200, y: -100 }, { x: -100, y: 60, duration: B(10.5), ease: "none" }, B(118));
+  ["#bgDark1 .grain", "#bgDark2 .grain"].forEach((g, k) => { const t0 = k ? B(118) : 0, d = k ? B(10.5) : B(8);
     tl.fromTo(g, { x: 0, y: 0 }, { x: 237, y: -173, duration: d, ease: "steps(" + Math.round(d * 12) + ")" }, t0); });
 
   /* ── S1 opener (0 to 8) ── */
@@ -678,24 +691,24 @@ function build(){
   tl.fromTo("#mcard", { x: 120, rotateY: -10 }, { x: 0, rotateY: 0, duration: 0.9, ease: "power3.out", immediateRender: false }, B(8));
   lineIn("#stProp", B(9)); tl.set("#winbar", { opacity: 1 }, B(9)); gsap.set("#winbar", { opacity: 0 });
   tl.set("#dotProp", { background: "#8A8F9A" }, 0);
-  tl.fromTo("#winfill", { scaleX: 1 }, { scaleX: 0.55, duration: B(4), ease: "none" }, B(9));
+  tl.fromTo("#winfill", { scaleX: 1 }, { scaleX: 0.55, duration: B(2), ease: "none" }, B(9));
   tl.to("#outUnder", { borderColor: "rgba(236,237,239,.55)", duration: 0.3 }, B(9));
   // the dispute slams in on beat 13
-  waterCut(h21, h22, B(13));
-  tl.set("#slam", { opacity: 1 }, B(13));
-  tl.fromTo("#slam", { scale: 2.2, rotate: -14 }, { scale: 1, rotate: -6, duration: 0.42, ease: "back.out(1.7)", immediateRender: false }, B(13));
-  tl.fromTo("#mcard", { x: 0 }, { keyframes: [{ x: -14, duration: 0.05 }, { x: 10, duration: 0.06 }, { x: -6, duration: 0.06 }, { x: 0, duration: 0.08 }], immediateRender: false }, B(13) + 0.08);
-  tl.set("#winbar", { opacity: 0 }, B(13)); tl.set("#dotProp", { background: "#F5A623" }, B(13));
-  lineIn("#stDisp", B(13) + 0.1);
-  tl.to("#outUnder", { borderColor: "rgba(245,166,35,.9)", duration: 0.2 }, B(13));
+  waterCut(h21, h22, B(12));
+  tl.set("#slam", { opacity: 1 }, B(12));
+  tl.fromTo("#slam", { scale: 1.8, rotate: -14 }, { scale: 1, rotate: -6, duration: 0.42, ease: "back.out(1.7)", immediateRender: false }, B(12));
+  tl.fromTo("#mcard", { x: 0 }, { keyframes: [{ x: -14, duration: 0.05 }, { x: 10, duration: 0.06 }, { x: -6, duration: 0.06 }, { x: 0, duration: 0.08 }], immediateRender: false }, B(12) + 0.08);
+  tl.set("#winbar", { opacity: 0 }, B(12)); tl.set("#dotProp", { background: "#F5A623" }, B(12));
+  lineIn("#stDisp", B(12) + 0.1);
+  tl.to("#outUnder", { borderColor: "rgba(245,166,35,.9)", duration: 0.2 }, B(12));
   // settles the other way
-  waterCut(h22, h23, B(18));
-  tl.to("#slam", { opacity: 0, scale: 0.9, duration: 0.25 }, B(18) - 0.1);
-  lineIn("#stFinal", B(18) + 0.1);
-  tl.to("#outUnder", { borderColor: "rgba(0,0,0,0)", opacity: 0.45, duration: 0.3 }, B(18) + 0.1);
-  tl.to("#outOver", { borderColor: "#2FBF71", background: "rgba(47,191,113,.14)", duration: 0.3 }, B(18) + 0.1);
-  push("#mcard", B(8), B(24), 1.05);
-  seamOut("#s2 .cam", B(24)); gridSlide(B(24));
+  waterCut(h22, h23, B(17));
+  tl.to("#slam", { opacity: 0, scale: 0.9, duration: 0.25 }, B(17) - 0.1);
+  lineIn("#stFinal", B(17) + 0.1);
+  tl.to("#outUnder", { borderColor: "rgba(0,0,0,0)", opacity: 0.45, duration: 0.3 }, B(17) + 0.1);
+  tl.to("#outOver", { borderColor: "#2FBF71", background: "rgba(47,191,113,.14)", duration: 0.3 }, B(17) + 0.1);
+  push("#mcard", B(8), B(22), 1.05);
+  seamOut("#s2 .cam", B(22)); gridSlide(B(22));
 
   /* ── S3 pipeline (24 to 32) ── */
   const pos = AR === "169" ? { n1: [150, 470], n2: [150, 600], n3: [150, 730], hub: [790, 560], o1: [1450, 430], o2: [1450, 545], o3: [1450, 660], o4: [1450, 775] }
@@ -727,155 +740,157 @@ function build(){
     inE.splice(0, 3, ...["n1", "n2", "n3"].map((id) => re($("#" + id), hub, "in")));
     outE.splice(0, 4, ...["o1", "o2", "o3", "o4"].map((id) => re(hub, $("#" + id), "out")));
   }
-  seamIn("#s3cam", B(24));
-  const s3h = split($("#s3h")); s3h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s3h, B(24) + 0.1);
+  seamIn("#s3cam", B(22));
+  const s3h = split($("#s3h")); s3h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s3h, B(22) + 0.1);
   $$("#s3 .node").forEach((n) => gsap.set(n, { opacity: 0 }));
-  ["#n1", "#n2", "#n3"].forEach((s, i) => { tl.set(s, { opacity: 1 }, B(25) + i * 0.08); tl.fromTo(s, { x: -40 }, { x: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(25) + i * 0.08); });
-  inE.forEach((e, i) => { tl.to(e.p, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, B(26) + i * 0.06); tl.fromTo(e.q, { strokeDashoffset: 46 }, { strokeDashoffset: -e.L, duration: 0.9, ease: "power1.in", immediateRender: false }, B(26.5) + i * 0.1); });
-  tl.set("#nhub", { opacity: 1 }, B(27)); tl.fromTo("#nhub", { scale: 0.7 }, { scale: AR === "sq" ? 0.8 : 1, duration: 0.45, ease: "back.out(1.6)", immediateRender: false }, B(27));
-  outE.forEach((e, i) => { tl.to(e.p, { strokeDashoffset: 0, duration: 0.55, ease: "power2.inOut" }, B(28.5) + i * 0.08); tl.fromTo(e.q, { strokeDashoffset: 46 }, { strokeDashoffset: -e.L, duration: 0.8, ease: "power1.in", immediateRender: false }, B(29) + i * 0.1); });
-  ["#o1", "#o2", "#o3", "#o4"].forEach((s, i) => { tl.set(s, { opacity: 1 }, B(29.4) + i * 0.12); tl.fromTo(s, { x: 40 }, { x: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(29.4) + i * 0.12); });
-  push("#s3cam", B(24), B(31.5), 1.03);
+  ["#n1", "#n2", "#n3"].forEach((s, i) => { tl.set(s, { opacity: 1 }, B(23) + i * 0.08); tl.fromTo(s, { x: -40 }, { x: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(23) + i * 0.08); });
+  inE.forEach((e, i) => { tl.to(e.p, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, B(24) + i * 0.06); tl.fromTo(e.q, { strokeDashoffset: 46 }, { strokeDashoffset: -e.L, duration: 0.9, ease: "power1.in", immediateRender: false }, B(25.1) + i * 0.1); });
+  tl.set("#nhub", { opacity: 1 }, B(26)); tl.fromTo("#nhub", { scale: 0.7 }, { scale: AR === "sq" ? 0.8 : 1, duration: 0.45, ease: "back.out(1.6)", immediateRender: false }, B(26));
+  outE.forEach((e, i) => { tl.to(e.p, { strokeDashoffset: 0, duration: 0.55, ease: "power2.inOut" }, B(27.6) + i * 0.08); tl.fromTo(e.q, { strokeDashoffset: 46 }, { strokeDashoffset: -e.L, duration: 0.8, ease: "power1.in", immediateRender: false }, B(28) + i * 0.1); });
+  ["#o1", "#o2", "#o3", "#o4"].forEach((s, i) => { tl.set(s, { opacity: 1 }, B(28.8) + i * 0.12); tl.fromTo(s, { x: 40 }, { x: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(28.8) + i * 0.12); });
+  push("#s3cam", B(22), B(31.4), 1.03);
   // pull back before the drop (sign matches the arrival on the drop)
   tl.to("#s3cam", { scale: 0.8, filter: "blur(10px)", duration: 0.2, ease: "power3.in" }, B(32) - 0.2);
   tl.to("#s3cam", { opacity: 0.15, duration: 0.2, ease: "none" }, B(32) - 0.2);
 
-  /* ── S4 numbers on the drop (32 to 46) ── */
+  /* ── S4 numbers on the drop (32 to 44) ──
+     Stations swap in place with a waterfall cut, so no text ever crosses the frame edge. */
   tl.fromTo("#flash", { opacity: 0.55 }, { opacity: 0, duration: 0.35, ease: "power2.out", immediateRender: false }, B(32));
   gsap.set("#flash", { opacity: 0 });
-  tl.fromTo("#s4cam", { scale: 1.25, opacity: 0.15, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out", immediateRender: false }, B(32));
-  const SW = W; $$(".station").forEach((s) => (s.style.width = SW + "px"));
-  count($("#n3005"), 0, 3005, B(32), 1.1);
+  tl.fromTo("#s4cam", { scale: 1.12, opacity: 0.15, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.5, ease: "expo.out", immediateRender: false }, B(32));
+  const stations = $$(".station").map((st) => Array.from(st.children));
   const stationAt = [32, 35, 38, 41];
+  stations[0].forEach((el) => tl.set(el, { opacity: 1 }, B(32)));
   stationAt.forEach((b, i) => {
-    if (i > 0) { // nudge curve: slow, burst, long tail
-      const x0 = -(i - 1) * SW, x1 = -i * SW, d = x1 - x0;
-      tl.to("#strip", { x: x0 + d * 0.1, duration: 0.12, ease: "power3.in" }, B(b) - 0.12);
-      tl.to("#strip", { x: x0 + d * 0.75, duration: 0.11, ease: "none" }, B(b));
-      tl.to("#strip", { x: x1, duration: 0.42, ease: "power4.out" }, B(b) + 0.11);
-    }
+    if (i > 0) waterCut(stations[i - 1], stations[i], B(b));
     tl.to(`.pips i:nth-child(${i + 1}) b`, { scaleX: 1, duration: B(3), ease: "none" }, B(b));
   });
-  count($("#n2666"), 0, 2666, B(35), 1.0);
-  count($("#n323"), 0, 323, B(38), 0.9);
-  count($("#n335"), 0, 33.5, B(41), 1.0, 1, "%");
-  tl.fromTo("#ratio", { scaleX: 0 }, { scaleX: 1, duration: 1.2, ease: "power3.out", immediateRender: false }, B(41.5)); gsap.set("#ratio", { scaleX: 0 });
-  tl.fromTo(".station .big", { scale: 1 }, { scale: 1.03, duration: B(14), ease: "none", transformOrigin: "0% 50%", immediateRender: false }, B(32));
-  seamOut("#s4cam", B(46)); gridSlide(B(46));
+  // every count-up lands exactly on the next-but-one beat
+  count($("#n3005"), 0, 3005, B(32), B(2));
+  count($("#n2666"), 0, 2666, B(35), B(2));
+  count($("#n323"), 0, 323, B(38), B(2));
+  count($("#n335"), 0, 33.5, B(41), B(2), 1, "%");
+  tl.fromTo("#ratio", { scaleX: 0 }, { scaleX: 1, duration: B(2), ease: "power3.out", immediateRender: false }, B(41)); gsap.set("#ratio", { scaleX: 0 });
+  tl.fromTo("#strip", { scale: 1 }, { scale: 1.03, duration: B(12), ease: "none", transformOrigin: "0% 50%", immediateRender: false }, B(32));
+  seamOut("#s4cam", B(44)); gridSlide(B(44));
 
   /* ── S5 lending desk (46 to 60) ── */
-  seamIn("#s5 .cam", B(46));
-  const s5h = split($("#s5 .hl")); s5h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s5h, B(46) + 0.1);
-  tl.fromTo("#desk", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(46));
-  ["#r1", "#r2", "#r3"].forEach((r, i) => { gsap.set(r, { opacity: 0 }); tl.set(r, { opacity: 1 }, B(47) + i * 0.12); tl.fromTo(r, { x: 30 }, { x: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(47) + i * 0.12); });
+  seamIn("#s5 .cam", B(44));
+  const s5h = split($("#s5 .hl")); s5h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s5h, B(44) + 0.1);
+  tl.fromTo("#desk", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(44));
+  ["#r1", "#r2", "#r3"].forEach((r, i) => { gsap.set(r, { opacity: 0 }); tl.set(r, { opacity: 1 }, B(45) + i * 0.12); tl.fromTo(r, { x: 30 }, { x: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(45) + i * 0.12); });
   const desk = $("#desk"), cur5 = $("#cur5");
   gsap.set(cur5, { x: desk.offsetWidth * 0.6, y: desk.offsetHeight + 140 });
-  tl.set("#toast", { opacity: 1 }, B(49.5)); tl.fromTo("#toast", { y: -30, scale: 0.96 }, { y: 0, scale: 1, duration: 0.45, ease: "back.out(1.5)", immediateRender: false }, B(49.5));
-  tl.to("#feedDot", { background: "#F5A623", duration: 0.1 }, B(49.5));
-  tl.to("#c1a", { opacity: 0, scale: 0.8, duration: 0.15 }, B(51));
-  tl.fromTo("#c1b", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.7)", immediateRender: false }, B(51));
-  tl.to("#r1hl", { opacity: 1, duration: 0.25 }, B(51));
-  count($("#ltv1"), 60, 0, B(52), 0.9, 0, "%");
-  tl.to("#ltv1", { color: "#F5A623", duration: 0.2 }, B(52));
-  count($("#bp"), 57610, 28690, B(52), 1.0, 0, "", "$");
-  tl.set("#paused", { opacity: 1 }, B(53)); tl.fromTo("#paused", { y: 12 }, { y: 0, duration: 0.3, ease: "power3.out", immediateRender: false }, B(53));
-  tl.to("#toast", { opacity: 0, y: -20, duration: 0.3, ease: "power2.in" }, B(54));
+  tl.set("#toast", { opacity: 1 }, B(47.0)); tl.fromTo("#toast", { y: -30, scale: 0.96 }, { y: 0, scale: 1, duration: 0.45, ease: "back.out(1.5)", immediateRender: false }, B(47.0));
+  tl.to("#feedDot", { background: "#F5A623", duration: 0.1 }, B(47.0));
+  tl.to("#c1a", { opacity: 0, scale: 0.8, duration: 0.15 }, B(48));
+  tl.fromTo("#c1b", { opacity: 0, scale: 1.5 }, { opacity: 1, scale: 1, duration: 0.4, ease: "back.out(1.7)", immediateRender: false }, B(48));
+  tl.to("#r1hl", { opacity: 1, duration: 0.25 }, B(48));
+  count($("#ltv1"), 60, 0, B(49), B(2), 0, "%");
+  tl.to("#ltv1", { color: "#F5A623", duration: 0.2 }, B(49));
+  count($("#bp"), 57610, 28690, B(49), B(2), 0, "", "$");
+  tl.set("#paused", { opacity: 1 }, B(50)); tl.fromTo("#paused", { y: 12 }, { y: 0, duration: 0.3, ease: "power3.out", immediateRender: false }, B(50));
+  tl.to("#toast", { opacity: 0, y: -20, duration: 0.3, ease: "power2.in" }, B(51));
   const chipP = off($("#c1b"), desk);
-  curTo(cur5, { x: chipP.x, y: chipP.y }, B(54.5), 0.75);
-  click(cur5, B(56)); press("#c1b", B(56));
+  curTo(cur5, { x: chipP.x, y: chipP.y }, B(51.3), 0.75);
+  click(cur5, B(53)); press("#c1b", B(53));
   const popX = Math.min(chipP.x - 300, desk.offsetWidth - 410);
   gsap.set("#pop", { left: popX, top: chipP.y + 34 });
-  tl.set("#pop", { opacity: 1 }, B(56)); tl.fromTo("#pop", { y: -12, scale: 0.95 }, { y: 0, scale: 1, duration: 0.4, ease: "back.out(1.5)", immediateRender: false }, B(56));
-  tl.to(cur5, { x: chipP.x + 140, y: chipP.y + 220, duration: 0.7, ease: "power2.out" }, B(57));
-  push("#s5 .cam", B(46), B(60), 1.035);
-  seamOut("#s5 .cam", B(60)); gridSlide(B(60));
+  tl.set("#pop", { opacity: 1 }, B(53)); tl.fromTo("#pop", { y: -12, scale: 0.95 }, { y: 0, scale: 1, duration: 0.4, ease: "back.out(1.5)", immediateRender: false }, B(53));
+  tl.to(cur5, { x: chipP.x + 140, y: chipP.y + 220, duration: 0.7, ease: "power2.out" }, B(53));
+  push("#s5 .cam", B(44), B(56), 1.035);
+  seamOut("#s5 .cam", B(56)); gridSlide(B(56));
 
   /* ── S6 agent (60 to 76) ── */
-  seamIn("#s6 .cam", B(60));
+  seamIn("#s6 .cam", B(56));
   const h61 = split($("#s6h1")), h62 = split($("#s6h2")); [...h61, ...h62].forEach((w) => gsap.set(w, { opacity: 0 }));
-  waterIn(h61, B(60) + 0.1);
-  tl.fromTo("#term", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(60));
-  tl.fromTo("#key", { y: 160, rotate: -16 }, { y: 0, rotate: -8, duration: 0.6, ease: "power3.out", immediateRender: false }, B(60.3));
-  tl.to("#key", { y: 10, boxShadow: "0 2px 0 #D3CFC4,0 10px 20px rgba(30,25,10,.2)", duration: 0.09, ease: "power2.in" }, B(61.5));
-  tl.to("#key", { y: 0, boxShadow: "0 10px 0 #D3CFC4,0 26px 40px rgba(30,25,10,.25)", duration: 0.22, ease: "power2.out" }, B(61.5) + 0.09);
-  tl.to("#key", { y: 260, rotate: 8, opacity: 0, duration: 0.6, ease: "power2.in" }, B(63));
+  waterIn(h61, B(56) + 0.1);
+  tl.fromTo("#term", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(56));
+  tl.fromTo("#key", { y: 160, rotate: -16 }, { y: 0, rotate: -8, duration: 0.6, ease: "power3.out", immediateRender: false }, B(56.3));
+  tl.to("#key", { y: 10, boxShadow: "0 2px 0 #D3CFC4,0 10px 20px rgba(30,25,10,.2)", duration: 0.09, ease: "power2.in" }, B(57.3));
+  tl.to("#key", { y: 0, boxShadow: "0 10px 0 #D3CFC4,0 26px 40px rgba(30,25,10,.25)", duration: 0.22, ease: "power2.out" }, B(57.3) + 0.09);
+  tl.to("#key", { y: 60, scale: 0.6, rotate: 8, opacity: 0, duration: 0.45, ease: "power2.in" }, B(59));
   const tlines = $$("#tbody .ln");
-  const tAt = [61.6, 63, 63.6, 64.6, 65.8, 67.2, 68.6, 69.4, 70.8, 72.4];
+  const tAt = [57.4, 59, 59.1, 60.0, 61.1, 62.3, 63.5, 64.2, 65.5, 66.9];
   tlines.forEach((l, i) => lineIn(l, B(tAt[i])));
-  tl.set("#tstat", { textContent: "running" }, B(61.6));
-  tl.to("#tdot", { background: "#8A8F9A", duration: 0.1 }, B(61.6));
-  tl.set("#tstat", { textContent: "paying" }, B(63)); tl.to("#tdot", { background: "#F5A623", duration: 0.1 }, B(63));
-  tl.set("#tstat", { textContent: "paid" }, B(65.8)); tl.to("#tdot", { background: "#2FBF71", duration: 0.1 }, B(65.8));
-  tl.set("#tstat", { textContent: "final" }, B(72.4));
-  waterCut(h61, h62, B(68));
-  tl.fromTo(tlines[9], { scale: 0.96 }, { scale: 1, duration: 0.4, ease: "back.out(1.6)", immediateRender: false }, B(72.4));
-  push("#s6 .cam", B(60), B(76), 1.035);
-  seamOut("#s6 .cam", B(76)); gridSlide(B(76));
+  tl.set("#tstat", { textContent: "running" }, B(57.4));
+  tl.to("#tdot", { background: "#8A8F9A", duration: 0.1 }, B(57.4));
+  tl.set("#tstat", { textContent: "paying" }, B(59)); tl.to("#tdot", { background: "#F5A623", duration: 0.1 }, B(59));
+  tl.set("#tstat", { textContent: "paid" }, B(61.1)); tl.to("#tdot", { background: "#2FBF71", duration: 0.1 }, B(61.1));
+  tl.set("#tstat", { textContent: "final" }, B(66.9));
+  waterCut(h61, h62, B(63));
+  tl.fromTo(tlines[9], { scale: 0.96 }, { scale: 1, duration: 0.4, ease: "back.out(1.6)", immediateRender: false }, B(66.9));
+  push("#s6 .cam", B(56), B(70), 1.035);
+  seamOut("#s6 .cam", B(70)); gridSlide(B(70));
 
   /* ── S7 vault (76 to 90) ── */
-  seamIn("#s7 .cam", B(76));
-  const s7h = split($("#s7 .hl")); s7h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s7h, B(76) + 0.1);
-  tl.fromTo("#vault", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(76));
+  seamIn("#s7 .cam", B(70));
+  const s7h = split($("#s7 .hl")); s7h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s7h, B(70) + 0.1);
+  tl.fromTo("#vault", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(70));
   const vault = $("#vault"), cur7 = $("#cur7"), btn = $("#relbtn"), bp7 = off(btn, vault);
   const vlog = $$("#s7 .vlog .ln");
   gsap.set(cur7, { x: bp7.x + 60, y: vault.offsetHeight + 160 });
   const fill = (n, t, d) => tl.to(`#sp${n} b`, { scaleX: 1, duration: d || 0.3, ease: "power2.out" }, t);
   const lit = (n, t, c) => tl.to(`#sp${n}`, { color: c || "#ECEDEF", duration: 0.2 }, t);
-  fill(1, B(77)); lit(1, B(77)); fill(2, B(77.3)); lit(2, B(77.3), "#F5A623");
-  curTo(cur7, { x: bp7.x, y: bp7.y }, B(77), 0.8);
-  click(cur7, B(78.5)); press(btn, B(78.5));
-  tl.set("#vblock", { opacity: 1 }, B(78.6)); tl.fromTo("#vblock", { x: -16 }, { keyframes: [{ x: 10, duration: 0.06 }, { x: -6, duration: 0.06 }, { x: 0, duration: 0.08 }], immediateRender: false }, B(78.6));
-  tl.to(btn, { background: "#3A2A14", color: "#F5A623", duration: 0.2 }, B(78.6));
-  lineIn(vlog[0], B(78.7));
-  tl.to(cur7, { x: bp7.x + 120, y: bp7.y + 150, duration: 0.7, ease: "power2.out" }, B(80));
-  fill(3, B(81)); lit(3, B(81)); tl.to("#sp3 b", { background: "#2FBF71", duration: 0.1 }, B(81));
-  lineIn(vlog[1], B(81.2));
-  tl.to("#vblock", { opacity: 0, duration: 0.2 }, B(81));
-  fill(4, B(82.3), B(3)); lit(4, B(82.3)); tl.to("#sp4 b", { background: "#2FBF71", duration: 0.1 }, B(82.3));
-  fill(5, B(85.4), 0.25); lit(5, B(85.4), "#2FBF71"); tl.to("#sp5 b", { background: "#2FBF71", duration: 0.1 }, B(85.4));
-  tl.to(btn, { background: "#2FBF71", color: "#06210F", duration: 0.25 }, B(85.6));
-  curTo(cur7, { x: bp7.x, y: bp7.y }, B(85.6), 0.5);
-  click(cur7, B(86.6)); press(btn, B(86.6));
-  tl.set("#vok", { opacity: 1 }, B(86.7)); tl.fromTo("#vok", { x: -20 }, { x: 0, duration: 0.35, ease: "power4.out", immediateRender: false }, B(86.7));
-  lineIn(vlog[2], B(86.8));
-  tl.to(cur7, { x: bp7.x + 160, y: vault.offsetHeight + 200, duration: 0.6, ease: "power2.in" }, B(88));
-  tl.set("#s7 .chains .lab", { opacity: 1 }, B(87.1)); $$("#s7 .cc").forEach((c, i) => { tl.set(c, { opacity: 1 }, B(87.2) + i * 0.1); tl.fromTo(c, { y: 26 }, { y: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(87.2) + i * 0.1); });
-  push("#s7 .cam", B(76), B(90), 1.035);
-  seamOut("#s7 .cam", B(90)); gridSlide(B(90));
+  fill(1, B(71)); lit(1, B(71)); fill(2, B(71.2)); lit(2, B(71.2), "#F5A623");
+  curTo(cur7, { x: bp7.x, y: bp7.y }, B(71), 0.8);
+  click(cur7, B(72.3)); press(btn, B(72.3));
+  tl.set("#vblock", { opacity: 1 }, B(72.4)); tl.fromTo("#vblock", { x: -16 }, { keyframes: [{ x: 10, duration: 0.06 }, { x: -6, duration: 0.06 }, { x: 0, duration: 0.08 }], immediateRender: false }, B(72.4));
+  tl.to(btn, { background: "#3A2A14", color: "#F5A623", duration: 0.2 }, B(72.4));
+  lineIn(vlog[0], B(72.5));
+  tl.to(cur7, { x: bp7.x + 120, y: bp7.y + 150, duration: 0.7, ease: "power2.out" }, B(74));
+  fill(3, B(75)); lit(3, B(75)); tl.to("#sp3 b", { background: "#2FBF71", duration: 0.1 }, B(75));
+  lineIn(vlog[1], B(74.8));
+  tl.to("#vblock", { opacity: 0, duration: 0.2 }, B(75));
+  fill(4, B(75.8), B(2)); lit(4, B(75.8)); tl.to("#sp4 b", { background: "#2FBF71", duration: 0.1 }, B(75.8));
+  fill(5, B(78.7), 0.25); lit(5, B(78.7), "#2FBF71"); tl.to("#sp5 b", { background: "#2FBF71", duration: 0.1 }, B(78.7));
+  tl.to(btn, { background: "#2FBF71", color: "#06210F", duration: 0.25 }, B(78.9));
+  curTo(cur7, { x: bp7.x, y: bp7.y }, B(78.9), 0.5);
+  click(cur7, B(79.8)); press(btn, B(79.8));
+  tl.set("#vok", { opacity: 1 }, B(79.9)); tl.fromTo("#vok", { x: -20 }, { x: 0, duration: 0.35, ease: "power4.out", immediateRender: false }, B(79.9));
+  lineIn(vlog[2], B(80.0));
+  tl.to(cur7, { x: bp7.x + 160, y: vault.offsetHeight + 200, duration: 0.6, ease: "power2.in" }, B(81));
+  tl.set("#s7 .chains .lab", { opacity: 1 }, B(80.3)); $$("#s7 .cc").forEach((c, i) => { tl.set(c, { opacity: 1 }, B(80.4) + i * 0.1); tl.fromTo(c, { y: 26 }, { y: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(80.4) + i * 0.1); });
+  push("#s7 .cam", B(70), B(83), 1.035);
+  seamOut("#s7 .cam", B(83)); gridSlide(B(83));
 
   /* ── S8 trader (90 to 104) ── */
-  seamIn("#s8 .cam", B(90));
-  const s8h = split($("#s8 .hl")); s8h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s8h, B(90) + 0.1);
-  tl.fromTo("#phone", { y: 60, rotate: 3 }, { y: 0, rotate: 0, duration: 0.8, ease: "power3.out", immediateRender: false }, B(90));
-  tl.set("#notif", { opacity: 1 }, B(91.2)); tl.fromTo("#notif", { y: -260, scale: 0.94 }, { y: 0, scale: 1, duration: 0.55, ease: "back.out(1.4)", immediateRender: false }, B(91.2));
+  seamIn("#s8 .cam", B(83));
+  const s8h = split($("#s8 .hl")); s8h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s8h, B(83) + 0.1);
+  tl.fromTo("#phone", { y: 60, rotate: 3 }, { y: 0, rotate: 0, duration: 0.8, ease: "power3.out", immediateRender: false }, B(83));
+  tl.set("#notif", { opacity: 1 }, B(84.1)); tl.fromTo("#notif", { y: -260, scale: 0.94 }, { y: 0, scale: 1, duration: 0.55, ease: "back.out(1.4)", immediateRender: false }, B(84.1));
   const pw8 = $("#phonewrap"), cur8 = $("#cur8"), np = off($("#notif"), pw8);
   gsap.set(cur8, { x: np.x + 260, y: pw8.offsetHeight + 120 });
-  curTo(cur8, { x: np.x + 40, y: np.y + 10 }, B(92), 0.75);
-  click(cur8, B(93.5)); press("#notif", B(93.5));
-  tl.set("#chat", { opacity: 1 }, B(93.8)); tl.fromTo("#chat", { y: 880 }, { y: 0, duration: 0.5, ease: "power4.out", immediateRender: false }, B(93.8));
-  lineIn("#m1", B(94.6)); lineIn("#ib", B(95.2));
+  curTo(cur8, { x: np.x + 40, y: np.y + 10 }, B(85), 0.75);
+  click(cur8, B(86.2)); press("#notif", B(86.2));
+  tl.set("#chat", { opacity: 1 }, B(86.5)); tl.fromTo("#chat", { y: 880 }, { y: 0, duration: 0.5, ease: "power4.out", immediateRender: false }, B(86.5));
+  lineIn("#m1", B(87.3)); lineIn("#ib", B(87.8));
   const ob = off($("#openrec"), pw8);
-  curTo(cur8, { x: ob.x, y: ob.y }, B(95.6), 0.6);
-  click(cur8, B(97)); press("#openrec", B(97));
-  lineIn("#m2", B(97.3));
-  tl.to(cur8, { x: ob.x + 300, y: pw8.offsetHeight + 160, duration: 0.6, ease: "power2.in" }, B(98));
-  lineIn("#m3", B(100.5));
-  tl.fromTo("#m3", { scale: 0.94 }, { scale: 1, duration: 0.4, ease: "back.out(1.6)", immediateRender: false }, B(100.5));
-  push("#s8 .cam", B(90), B(104), 1.035);
-  seamOut("#s8 .cam", B(104)); gridSlide(B(104));
+  curTo(cur8, { x: ob.x, y: ob.y }, B(88.2), 0.6);
+  click(cur8, B(90)); press("#openrec", B(90));
+  lineIn("#m2", B(90.25));
+  tl.to(cur8, { x: ob.x + 300, y: pw8.offsetHeight + 160, duration: 0.6, ease: "power2.in" }, B(91));
+  lineIn("#m3", B(92.8));
+  tl.fromTo("#m3", { scale: 0.94 }, { scale: 1, duration: 0.4, ease: "back.out(1.6)", immediateRender: false }, B(92.8));
+  push("#s8 .cam", B(83), B(96), 1.035);
+  seamOut("#s8 .cam", B(96)); gridSlide(B(96));
 
   /* ── S9 proof (104 to 120) ── */
-  seamIn("#s9 .cam", B(104));
+  seamIn("#s9 .cam", B(96));
   const h91 = split($("#s9h1")), h92 = split($("#s9h2")); [...h91, ...h92].forEach((w) => gsap.set(w, { opacity: 0 }));
-  waterIn(h91, B(104) + 0.1);
-  tl.fromTo("#rec", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(104));
-  tl.fromTo("#ver", { y: 70 }, { y: 0, duration: 0.8, ease: "power3.out", immediateRender: false }, B(104.4));
-  const rl = $$("#rec .ln"); rl.forEach((l, i) => lineIn(l, B(104.6) + i * 0.16));
-  const vl = $$("#ver .ln"); const vAt = [108.5, 110, 111.2, 112.4]; vl.forEach((l, i) => lineIn(l, B(vAt[i])));
-  waterCut(h91, h92, B(112));
-  tl.set("#okbig", { opacity: 1 }, B(113.5)); tl.fromTo("#okbig", { scale: 1.3 }, { scale: 1, duration: 0.45, ease: "back.out(1.6)", immediateRender: false }, B(113.5));
-  push("#s9 .cam", B(104), B(120), 1.035);
-  seamOut("#s9 .cam", B(120)); gridSlide(B(120));
+  waterIn(h91, B(96) + 0.1);
+  tl.fromTo("#rec", { y: 40 }, { y: 0, duration: 0.7, ease: "power3.out", immediateRender: false }, B(96));
+  tl.fromTo("#ver", { y: 70 }, { y: 0, duration: 0.8, ease: "power3.out", immediateRender: false }, B(96.3));
+  const rl = $$("#rec .ln"); rl.forEach((l, i) => lineIn(l, B(96.4) + i * 0.16));
+  const vl = $$("#ver .ln"); const vAt = [99.4, 100, 101.4, 102.3]; vl.forEach((l, i) => lineIn(l, B(vAt[i])));
+  waterCut(h91, h92, B(102));
+  tl.set("#okbig", { opacity: 1 }, B(103.1)); tl.fromTo("#okbig", { scale: 1.12 }, { scale: 1, duration: 0.45, ease: "back.out(1.6)", immediateRender: false }, B(103.1));
+  // after Valid lands, the checked fields light up one by one (the proof keeps performing)
+  rl.slice(1, 9).forEach((l, i) => { tl.fromTo(l, { backgroundColor: "rgba(245,166,35,0)" }, { backgroundColor: "rgba(245,166,35,.16)", duration: 0.16, ease: "power2.out", immediateRender: false }, B(104) + i * 0.09);
+    tl.to(l, { backgroundColor: "rgba(245,166,35,0)", duration: 0.5, ease: "power2.in" }, B(104) + i * 0.09 + 0.3); });
+  tl.fromTo(".sigrow b", { color: "#F5A623" }, { color: "#FFD27A", duration: 0.3, yoyo: true, repeat: 1, immediateRender: false }, B(105.5));
+  push("#s9 .cam", B(96), B(108), 1.035);
+  seamOut("#s9 .cam", B(108)); gridSlide(B(108));
 
   /* ── S10 hub (120 to 134) ── */
   const hsvg = $("#hsvg"); hsvg.setAttribute("viewBox", `0 0 ${W} ${H}`); hsvg.style.width = W + "px"; hsvg.style.height = H + "px";
@@ -892,31 +907,31 @@ function build(){
     const d = `M${x1},${y1} L${cx},${cy}`; const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("stroke", "rgba(20,20,20,.25)"); p.setAttribute("stroke-width", "2.5"); p.setAttribute("stroke-dasharray", "8 10"); hsvg.appendChild(p);
     const q = document.createElementNS(NS, "path"); q.setAttribute("d", d); q.setAttribute("stroke", "#F5A623"); q.setAttribute("stroke-width", "5"); q.setAttribute("stroke-linecap", "round"); hsvg.appendChild(q);
     const L = q.getTotalLength(); q.style.strokeDasharray = `40 ${L + 60}`; q.style.strokeDashoffset = -L; gsap.set(p, { opacity: 0 }); return { p, q, L }; });
-  seamIn("#s10cam", B(120));
-  const s10h = split($("#s10h")); s10h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s10h, B(120) + 0.1);
-  gsap.set(hh, { opacity: 0 }); tl.set(hh, { opacity: 1 }, B(121)); tl.fromTo(hh, { scale: 0.6 }, { scale: AR === "sq" ? 0.8 : 1, duration: 0.5, ease: "back.out(1.6)", immediateRender: false }, B(121));
-  tiles.forEach((t, i) => { gsap.set(t, { opacity: 0 }); const at = B(122 + i * 1.5);
+  seamIn("#s10cam", B(108));
+  const s10h = split($("#s10h")); s10h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s10h, B(108) + 0.1);
+  gsap.set(hh, { opacity: 0 }); tl.set(hh, { opacity: 1 }, B(109)); tl.fromTo(hh, { scale: 0.6 }, { scale: AR === "sq" ? 0.8 : 1, duration: 0.5, ease: "back.out(1.6)", immediateRender: false }, B(109));
+  tiles.forEach((t, i) => { gsap.set(t, { opacity: 0 }); const at = B(110 + i * 1.5);
     tl.set(t, { opacity: 1 }, at); tl.fromTo(t, { scale: 0.8, y: 30 }, { scale: 1, y: 0, duration: 0.45, ease: "back.out(1.5)", immediateRender: false }, at);
     tl.set(hEdges[i].p, { opacity: 1 }, at);
     tl.fromTo(hEdges[i].q, { strokeDashoffset: -hEdges[i].L }, { strokeDashoffset: 40, duration: 0.7, ease: "power2.in", immediateRender: false }, at + 0.2); // answer travels from the hub back out
     tl.fromTo(hEdges[i].q, { strokeDashoffset: 40 }, { strokeDashoffset: -hEdges[i].L, duration: 0.7, ease: "power2.in", immediateRender: false }, at + 0.95);
   });
-  tl.fromTo(hh, { boxShadow: "0 0 0 0 rgba(245,166,35,0)" }, { boxShadow: "0 0 0 18px rgba(245,166,35,.18)", duration: 0.5, ease: "power2.out", immediateRender: false }, B(128.5));
-  push("#s10cam", B(120), B(134), 1.04);
+  tl.fromTo(hh, { boxShadow: "0 0 0 0 rgba(245,166,35,0)" }, { boxShadow: "0 0 0 18px rgba(245,166,35,.18)", duration: 0.5, ease: "power2.out", immediateRender: false }, B(114.1));
+  push("#s10cam", B(108), B(118), 1.04);
   // conclusion rises: exit upward
-  tl.to("#s10cam", { y: -230, duration: 0.3, ease: "power4.in" }, B(134) - 0.3); tl.to("#s10cam", { opacity: 0, duration: 0.2, ease: "none" }, B(134) - 0.21);
+  tl.to("#s10cam", { y: -TRAVEL, duration: 0.3, ease: "power4.in" }, B(118) - 0.3); tl.to("#s10cam", { opacity: 0, duration: 0.2, ease: "none" }, B(118) - 0.21);
 
   /* ── S11 closing line (134 to 144) ── */
-  tl.fromTo("#s11cam", { y: 230, opacity: 0.35 }, { y: 0, opacity: 1, duration: 0.42, ease: "power4.out", immediateRender: false }, B(134));
-  const s11h = split($("#s11h")); s11h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s11h, B(134) + 0.1, 90);
-  push("#s11cam", B(134), B(144), 1.05);
-  tl.to("#s11cam", { scale: 0.86, filter: "blur(10px)", duration: 0.22, ease: "power3.in" }, B(144) - 0.22);
-  tl.to("#s11cam", { opacity: 0.15, duration: 0.22, ease: "none" }, B(144) - 0.22);
+  tl.fromTo("#s11cam", { y: TRAVEL, opacity: 0.35 }, { y: 0, opacity: 1, duration: 0.42, ease: "power4.out", immediateRender: false }, B(118));
+  const s11h = split($("#s11h")); s11h.forEach((w) => gsap.set(w, { opacity: 0 })); waterIn(s11h, B(118) + 0.1, 90);
+  push("#s11cam", B(118), B(124), 1.05);
+  tl.to("#s11cam", { scale: 0.86, filter: "blur(10px)", duration: 0.22, ease: "power3.in" }, B(124) - 0.22);
+  tl.to("#s11cam", { opacity: 0.15, duration: 0.22, ease: "none" }, B(124) - 0.22);
 
   /* ── S12 end card (144 to 150): the arrival ── */
-  tl.fromTo("#s12cam", { scale: 1.25, opacity: 0.15, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "expo.out", immediateRender: false }, B(144));
-  $$("#s12 .urls > *").forEach((u, i) => { gsap.set(u, { opacity: 0 }); tl.set(u, { opacity: 1 }, B(145) + i * 0.07); tl.fromTo(u, { y: 30 }, { y: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(145) + i * 0.07); });
-  tl.fromTo("#s12 .wm", { scale: 1 }, { scale: 1.03, duration: B(6), ease: "none", immediateRender: false }, B(144));
+  tl.fromTo("#s12cam", { scale: 1.25, opacity: 0.15, filter: "blur(10px)" }, { scale: 1, opacity: 1, filter: "blur(0px)", duration: 0.6, ease: "expo.out", immediateRender: false }, B(124));
+  $$("#s12 .urls > *").forEach((u, i) => { gsap.set(u, { opacity: 0 }); tl.set(u, { opacity: 1 }, B(125) + i * 0.07); tl.fromTo(u, { y: 30 }, { y: 0, duration: 0.4, ease: "power4.out", immediateRender: false }, B(125) + i * 0.07); });
+  tl.fromTo("#s12 .wm", { scale: 1 }, { scale: 1.03, duration: B(4.5), ease: "none", immediateRender: false }, B(124));
 
   return tl;
 }

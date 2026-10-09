@@ -2,15 +2,15 @@
 //   node build.mjs [169|sq|vt]   -> index.html at 1920x1080 (default), 1080x1080 or 1080x1920
 // HyperFrames allows one root composition per project, so each aspect is built in turn
 // into index.html and rendered; the committed index.html is the 16:9 master.
-// Scene timing is authored in beats (data-b="from,to" at 130 BPM) and written out
+// Scene timing is authored in beats (data-b="from,to" at 125 BPM) and written out
 // as data-start / data-duration in seconds, so every cut lands on a beat.
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const BEAT = 60 / 130;
-const TOTAL_BEATS = 150;
+const BEAT = 60 / 125;
+const TOTAL_BEATS = 128.5;
 const s = (b) => +(b * BEAT).toFixed(4);
 
 const src = readFileSync(join(HERE, "src/ad.html"), "utf8");
