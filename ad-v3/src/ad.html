@@ -1,0 +1,491 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=__W__, height=__H__" />
+<title>Predge intro v3</title>
+<!-- Source template. build.mjs stamps the size and writes index.html for one aspect.
+     Edit this file (and src/panels.css), never index.html.
+     Cut grammar: a shot list on the 125 BPM grid. Every shot starts with a HARD cut on a
+     beat or half-beat; inside a shot only snaps (punch-ins, word slams, fast counts).
+     On-screen copy rule: no em dashes; numbers only from AD_SPEC.md. -->
+<script src="vendor/gsap.min.js"></script>
+<style>
+/*__PANELS_CSS__*/
+html,body{width:__W__px;height:__H__px;}
+#stage{background:#07070A;overflow:hidden;}
+.bgl,.layer{position:absolute;inset:0;visibility:hidden;}
+.punch,.lcam{position:absolute;inset:0;transform-origin:50% 50%;}
+.lcam{display:flex;align-items:center;justify-content:center;}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:50;}
+
+/* type shots: Don't Blink style kinetic typography */
+.tshot{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 160px;}
+.tshot.bg-K{background:#0B0B0D;} .tshot.bg-A{background:var(--amber);}
+.tshot .t{font-weight:800;letter-spacing:-.045em;line-height:1.0;text-wrap:balance;color:var(--ink);}
+.tshot.bg-K .t,.tshot.bg-D .t{color:#F4F2EC;}
+.tshot .t em{font-style:normal;color:var(--amberInk);}
+.tshot.bg-K .t em,.tshot.bg-D .t em{color:var(--amber);}
+.tshot.bg-A .t em{color:#fff;}
+.tshot .t b{font-weight:inherit;display:inline-block;}
+.tshot.xl .t{font-size:250px;} .tshot.l .t{font-size:156px;} .tshot.m .t{font-size:108px;} .tshot.s .t{font-size:56px;letter-spacing:-.02em;}
+.tshot.n .t.num{font-size:330px;letter-spacing:-.055em;font-variant-numeric:tabular-nums;line-height:.9;}
+.tshot.n .lab{margin-top:34px;font-size:64px;font-weight:700;letter-spacing:-.025em;line-height:1.12;color:var(--ink);text-wrap:balance;}
+.tshot.bg-K .lab{color:#F4F2EC;}
+.tshot .lab b{font-weight:inherit;display:inline-block;}
+.tshot .bar{margin-top:40px;width:1100px;max-width:100%;height:26px;border-radius:13px;background:rgba(0,0,0,.14);overflow:hidden;}
+.tshot .bar i{display:block;width:33.5%;height:100%;background:#0B0B0D;transform-origin:0 50%;}
+.tshot .chips{display:flex;gap:22px;align-items:center;flex-wrap:wrap;justify-content:center;}
+.tshot .persona{height:160px;font-size:88px;padding:0 64px 0 36px;border-radius:80px;gap:28px;margin:0;}
+.tshot .persona i{width:96px;height:96px;} .tshot .persona i svg{width:52px;height:52px;}
+.tshot .persona.soon{padding:0 40px;}
+.tshot .cc{height:110px;padding:0 44px 0 28px;border-radius:55px;background:#fff;border:1px solid rgba(0,0,0,.08);display:flex;align-items:center;gap:18px;font-size:48px;font-weight:800;}
+.tshot .cc i{width:44px;height:44px;border-radius:50%;}
+.tshot .wm{width:1180px;max-width:100%;}
+.tshot .tag{margin-top:46px;font-size:54px;font-weight:600;letter-spacing:-.02em;color:#F1EEE6;}
+.tshot .tag em{font-style:normal;color:var(--amber);}
+.tshot .urls{margin-top:60px;display:flex;gap:26px;align-items:center;flex-wrap:wrap;justify-content:center;font-size:44px;font-weight:700;color:#E9E6DE;}
+.tshot .urls i{width:10px;height:10px;border-radius:50%;background:var(--amber);}
+.keycap.big{position:relative;left:auto;top:auto;width:420px;height:360px;border-radius:64px;padding:44px 52px;font-size:52px;
+  box-shadow:0 24px 0 #D3CFC4,0 60px 90px rgba(30,25,10,.28);}
+.keycap.big .sym{font-size:150px;}
+
+/* diagrams laid out by script inside a fixed box */
+.dbox{position:relative;}
+.dbox > svg{position:absolute;left:0;top:0;overflow:visible;}
+.dbox .node,.dbox .tile{position:absolute;}
+
+/* labels */
+.illus{z-index:40;visibility:hidden;color:var(--ink2);}
+
+/* 1:1 and 9:16 */
+.ar-sq .tshot,.ar-vt .tshot{padding:0 72px;}
+.ar-sq .tshot.xl .t{font-size:160px;} .ar-sq .tshot.l .t{font-size:104px;} .ar-sq .tshot.m .t{font-size:76px;} .ar-sq .tshot.s .t{font-size:40px;}
+.ar-vt .tshot.xl .t{font-size:180px;} .ar-vt .tshot.l .t{font-size:120px;} .ar-vt .tshot.m .t{font-size:88px;} .ar-vt .tshot.s .t{font-size:46px;}
+.ar-sq .tshot.n .t.num{font-size:220px;} .ar-vt .tshot.n .t.num{font-size:250px;}
+.ar-sq .tshot.n .lab{font-size:44px;} .ar-vt .tshot.n .lab{font-size:54px;}
+.ar-sq .tshot .persona,.ar-vt .tshot .persona{height:110px;font-size:56px;}
+.ar-sq .tshot .persona i,.ar-vt .tshot .persona i{width:66px;height:66px;}
+.ar-sq .tshot .cc,.ar-vt .tshot .cc{height:84px;font-size:40px;}
+.ar-sq .tshot .wm,.ar-vt .tshot .wm{width:900px;}
+.ar-sq .tshot .tag{font-size:40px;} .ar-vt .tshot .tag{font-size:46px;}
+.ar-sq .tshot .urls,.ar-vt .tshot .urls{flex-direction:column;gap:12px;font-size:40px;} .ar-sq .tshot .urls i,.ar-vt .tshot .urls i{display:none;}
+.ar-sq .illus,.ar-vt .illus{right:30px;bottom:24px;font-size:15px;}
+/* r4: one black ground for the whole film */
+.tshot .t,.tshot.n .lab{color:#F4F2EC;}
+.tshot .t em{color:var(--amber);}
+.tshot.amber .t.num{color:var(--amber);}
+.tshot .bar{background:rgba(255,255,255,.14);} .tshot .bar i{background:var(--amber);}
+.tshot .foot{margin-top:40px;font-family:var(--mono);font-size:30px;color:#9A9DA6;letter-spacing:.01em;}
+.ar-sq .tshot .foot,.ar-vt .tshot .foot{font-size:24px;}
+.panel{border-color:rgba(255,255,255,.16);box-shadow:0 40px 120px -20px rgba(245,166,35,.10),0 0 0 1px rgba(255,255,255,.04);}
+.phone{box-shadow:0 0 0 2px #2A2C31 inset,0 40px 120px -20px rgba(245,166,35,.12);}
+.illus{color:#8A8F9A;}
+.keycap.big{box-shadow:0 24px 0 #8f8b80,0 60px 90px rgba(0,0,0,.5);}
+</style>
+</head>
+<body>
+<div id="root" class="ar-__AR__" data-composition-id="main" data-start="0" data-duration="__TOTAL__" data-width="__W__" data-height="__H__">
+ <div id="stage" class="clip" data-start="0" data-duration="__TOTAL__" data-track-index="0">
+  <div class="bgl" id="bgD"><div class="dark-bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="leak"></div><div class="vign"></div><div class="grain"></div></div></div>
+
+  <div class="layer ul" id="Lmcard"><div class="punch"><div class="lcam"><div class="panel mcard" id="mcard">
+        <div class="mc-body">
+          <div class="mc-top"><div class="mc-ball"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#F5A623" stroke-width="1.8"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5v19M5.3 5.3c3.6 3.2 3.6 10.2 0 13.4M18.7 5.3c-3.6 3.2-3.6 10.2 0 13.4"/></svg></div>Polymarket · College basketball<span class="id">#1137824</span></div>
+          <div class="mc-title">Montana Grizzlies vs. Idaho Vandals</div>
+          <div class="mc-sub">Total points · O/U 151.5</div>
+          <div class="mc-outs"><div class="out" id="outOver">Over <small>O 151.5</small></div><div class="out" id="outUnder">Under <small>U 151.5</small></div></div>
+          <div class="mc-status">
+            <div class="st" id="stProp"><i class="sdot" id="dotProp"></i>Outcome proposed: <b>Under</b><span class="tm">challenge window open</span></div>
+            <div class="winbar" id="winbar"><i id="winfill"></i></div>
+            <div class="st st-disp" id="stDisp"><i class="sdot" style="background:var(--amber)"></i><b>Disputed</b><span class="tm">9 Jan 2026 · 04:38 UTC</span></div>
+            <div class="st st-final" id="stFinal"><i class="sdot" style="background:var(--good)"></i>Settled on-chain: <b>Over</b><span class="tm">UMA · Polygon</span></div>
+          </div>
+        </div>
+        <div class="slam" id="slam">DISPUTED</div>
+      </div></div></div></div>
+  <div class="layer ul" id="Lgraph"><div class="punch"><div class="lcam"><div class="dbox" id="gbox"><svg id="gsvg"></svg><div class="node in" id="n1"><i>OO</i>UMA Optimistic Oracle</div><div class="node in" id="n2"><i>CTF</i>Polymarket UMA adapter</div><div class="node in" id="n3"><i>POL</i>Polygon logs</div><div class="node out" id="o1"><i>sig</i>Signed record</div><div class="node out" id="o2"><i>402</i>API · x402</div><div class="node out" id="o3"><i>get</i>Free signed check</div><div class="node out" id="o4"><i>sol</i>On-chain guard</div><div class="node hub" id="nhub"><div class="wmm">__WORDMARK__</div></div></div></div></div></div>
+  <div class="layer ul" id="Ldesk"><div class="punch"><div class="lcam"><div class="panel desk" id="desk">
+        <div class="chrome"><i class="d"></i><i class="d"></i><i class="d"></i><span class="ttl">Collateral · prediction market positions</span><span class="rt"><i class="sdot" id="feedDot" style="background:var(--good)"></i>Predge risk feed</span></div>
+        <div class="tbl">
+          <div class="tr th"><div>Market</div><div style="text-align:right">Value</div><div style="text-align:right">LTV</div><div style="text-align:right">Settlement</div></div>
+          <div class="tr" id="r1"><div class="rowhl" id="r1hl"></div><div class="mk">Grizzlies vs. Vandals<small>O/U 151.5 · Over</small></div><div class="num">$48,200</div><div class="ltv" id="ltv1">60%</div>
+            <div class="sett"><span class="chip c-grey" id="c1a"><i class="sdot"></i>Proposed</span><span class="chip c-amber" id="c1b" style="opacity:0"><i class="sdot" style="background:var(--amber)"></i>Disputed</span></div></div>
+          <div class="tr" id="r2"><div class="mk">Rate decision, December<small>Yes</small></div><div class="num">$31,800</div><div class="ltv">55%</div><div class="sett"><span class="chip c-good"><i class="sdot" style="background:var(--good)"></i>Final</span></div></div>
+          <div class="tr" id="r3"><div class="mk">Season MVP<small>Candidate A</small></div><div class="num">$22,400</div><div class="ltv">50%</div><div class="sett"><span class="chip c-grey"><i class="sdot"></i>Open</span></div></div>
+        </div>
+        <div class="deskfoot"><span>Borrowing power</span><span class="tag" id="paused" style="opacity:0;color:var(--amber)">Grizzlies vs. Vandals paused until final</span><span class="bp" id="bp">$57,610</span></div>
+        <div class="toast" id="toast"><div class="ti">P</div><div><b>Settlement risk: disputed</b><span>market 1137824 · proposal Under</span></div></div>
+        <div class="pop" id="pop"><b>1 dispute · waiting for final</b><div>Proposal Under was disputed. A new proposal must settle on-chain.</div><div class="k">signed by predge.io · ed25519</div></div>
+        <div class="cursor" id="cur5">__CURSOR__</div>
+      </div></div></div></div>
+  <div class="layer ul" id="Lkey"><div class="punch"><div class="lcam"><div class="keycap big" id="keybig">return<span class="sym">&#9166;</span></div></div></div></div>
+  <div class="layer ul" id="Lterm"><div class="punch"><div class="lcam"><div class="panel term" id="term">
+        <div class="chrome"><i class="d"></i><i class="d"></i><i class="d"></i><span class="ttl">agent · settle-check</span><span class="rt"><i class="sdot" id="tdot"></i><span id="tstat">idle</span></span></div>
+        <div class="tbody" id="tbody">
+          <div class="ln"><span class="p">&gt;</span><span class="wh">GET api.predge.io/v1/signals/consensus</span></div>
+          <div class="ln"><span class="dm">&lt;</span><span class="r">402 Payment Required</span><span class="dm">0.03 USDC</span></div>
+          <div class="ln"><span class="dm"> </span><span class="dm">accepts Base · Arc · Solana · Algorand</span></div>
+          <div class="ln"><span class="p">&gt;</span><span class="wh">x402 pay 0.03 USDC on Arc</span></div>
+          <div class="ln"><span class="dm">&lt;</span><span class="g">200 OK</span><span class="dm">signed JSON</span></div>
+          <div class="ln"><span class="p">&gt;</span><span class="wh">GET /v1/settlement-risk/1137824</span></div>
+          <div class="ln"><span class="dm">&lt;</span><span class="g">200 OK</span><span class="dm">free · signed ed25519</span></div>
+          <div class="ln"><span class="dm"> </span><span class="dm">risk_level</span><span class="wh">resolved</span><span class="dm">outcome</span><span class="wh">Over</span></div>
+          <div class="ln"><span class="p">&gt;</span><span class="wh">verify signature</span><span class="g">valid</span></div>
+          <div class="ln dec"><span class="g">decision</span><span>outcome is final, safe to act</span></div>
+        </div>
+      </div></div></div></div>
+  <div class="layer ul" id="Lvault"><div class="punch"><div class="lcam"><div class="panel vault" id="vault">
+        <div class="chrome"><i class="d"></i><i class="d"></i><i class="d"></i><span class="ttl">Escrow vault</span><span class="rt mono" style="font-size:15px">check_settlement · Solana devnet</span></div>
+        <div class="vbody">
+          <div class="vlab">Settles on</div>
+          <div class="vmk">Montana Grizzlies vs. Idaho Vandals · O/U 151.5</div>
+          <div class="vamt"><b>12,500</b><span>USDC locked</span></div>
+          <div class="steps">
+            <div class="step" id="sp1"><i><b></b></i>Proposed</div><div class="step" id="sp2"><i><b></b></i>Disputed</div><div class="step" id="sp3"><i><b></b></i>Settled</div><div class="step" id="sp4"><i><b></b></i>Cooling</div><div class="step" id="sp5"><i><b></b></i>Final</div>
+          </div>
+          <div class="vrow"><div class="btn" id="relbtn">Release</div><div class="vmsg" id="vblock" style="color:var(--bad)">Blocked: MarketDisputed</div><div class="vmsg" id="vok" style="color:var(--good);position:absolute;margin-left:262px">Released · 12,500 USDC</div></div>
+          <div class="vlog">
+            <div class="ln"><span class="dm">vault.release</span><span class="r">reverted · MarketDisputed</span></div>
+            <div class="ln"><span class="dm">guard</span><span class="wh">settled on-chain · cooling period</span></div>
+            <div class="ln"><span class="dm">vault.release</span><span class="g">ok · funds released</span></div>
+          </div>
+        </div>
+        <div class="cursor" id="cur7">__CURSOR__</div>
+      </div></div></div></div>
+  <div class="layer ul" id="Lphone"><div class="punch"><div class="lcam"><div class="phonewrap" id="phonewrap" style="position:relative"><div class="phone" id="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="lock"><div class="tme">4:39</div><div class="dt">Friday, 9 January</div></div>
+        <div class="notif" id="notif"><div class="ai">P</div><div><b>Predge alerts</b><span>A market you watch was disputed: Grizzlies vs. Vandals O/U 151.5</span></div></div>
+        <div class="chat" id="chat">
+          <div class="ch"><div class="av">P</div><div><b>Predge alerts</b><span>@predge_alerts_bot</span></div></div>
+          <div class="msgs">
+            <div class="msg" id="m1"><div class="t am">Disputed</div>Montana Grizzlies vs. Idaho Vandals · O/U 151.5<div class="mm">proposal Under · 9 Jan, 04:38 UTC</div><div class="mm">not final yet</div></div>
+            <div class="ibtns" id="ib"><div id="openrec">Open record</div><div>Mute</div></div>
+            <div class="msg" id="m2"><div class="t">Signed record</div>dispute_count 1 · not final<div class="mm">kid 13fa3d18a369e6c7</div></div>
+            <div class="msg" id="m3"><div class="t gd">Final: Over</div>Settled on-chain. Nothing left to settle.</div>
+          </div>
+        </div>
+      </div></div><div class="cursor" id="cur8">__CURSOR__</div></div></div></div></div>
+  <div class="layer ul" id="Lrec"><div class="punch"><div class="lcam"><div class="panel rec" id="rec">
+          <div class="chrome"><i class="d"></i><i class="d"></i><i class="d"></i><span class="ttl">settlement-risk/1137824.json</span></div>
+          <div class="tbody">
+            <div class="ln"><span class="dm">{</span></div>
+            <div class="ln"><span>  <span class="jk">"issuer"</span>: <span class="js">"predge.io"</span>,</span></div>
+            <div class="ln"><span>  <span class="jk">"chain"</span>: <span class="js">"polygon"</span>,</span></div>
+            <div class="ln"><span>  <span class="jk">"market_id"</span>: <span class="js">"1137824"</span>,</span></div>
+            <div class="ln"><span>  <span class="jk">"dispute_count"</span>: <span class="js">"1"</span>,</span></div>
+            <div class="ln"><span>  <span class="jk">"disputed_proposal"</span>: <span class="js">"Under"</span>,</span></div>
+            <div class="ln"><span>  <span class="jk">"onchain_resolution"</span>: <span class="js">"Over"</span>,</span></div>
+            <div class="ln"><span>  <span class="jk">"uma_state"</span>: <span class="js">"settled"</span>,</span></div>
+            <div class="ln"><span>  <span class="jk">"risk_level"</span>: <span class="js">"resolved"</span></span></div>
+            <div class="ln"><span class="dm">}</span></div>
+            <div class="sigrow ln" style="display:block">ed25519 <b>8c5a4c46...67379209</b><br>kid 13fa3d18a369e6c7</div>
+          </div>
+        </div></div></div></div>
+  <div class="layer ul" id="Lver"><div class="punch"><div class="lcam"><div class="panel ver" id="ver">
+          <div class="chrome"><i class="d"></i><i class="d"></i><i class="d"></i><span class="ttl">verify · offline</span><span class="rt"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8A8F9A" stroke-width="2"><path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M3 3l18 18"/></svg></span></div>
+          <div class="tbody">
+            <div class="ln"><span class="p">$</span><span class="wh">verify record.json</span></div>
+            <div class="ln vline"><span class="dm">canonical</span><span class="g">keys sorted ✓</span></div>
+            <div class="ln vline"><span class="dm">ed25519</span><span class="g">signature valid ✓</span></div>
+            <div class="ln vline"><span class="dm">network</span><span class="g">none used ✓</span></div>
+            <div class="okbig" id="okbig"><i><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0B2A18" stroke-width="3.2"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></i>Valid</div>
+          </div>
+        </div></div></div></div>
+  <div class="layer ul" id="Lhub"><div class="punch"><div class="lcam"><div class="dbox" id="hbox"><svg id="hsvg"></svg><div class="node hub" id="hhub"><div class="wmm">__WORDMARK__</div></div><div class="tile" id="t1"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><path d="M3 10l9-6 9 6M5 10v9M19 10v9M9.5 10v9M14.5 10v9M3 20h18"/></svg></i><div>Lending desks<small>price settlement risk</small></div></div><div class="tile" id="t2"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg></i><div>Agents<small>check before they act</small></div></div><div class="tile" id="t3"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="12" cy="12" r="3.2"/></svg></i><div>Vaults<small>release only when final</small></div></div><div class="tile" id="t4"><i><svg viewBox="0 0 24 24" fill="none" stroke="#B87100" stroke-width="2.2"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg></i><div>Traders<small>alerts coming soon</small></div></div></div></div></div></div>
+  <div id="types"></div>
+
+  <div class="illus" id="illus1">Product illustration</div>
+  <div class="illus" id="illus2">Product illustration · coming soon</div>
+  <div class="flash" id="flash"></div>
+ </div>
+</div>
+
+<script>
+document.fonts.ready.then(function(){
+const BPM = 125, BEAT = 60 / BPM;
+// beat -> time, snapped to the frame the cut must appear on (30 fps): a cut at beat n shows on
+// frame round(n * BEAT * 30), never a frame late
+const B = (n) => Math.round(n * BEAT * 30) / 30 - 0.001;
+const AR = "__AR__", W = __W__, H = __H__;
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const WM = $("#nhub .wmm").innerHTML;
+const ICON = {
+  desk: '<svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><path d="M3 10l9-6 9 6M5 10v9M19 10v9M9.5 10v9M14.5 10v9M3 20h18"/></svg>',
+  agent: '<svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M9 12h.01M15 12h.01M9 16h6"/></svg>',
+  vault: '<svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="12" cy="12" r="3.2"/></svg>',
+  trader: '<svg viewBox="0 0 24 24" fill="none" stroke="#1A1205" stroke-width="2.4"><path d="M4 17l5-6 4 3 7-8"/><path d="M15 6h5v5"/></svg>',
+};
+const persona = (k, label, soon) => `<div class="chips"><div class="persona"><i>${ICON[k]}</i>${label}</div>${soon ? '<div class="persona soon">Coming soon</div>' : ""}</div>`;
+
+/* ── THE SHOT LIST ───────────────────────────────────────────────────────────
+   [beat, kind, spec]. A shot runs until the next shot's beat (hard cut). One black ground for
+   the whole film; amber only as an accent. Default shot 2 beats, a full bar for long lines and UI.
+   T = type {size, html, steps}: each <b> builds in on its step (beats from the cut), nothing is replaced.
+   N = number {num, lab, count}. U = UI {layer, focus: selectors | null (whole panel), acts: [[beat offset, action]]}. */
+const T = (b, size, html, steps) => [b, "T", { size, html, steps }];
+const N = (b, num, lab, count, o) => [b, "N", Object.assign({ num, lab, count }, o || {})];
+const U = (b, layer, focus, acts, o) => [b, "U", Object.assign({ layer, focus, acts }, o || {})];
+const S = [
+  // INTRO (track intro)
+  [0, "T", { size: "m", html: `<div class="wm">${WM}</div>`, arrive: true }],
+  T(4, "xl", "<b>Settlement risk</b> <b>for <em>prediction markets.</em></b>", [0, 1]),
+  // DROP 1: the hook
+  T(8, "xl", "<b>A market resolves.</b>"),
+  U(10, "Lmcard", null, [[0, "prop"]]),
+  U(12, "Lmcard", null, [[0, "disp"]]),
+  T(14, "xl", "<b>Someone disputes it.</b>"),
+  U(16, "Lmcard", ["#stDisp"], [], { narrow: ["#stDisp .sdot", "#stDisp b"] }),
+  T(18, "xl", "<b>Resolved</b> <b>is <em>not final.</em></b>", [0, 1]),
+  U(22, "Lmcard", ["#stFinal"], [[0, "final"]]),
+  T(24, "xl", "<b>Predge reads the dispute</b> <b><em>on-chain.</em></b>", [0, 1]),
+  U(28, "Lgraph", null, [[0, "gin"], [1, "ghub"]]),
+  U(30, "Lgraph", null, [[0, "gout"]]),
+  // DROP 2: the numbers
+  N(32, "3,005", "UMA disputes on Polymarket.", [0, 3005]),
+  N(34, "2,666", "markets disputed.", [0, 2666]),
+  N(36, "323", "disputed twice or more", [0, 323]),
+  N(38, "323", "sent to a UMA vote."),
+  N(40, "33.5%", "of settled disputed markets", [0, 33.5, 1, "%"], { amber: true, bar: true }),
+  [42, "T", { size: "l", html: '<div class="t"><b>settled differently from the <em>disputed proposal.</em></b></div><div class="foot">853 of 2,543 · 1 Jan to 2 Oct 2026 · read on-chain</div>' }],
+  // A LENDING DESK
+  [44, "T", { size: "m", html: persona("desk", "A lending desk") }],
+  T(46, "xl", "<b>Price the risk</b> <b><em>before it settles.</em></b>", [0, 1]),
+  U(50, "Ldesk", null, [[0, "toast"]], { illus: 1 }),
+  U(52, "Ldesk", ["#r1"], [[0, "chip"], [0, "ltv"]], { illus: 1, narrow: ["#ltv1", "#c1b"] }),
+  U(54, "Ldesk", [".deskfoot"], [[0, "bp"]], { illus: 1, narrow: ["#paused", "#bp"] }),
+  // AN AGENT
+  [56, "T", { size: "m", html: persona("agent", "An agent") }],
+  T(58, "xl", "<b>Agents pay <em>per call.</em></b>"),
+  U(60, "Lkey", null, [[0, "key"]], { illus: 1 }),
+  U(62, "Lterm", ["#tbody .ln:nth-child(1)", "#tbody .ln:nth-child(4)"], [[0, "t402"], [0, "tpay"]], { illus: 1 }),
+  T(64, "xl", "<b>No account. <em>No API key.</em></b>"),
+  U(66, "Lterm", ["#tbody .ln:nth-child(5)", "#tbody .ln:nth-child(8)"], [[0, "t200"], [0, "tcheck"]], { illus: 1 }),
+  U(68, "Lterm", ["#tbody .ln:nth-child(9)", "#tbody .ln:nth-child(10)"], [[0, "tverify"], [0, "tdec"]], { illus: 1 }),
+  // A VAULT
+  [70, "T", { size: "m", html: persona("vault", "A vault") }],
+  T(72, "xl", "<b>Funds wait <em>for final.</em></b>"),
+  U(74, "Lvault", null, [[0, "vaim"]], { illus: 1 }),
+  U(76, "Lvault", [".vrow", ".vlog .ln:nth-child(1)"], [[0, "vblock"], [0, "vlog1"]], { illus: 1 }),
+  U(78, "Lvault", [".steps"], [[0, "vsettled"], [0.5, "vcool"], [1, "vfinal"]], { illus: 1 }),
+  U(80, "Lvault", [".vrow"], [[0, "vrelease"]], { illus: 1, narrow: ["#relbtn", "#vok"] }),
+  // A TRADER (coming soon)
+  [82, "T", { size: "m", html: persona("trader", "A trader", true) }],
+  T(84, "xl", "<b>Know before it</b> <b><em>costs you.</em></b>", [0, 1]),
+  U(88, "Lphone", null, [[0, "notif"]], { illus: 2 }),
+  U(90, "Lphone", ["#m1", "#ib"], [[0, "chat"], [1, "tap"]], { illus: 2 }),
+  U(92, "Lphone", ["#m2", "#m3"], [[0, "m2"], [0, "m3"]], { illus: 2 }),
+  T(94, "xl", "<b>Coming soon to <em>@predge_alerts_bot</em></b>"),
+  // PROOF
+  T(96, "xl", "<b>Every answer <em>is signed.</em></b>"),
+  U(98, "Lrec", null, [[0, "rec"]]),
+  U(100, "Lrec", ["#rec .ln:nth-child(6)", "#rec .sigrow"], []),
+  T(102, "xl", "<b>Verify, <em>don't trust.</em></b>"),
+  U(104, "Lver", null, [[0, "v1"], [0, "v2"], [0, "v3"]]),
+  U(106, "Lver", ["#okbig"], [[0, "valid"]]),
+  // ONE ANSWER
+  T(108, "xl", "<b>One signed answer:</b> <b><em>is it final?</em></b>", [0, 1]),
+  U(112, "Lhub", null, [[0, "h1"], [0.5, "h2"], [1, "h3"], [1.5, "h4"], [2, "hglow"]]),
+  [116, "T", { size: "l", html: `<div class="t" style="margin-bottom:44px">Contracts on</div><div class="chips"><div class="cc"><i style="background:linear-gradient(135deg,#9945FF,#14F195)"></i>Solana</div><div class="cc"><i style="background:#1E3A8A"></i>Arc</div><div class="cc"><i style="background:#28A0F0"></i>Arbitrum One</div></div>` }],
+  // CLOSE
+  T(118, "xl", "<b>Know when an outcome</b> <b>is <em>actually final.</em></b>", [0, 2]),
+  [124, "T", { size: "m", html: `<div class="wm">${WM}</div>`, arrive: true }],
+  [126, "T", { size: "m", html: `<div class="wm">${WM}</div><div class="urls"><span class="u">predge.io</span><i></i><span class="u">app.predge.io</span><i></i><span class="u">@PredgeAI</span></div>`, urls: true }],
+];
+const END = 128.5;
+const FLASH = [8, 32];
+const SECTIONS = [44, 56, 70, 82, 96, 108, 118];
+
+/* ── build the type-shot DOM ── */
+const types = $("#types");
+S.forEach((s, i) => {
+  if (s[1] !== "T" && s[1] !== "N") return;
+  const o = s[2], el = document.createElement("div");
+  el.className = `layer tshot bg-D ${s[1] === "N" ? "n" : (o.size || "l")}${o.amber ? " amber" : ""}`;
+  if (s[1] === "T") el.innerHTML = o.html.startsWith("<div") ? o.html : `<div class="t">${o.html}</div>`;
+  else el.innerHTML = `<div class="t num">${o.num}</div>${o.lab ? `<div class="lab">${o.lab}</div>` : ""}${o.bar ? '<div class="bar"><i></i></div>' : ""}`;
+  types.appendChild(el); s.el = el;
+});
+
+/* fit every type shot inside the frame with room for the slam overshoot */
+const PADX = AR === "169" ? 160 : 72;
+$$(".tshot").forEach((ly) => {
+  $$(".t, .lab, .num", ly).forEach((el) => { let fs = parseFloat(getComputedStyle(el).fontSize), n = 0;
+    el.style.maxWidth = Math.round((W - 2 * PADX) * 0.9) + "px";
+    while ((el.scrollWidth > el.clientWidth + 1 || el.offsetHeight > H * 0.62) && n++ < 40) { fs *= 0.95; el.style.fontSize = fs + "px"; } }); });
+
+/* ── lay out the two diagrams ── */
+const NS = "http://www.w3.org/2000/svg";
+const wide = AR === "169";
+function placeAll(box, items, w, h) { box.style.width = w + "px"; box.style.height = h + "px";
+  items.forEach(([sel, x, y]) => { const e = $(sel); e.style.left = x + "px"; e.style.top = y + "px"; }); }
+function rectIn(e) { return { x: e.offsetLeft, y: e.offsetTop, w: e.offsetWidth, h: e.offsetHeight }; }
+function edge(svg, d) { const p = document.createElementNS(NS, "path"); p.setAttribute("d", d); p.setAttribute("fill", "none"); p.setAttribute("stroke", "rgba(255,255,255,.26)"); p.setAttribute("stroke-width", "3"); svg.appendChild(p);
+  const q = document.createElementNS(NS, "path"); q.setAttribute("d", d); q.setAttribute("fill", "none"); q.setAttribute("stroke", "#F5A623"); q.setAttribute("stroke-width", "6"); q.setAttribute("stroke-linecap", "round"); svg.appendChild(q);
+  const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; q.style.strokeDasharray = `60 ${L + 80}`; q.style.strokeDashoffset = 60; return { p, q, L }; }
+const gbox = $("#gbox"), gsvg = $("#gsvg");
+if (wide) placeAll(gbox, [["#n1", 0, 40], ["#n2", 0, 200], ["#n3", 0, 360], ["#nhub", 600, 180], ["#o1", 1180, 0], ["#o2", 1180, 140], ["#o3", 1180, 280], ["#o4", 1180, 420]], 1520, 500);
+else placeAll(gbox, [["#n1", 0, 0], ["#n2", 0, 120], ["#n3", 0, 240], ["#nhub", 230, 440], ["#o1", 0, 720], ["#o2", 470, 720], ["#o3", 0, 840], ["#o4", 470, 840]], 900, 920);
+const gIn = [], gOut = [];
+{ const hub = rectIn($("#nhub"));
+  ["#n1", "#n2", "#n3"].forEach((s) => { const r = rectIn($(s));
+    gIn.push(edge(gsvg, wide ? `M${r.x + r.w},${r.y + r.h / 2} C${(r.x + r.w + hub.x) / 2},${r.y + r.h / 2} ${(r.x + r.w + hub.x) / 2},${hub.y + hub.h / 2} ${hub.x},${hub.y + hub.h / 2}`
+      : `M${r.x + r.w},${r.y + r.h / 2} C${hub.x + hub.w / 2},${r.y + r.h / 2} ${hub.x + hub.w / 2},${r.y + r.h / 2} ${hub.x + hub.w / 2},${hub.y}`)); });
+  ["#o1", "#o2", "#o3", "#o4"].forEach((s) => { const r = rectIn($(s));
+    gOut.push(edge(gsvg, wide ? `M${hub.x + hub.w},${hub.y + hub.h / 2} C${(hub.x + hub.w + r.x) / 2},${hub.y + hub.h / 2} ${(hub.x + hub.w + r.x) / 2},${r.y + r.h / 2} ${r.x},${r.y + r.h / 2}`
+      : `M${hub.x + hub.w / 2},${hub.y + hub.h} C${hub.x + hub.w / 2},${r.y - 60} ${r.x + r.w / 2},${hub.y + hub.h + 60} ${r.x + r.w / 2},${r.y}`)); }); }
+const hbox = $("#hbox"), hsvg = $("#hsvg");
+if (wide) placeAll(hbox, [["#hhub", 470, 290], ["#t1", 0, 0], ["#t2", 1010, 0], ["#t3", 0, 560], ["#t4", 1010, 560]], 1340, 710);
+else placeAll(hbox, [["#hhub", 260, 420], ["#t1", 0, 0], ["#t2", 570, 0], ["#t3", 0, 810], ["#t4", 570, 810]], 900, 960);
+const hEdges = ["#t1", "#t2", "#t3", "#t4"].map((s) => { const r = rectIn($(s)), hub = rectIn($("#hhub"));
+  return edge(hsvg, `M${r.x + r.w / 2},${r.y + r.h / 2} L${hub.x + hub.w / 2},${hub.y + hub.h / 2}`); });
+[gsvg, hsvg].forEach((s) => { s.setAttribute("width", s.parentElement.offsetWidth); s.setAttribute("height", s.parentElement.offsetHeight); });
+
+/* ── camera: frame a set of elements, optionally cropping to them ── */
+function offTL(e, anc) { let x = 0, y = 0, n = e; while (n && n !== anc) { x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; } return { x, y }; }
+function frame(layer, sels, o) {
+  const cam = $(".lcam", layer);
+  const els = sels ? sels.map((s) => $(s, layer)) : [cam.firstElementChild];
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  // a terminal/log line is a full-width flex row: frame the text it actually holds
+  const boxes = els.flatMap((e) => e.classList.contains("ln") && getComputedStyle(e).display === "flex" && e.children.length ? Array.from(e.children).filter((c) => c.textContent.trim()) : [e]);
+  boxes.forEach((e) => { const p = offTL(e, cam); x0 = Math.min(x0, p.x); y0 = Math.min(y0, p.y); x1 = Math.max(x1, p.x + e.offsetWidth); y1 = Math.max(y1, p.y + e.offsetHeight); });
+  const pad = sels ? (o.pad ?? 8) : 0, uw = x1 - x0 + 2 * pad, uh = y1 - y0 + 2 * pad;
+  const full = !sels;
+  const s = Math.min((full ? 0.86 : (AR === "vt" ? 0.9 : 0.84)) * W / uw, (full ? 0.8 : 0.62) * H / uh, full ? 1.6 : 3.2);
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  const f = { s, x: -(cx - W / 2) * s, y: -(cy - H / 2) * s, crop: "none" };
+  if (!full) { const hw = uw * s / 2, hh = uh * s / 2; f.crop = `inset(${H / 2 - hh}px ${W / 2 - hw}px ${H / 2 - hh}px ${W / 2 - hw}px round 16px)`; }
+  return f;
+}
+
+/* ── timeline ── */
+const tl = gsap.timeline({ paused: true });
+const LAYERS = $$(".layer");
+const fmt = (v, d) => Number(v).toLocaleString("en-US", { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+const count = (el, from, to, t, dur, dec, suf, pre) => { const o = { v: from };
+  tl.to(o, { v: to, duration: dur, ease: "power2.out", onUpdate: () => { el.textContent = (pre || "") + fmt(o.v, dec) + (suf || ""); } }, t); };
+const set = (el, v, t) => tl.set(el, v, t);
+const slam = (el, t, from) => tl.fromTo(el, { scale: from || 1.4, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.12, ease: "power4.out", immediateRender: false }, t);
+const lineOn = (el, t) => set(el, { opacity: 1 }, t);
+const WHIP = Math.round(W * 0.06);
+const cut = { times: [], shots: [] };
+
+/* in-shot actions: each one snaps the product state forward at the cut */
+const P = (sel) => $(sel);
+const cur = (c, to, t) => { tl.fromTo(c, { x: to.x + 110, y: to.y + 150 }, { x: to.x, y: to.y, duration: 0.2, ease: "power3.out", immediateRender: false }, t);
+  tl.to(c, { scale: 0.84, duration: 0.07, ease: "power2.in", transformOrigin: "12% 8%" }, t + 0.22); tl.to(c, { scale: 1, duration: 0.14, ease: "power2.out" }, t + 0.29); };
+const centerIn = (e, anc) => { const p = offTL(e, anc); return { x: p.x + e.offsetWidth / 2, y: p.y + e.offsetHeight / 2 }; };
+const ACT = {
+  prop: (t) => { lineOn("#stProp", t); set("#winbar", { opacity: 1 }, t); tl.fromTo("#winfill", { scaleX: 1 }, { scaleX: 0.6, duration: B(2), ease: "none", immediateRender: false }, t); set("#outUnder", { borderColor: "rgba(236,237,239,.6)" }, t); },
+  disp: (t) => { set("#winbar", { opacity: 0 }, t); lineOn("#stDisp", t); set("#dotProp", { background: "#F5A623" }, t); set("#outUnder", { borderColor: "#F5A623" }, t);
+    set("#slam", { opacity: 1 }, t); tl.fromTo("#slam", { scale: 1.06, rotate: -8 }, { scale: 1, rotate: -6, duration: 0.16, ease: "power4.out", immediateRender: false }, t); },
+  final: (t) => { set("#slam", { opacity: 0 }, t); lineOn("#stFinal", t); set("#outUnder", { borderColor: "rgba(0,0,0,0)", opacity: 0.45 }, t); set("#outOver", { borderColor: "#2FBF71", background: "rgba(47,191,113,.14)" }, t); },
+  gin: (t) => { gIn.forEach((e, i) => { set(e.p, { strokeDashoffset: 0 }, t); tl.fromTo(e.q, { strokeDashoffset: 60 }, { strokeDashoffset: -e.L, duration: BEAT * 0.9, ease: "power2.in", immediateRender: false }, t + i * 0.04); }); },
+  ghub: (t) => { slam("#nhub", t, 1.25); gIn.forEach((e) => tl.fromTo(e.q, { strokeDashoffset: 60 }, { strokeDashoffset: -e.L, duration: BEAT * 0.9, ease: "power2.in", immediateRender: false }, t)); },
+  gout: (t) => { gOut.forEach((e, i) => { set(e.p, { strokeDashoffset: 0 }, t); tl.fromTo(e.q, { strokeDashoffset: 60 }, { strokeDashoffset: -e.L, duration: BEAT * 0.9, ease: "power2.in", immediateRender: false }, t + i * 0.04); });
+    ["#o1", "#o2", "#o3", "#o4"].forEach((s) => set(s, { opacity: 1 }, t)); },
+  toast: (t) => { set("#toast", { opacity: 1 }, t); set("#feedDot", { background: "#F5A623" }, t); slam("#toast", t, 1.15); },
+  chip: (t) => { set("#toast", { opacity: 0 }, t); set("#c1a", { opacity: 0 }, t); slam("#c1b", t, 1.6); set("#r1hl", { opacity: 1 }, t); },
+  ltv: (t) => { set("#ltv1", { color: "#F5A623" }, t); count(P("#ltv1"), 60, 0, t, BEAT * 0.5, 0, "%"); },
+  bp: (t) => { count(P("#bp"), 57610, 28690, t, BEAT * 0.5, 0, "", "$"); set("#paused", { opacity: 1 }, t); },
+  pop: (t) => { const d = P("#desk"), c = centerIn(P("#c1b"), d); cur(P("#cur5"), c, t); set("#pop", { left: Math.min(c.x - 300, d.offsetWidth - 460), top: c.y + 34 }, t);
+    set("#pop", { opacity: 1 }, t + 0.3); slam("#pop", t + 0.3, 1.1); },
+  key: (t) => { tl.fromTo("#keybig", { y: 0, boxShadow: "0 24px 0 #D3CFC4,0 60px 90px rgba(30,25,10,.28)" }, { y: 22, boxShadow: "0 2px 0 #D3CFC4,0 20px 40px rgba(30,25,10,.2)", duration: 0.08, ease: "power2.in", immediateRender: false }, t + BEAT * 0.5);
+    tl.to("#keybig", { y: 0, boxShadow: "0 24px 0 #D3CFC4,0 60px 90px rgba(30,25,10,.28)", duration: 0.14, ease: "power2.out" }, t + BEAT * 0.5 + 0.08); },
+  t402: (t) => { [1, 2, 3].forEach((n) => lineOn(`#tbody .ln:nth-child(${n})`, t)); set("#tstat", { textContent: "paying" }, t); set("#tdot", { background: "#F5A623" }, t); },
+  tpay: (t) => lineOn("#tbody .ln:nth-child(4)", t),
+  t200: (t) => { lineOn("#tbody .ln:nth-child(5)", t); set("#tstat", { textContent: "paid" }, t); set("#tdot", { background: "#2FBF71" }, t); },
+  tcheck: (t) => { [6, 7, 8].forEach((n) => lineOn(`#tbody .ln:nth-child(${n})`, t)); },
+  tverify: (t) => lineOn("#tbody .ln:nth-child(9)", t),
+  tdec: (t) => { lineOn("#tbody .ln:nth-child(10)", t); set("#tstat", { textContent: "final" }, t); slam("#tbody .ln:nth-child(10)", t, 1.12); },
+  vaim: (t) => { const v = P("#vault"); cur(P("#cur7"), centerIn(P("#relbtn"), v), t); fillStep(1, t, "#F5A623"); fillStep(2, t, "#F5A623"); },
+  vblock: (t) => { set("#relbtn", { background: "#3A2A14", color: "#F5A623" }, t); set("#vblock", { opacity: 1 }, t);
+    tl.fromTo("#vblock", { x: -18 }, { keyframes: [{ x: 12, duration: 0.05 }, { x: -6, duration: 0.05 }, { x: 0, duration: 0.06 }], immediateRender: false }, t); set("#cur7", { opacity: 0 }, t); },
+  vlog1: (t) => lineOn(".vlog .ln:nth-child(1)", t),
+  vsettled: (t) => { fillStep(3, t, "#2FBF71"); lineOn(".vlog .ln:nth-child(2)", t); set("#vblock", { opacity: 0 }, t); },
+  vcool: (t) => fillStep(4, t, "#2FBF71", BEAT * 0.8),
+  vfinal: (t) => { fillStep(5, t, "#2FBF71"); set("#relbtn", { background: "#2FBF71", color: "#06210F" }, t); },
+  vrelease: (t) => { set("#cur7", { opacity: 1 }, t); cur(P("#cur7"), centerIn(P("#relbtn"), P("#vault")), t); set("#vok", { opacity: 1 }, t + 0.3); slam("#vok", t + 0.3, 1.2); lineOn(".vlog .ln:nth-child(3)", t + 0.3); },
+  notif: (t) => { set("#notif", { opacity: 1 }, t); tl.fromTo("#notif", { y: -120 }, { y: 0, duration: 0.18, ease: "power4.out", immediateRender: false }, t); },
+  chat: (t) => { set("#chat", { opacity: 1 }, t); lineOn("#m1", t); lineOn("#ib", t); },
+  tap: (t) => { cur(P("#cur8"), centerIn(P("#openrec"), P("#phonewrap")), t); },
+  m2: (t) => { set("#cur8", { opacity: 0 }, t); lineOn("#m2", t); slam("#m2", t, 1.1); },
+  m3: (t) => { lineOn("#m3", t); slam("#m3", t, 1.15); },
+  rec: (t) => $$("#rec .ln").forEach((l) => lineOn(l, t)),
+  v1: (t) => { lineOn("#ver .ln:nth-child(1)", t); lineOn("#ver .ln:nth-child(2)", t); },
+  v2: (t) => lineOn("#ver .ln:nth-child(3)", t),
+  v3: (t) => lineOn("#ver .ln:nth-child(4)", t),
+  valid: (t) => { set("#okbig", { opacity: 1 }, t); slam("#okbig", t, 1.12); },
+  h1: (t) => hubTile(0, t), h2: (t) => hubTile(1, t), h3: (t) => hubTile(2, t), h4: (t) => hubTile(3, t),
+  hglow: (t) => { hEdges.forEach((e) => tl.fromTo(e.q, { strokeDashoffset: -e.L }, { strokeDashoffset: 60, duration: BEAT * 0.9, ease: "power2.in", immediateRender: false }, t));
+    set("#hhub", { boxShadow: "0 0 0 18px rgba(245,166,35,.22)" }, t); slam("#hhub", t, 1.15); },
+};
+function fillStep(n, t, c, d) { set(`#sp${n} b`, { background: c }, t); tl.fromTo(`#sp${n} b`, { scaleX: 0 }, { scaleX: 1, duration: d || 0.14, ease: "power2.out", immediateRender: false }, t); set(`#sp${n}`, { color: n === 2 ? "#F5A623" : "#ECEDEF" }, t); }
+function hubTile(i, t) { const tile = $(`#t${i + 1}`); set(tile, { opacity: 1 }, t); slam(tile, t, 1.25); set(hEdges[i].p, { strokeDashoffset: 0 }, t);
+  tl.fromTo(hEdges[i].q, { strokeDashoffset: 60 }, { strokeDashoffset: -hEdges[i].L, duration: BEAT * 0.9, ease: "power2.in", immediateRender: false }, t); }
+
+/* initial product states (hidden until a shot reveals them) */
+gsap.set(["#stProp", "#stDisp", "#stFinal", "#winbar", "#slam", "#toast", "#pop", "#paused", "#vblock", "#vok", "#notif", "#chat", "#m1", "#ib", "#m2", "#m3", "#okbig", "#o1", "#o2", "#o3", "#o4", "#t1", "#t2", "#t3", "#t4"], { opacity: 0 });
+gsap.set("#c1b", { opacity: 0 });
+gsap.set(["#cur5", "#cur7", "#cur8"], { x: -400, y: -400 });
+
+/* background motion (only seen on dark shots) */
+tl.fromTo("#bgD .b1", { x: -160, y: -80 }, { x: 220, y: 120, duration: B(END), ease: "none" }, 0);
+tl.fromTo("#bgD .b2", { x: 180, y: 60 }, { x: -240, y: -120, duration: B(END), ease: "none" }, 0);
+tl.fromTo("#bgD .b3", { x: 0, y: 120 }, { x: 160, y: -80, duration: B(END), ease: "none" }, 0);
+tl.fromTo("#bgD .leak", { x: 0 }, { x: 3600, duration: B(8), ease: "none" }, 0);
+tl.fromTo("#bgD .grain", { x: 0, y: 0 }, { x: 237, y: -173, duration: B(END), ease: `steps(${Math.round(B(END) * 15)})` }, 0);
+
+let prevLayer = null;
+gsap.set("#bgD", { visibility: "visible" });
+// after the opener the glow settles down so type and panels own the frame
+tl.to("#bgD .blob", { opacity: 0.5, duration: 0.3, ease: "none" }, B(8));
+S.forEach((s, i) => {
+  const b = s[0], kind = s[1], o = s[2], t = B(b), tEnd = B(i + 1 < S.length ? S[i + 1][0] : END);
+  const layer = kind === "U" ? $("#" + o.layer) : s.el;
+  cut.times.push(t); cut.shots.push({ b, dur: (tEnd - t) / BEAT, kind });
+  // HARD CUT: exactly one layer visible, always on the same black ground
+  LAYERS.forEach((l) => { if (l === layer || l === prevLayer) set(l, { visibility: l === layer ? "visible" : "hidden" }, t); });
+  set("#illus1", { visibility: o.illus === 1 ? "visible" : "hidden" }, t);
+  set("#illus2", { visibility: o.illus === 2 ? "visible" : "hidden" }, t);
+  prevLayer = layer;
+  let body;
+  if (kind === "U") {
+    (o.acts || []).forEach(([off, name]) => ACT[name](t + off * BEAT));
+    const f = frame(layer, AR !== "169" && o.narrow ? o.narrow : o.focus, o);
+    set($(".lcam", layer), { scale: f.s, x: f.x, y: f.y }, t);
+    set(layer, { clipPath: f.crop }, t);
+    body = $(".punch", layer);
+    tl.fromTo(body, { scale: o.focus ? 0.94 : 1.04 }, { scale: 1, duration: 0.16, ease: "power4.out", immediateRender: false }, t);
+  } else {
+    body = layer.firstElementChild;
+    // words build in on their beats (capped overshoot so a scaled word never leaves the frame)
+    $$("b", layer).forEach((p, k) => { const at = t + ((o.steps && o.steps[k]) || 0) * BEAT;
+      const r = p.getBoundingClientRect(), hw = r.width / 2, hh = r.height / 2, cx = r.left + hw, cy = r.top + hh;
+      const cap = Math.min(r.width > W * 0.3 ? 1.08 : 1.3, (cx - 8) / hw, (W - 8 - cx) / hw, (cy - 8) / hh, (H - 8 - cy) / hh);
+      if (at > t) set(p, { opacity: 0 }, t);
+      slam(p, at, Math.max(1, cap)); });
+    if (kind === "N" && o.count) count($(".num", layer), o.count[0], o.count[1], t, BEAT * 0.5, o.count[2] || 0, o.count[3] || "");
+    if (o.bar) tl.fromTo($(".bar i", layer), { scaleX: 0 }, { scaleX: 1, duration: BEAT, ease: "power2.out", immediateRender: false }, t);
+    if (o.arrive) tl.fromTo(body, { scale: 1.12, filter: "blur(10px)" }, { scale: 1, filter: "blur(0px)", duration: 0.3, ease: "expo.out", immediateRender: false }, t);
+    if (o.urls) $$(".urls > *", layer).forEach((u, k) => { set(u, { opacity: 0 }, t); set(u, { opacity: 1 }, t + k * 0.5 * BEAT); });
+  }
+  // a slow push-in for the rest of the shot
+  const t0 = t + (o.arrive ? 0.3 : 0.16);
+  tl.fromTo(body, { scale: 1 }, { scale: 1.03, duration: Math.max(0.1, tEnd - t0), ease: "none", immediateRender: false }, t0);
+  // whip only at section boundaries
+  if (SECTIONS.includes(b)) tl.fromTo(layer, { x: WHIP, filter: "blur(12px)" }, { x: 0, filter: "blur(0px)", duration: 0.12, ease: "power3.out", immediateRender: false }, t);
+});
+// flash frames on the drops (2 frames)
+FLASH.forEach((b) => { set("#flash", { opacity: 0.9 }, B(b)); set("#flash", { opacity: 0 }, B(b) + 2 / 30); });
+gsap.set("#flash", { opacity: 0 });
+window.__shots = cut;
+
+window.__timelines["main"] = tl;
+});
+</script>
+</body>
+</html>
