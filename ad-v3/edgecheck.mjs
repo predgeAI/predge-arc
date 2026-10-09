@@ -1,5 +1,6 @@
 // Usage: node build.mjs <ar> && node edgecheck.mjs $PWD/index.html <width> <height>  (prints "clean" or each offending frame)
 // Seek the composition frame by frame and report any visible text that crosses the frame edge.
+// Text inside a clip-path crop window is skipped: the window itself is computed inside the frame.
 import { pathToFileURL } from "node:url";
 const PW = process.env.PLAYWRIGHT || "/Users/amir/Documents/Playground/iapm-applyreset/node_modules/playwright/index.js";
 const CHROME = process.env.CHROME || "/Users/amir/Library/Caches/ms-playwright/chromium-1228/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing";
@@ -20,7 +21,10 @@ const res = await p.evaluate(({ W, H }) => {
     for (const c of clips) { const s = +c.dataset.start, d = +c.dataset.duration; c.style.visibility = t >= s && t < s + d ? "visible" : "hidden"; }
     for (const e of leaves) {
       let o = 1, n = e, vis = true;
-      while (n && n.nodeType === 1) { const cs = getComputedStyle(n); o *= +cs.opacity; if (cs.visibility === "hidden" || cs.display === "none") vis = false; n = n.parentElement; }
+      let clipped = false;
+      while (n && n.nodeType === 1) { const cs = getComputedStyle(n); o *= +cs.opacity; if (cs.visibility === "hidden" || cs.display === "none") vis = false; if (cs.clipPath && cs.clipPath !== "none") clipped = true; n = n.parentElement; }
+      // inside a crop window (clip-path inset, always inside the frame) only the window can show
+      if (clipped) continue;
       if (!vis || o < 0.04) continue;
       const r = e.getBoundingClientRect(); if (!r.width) continue;
       if (r.left < -1 || r.top < -1 || r.right > W + 1 || r.bottom > H + 1) out.push(`${t.toFixed(2)} op=${o.toFixed(2)} "${e.textContent.trim().slice(0, 30)}" [${r.left|0},${r.top|0},${r.right|0},${r.bottom|0}]`);
