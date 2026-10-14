@@ -95,7 +95,8 @@ Receipts: `deployments/arc-mainnet/live-loop-*.json`.
 | Contract | Address | What |
 |---|---|---|
 | `PredgeAgentValidator` | [`0xA15337574F97…675Ad967`](https://testnet.arcscan.app/address/0xA15337574F97856Ce253671E946aD5c9675Ad967) | Native **ERC-8004 Validation Registry** with commit-before-outcome |
-| `PredgeValidatorBond` | [`0xCDd95Bd9…55d2acF`](https://testnet.arcscan.app/address/0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF) | Slashable USDC bond (testnet, pre-2026-09-18 design; see the mainnet table for the current one) |
+| `PredgeValidatorBond` v2.1 (2026-10-15) | [`0x032B045a…2E1246b5`](https://testnet.arcscan.app/address/0x032B045aB8f652829125882f4022328B2e1246b5) | Slashable USDC bond, **same code as Arc mainnet v2.1**: dispute window of 1 day, counted from the verdict. Source verified on the explorer. Record: `deployments/arc-testnet/PredgeValidatorBond.json` |
+| `PredgeValidatorBond` v1 (retired) | [`0xCDd95Bd9…55d2acF`](https://testnet.arcscan.app/address/0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF) | Old August demo bond: 1 s window counted from the stake. Do not use |
 | `AgentJob` | [`0x77DdcEe7…0Ed19Aaa`](https://testnet.arcscan.app/address/0x77DdcEe79Ca671f7Af36ff73A055900A0Ed19Aaa) | Minimal **ERC-8183 job** where Predge fills the evaluator seat |
 
 Three commands, each one an on-chain live run:
