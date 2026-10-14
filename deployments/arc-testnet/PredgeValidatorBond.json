@@ -1,0 +1,31 @@
+{
+  "address": "0x032B045aB8f652829125882f4022328B2e1246b5",
+  "deployer": "0xEc7A344741C03b390684B162B7E49d35C9Be6223",
+  "chainId": 5042002,
+  "deployTx": "0x0b81fbe7dd37c4d260c8f32c8700a1afab065ae286118ecfb8a76387ebe7c5aa",
+  "deployBlock": 67221205,
+  "deployedAt": "2026-10-14T21:12:51Z",
+  "args": [
+    "0xEc7A344741C03b390684B162B7E49d35C9Be6223",
+    "0x77DdcEe79Ca671f7Af36ff73A055900A0Ed19Aaa",
+    "86400"
+  ],
+  "version": "v2.1",
+  "source": "predge-robinhood@bc57c52:contracts/PredgeValidatorBond.sol",
+  "sourceVerified": "https://explorer.testnet.arc.io/address/0x032B045aB8f652829125882f4022328B2e1246b5?tab=contract (full match, solc 0.8.26, optimizer 200, cancun)",
+  "runtimeKeccak": "0xb93818ee3985125848636cbfdff7fb79d813133df3e9284a4953f825198c2c2c",
+  "sameCodeAs": "Arc mainnet v2.1 0xfeE8b89eb8aa2499F7025Cd9aaEB13a4b046d0d1 (same artifact; only the immutable job address differs)",
+  "replaces": "0xCDd95Bd9a0f0C5dc7a4E0bf196Af6374055d2acF (v1, disputeWindow 1 s, window counted from the stake)",
+  "fix": "Dispute window is counted from recordScore (the verdict), not from stakeAndCommit. Window = 86400 s (1 day), same as mainnet.",
+  "smoke": {
+    "jobId": "5",
+    "createJob": "https://testnet.arcscan.app/tx/0xf1475f598f56e6f5c3277fc200b980cfcabb213c27cd2863863c007eaaf68939",
+    "stakeAndCommit": "https://testnet.arcscan.app/tx/0x5531d78691cab56ef9cdd6b4aca20957b25158b668e031fcca49f61af6adc672",
+    "providerSubmit": "https://testnet.arcscan.app/tx/0x85a982f1ee40c23be35424623a74cb1c040e3e0f53d02be0bf65478173cf672f",
+    "recordScore100": "https://testnet.arcscan.app/tx/0x9d468dc3f999c53e403d9864149696612ac268e8a5ec86f9689d1ae466c60b83",
+    "bond": "0.001 test USDC",
+    "reclaimRightAfterVerdict": "reverts WindowOpen",
+    "challengeOfHonestVerdict": "reverts VerdictHonest"
+  },
+  "purpose": "Novi Corpus pilot: the testnet demo runs the same bond code as Arc mainnet"
+}
