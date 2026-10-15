@@ -1,6 +1,7 @@
 // PoC + fix proof for the reclaim-window flaw in PredgeValidatorBond.
 //
-// The deployed bond measures the dispute window from `stakedAt` (the moment the bond is posted),
+// The pre-2026-10-03 bond (v2, source 41c2c6e, still on chain at the retired addresses) measured
+// the dispute window from `stakedAt` (the moment the bond is posted),
 // not from `recordScore` (the moment the verdict a challenge checks actually exists). Because
 // `recordScore` carries no deadline, a validator can:
 //   1. stakeAndCommit(expected = E),
@@ -12,9 +13,9 @@
 // had a window to challenge it. The bond's whole purpose — a verdict that stays challengeable for
 // a day — is defeated, and a dishonest validator keeps its stake.
 //
-// The fix runs the window from `scoredAt`. This file compiles the CURRENTLY-DEPLOYED source
-// (git HEAD) and the PATCHED working tree, and shows the escape succeeds on the former and is
-// closed on the latter.
+// The fix (v2.1, live since 2026-10-03) runs the window from `scoredAt`. This file compiles the
+// v2 source and the current source, and shows the escape succeeds on the former and is closed on
+// the latter. Exact-second boundaries are in bond-window-from-verdict.test.mjs.
 //
 //   node test/bond-reclaim-window.test.mjs
 import assert from "node:assert/strict";
